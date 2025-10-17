@@ -23,7 +23,9 @@ async function fetchCategories() {
 
 export default function CategoryGrid() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<{ id: string; name: string; image: string }[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; name: string; image: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

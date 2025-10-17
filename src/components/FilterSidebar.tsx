@@ -24,7 +24,10 @@ export default function FilterSidebar() {
           <h3 className="font-medium text-text-primary mb-2">{title}</h3>
           <div className="space-y-1">
             {options.map((opt) => (
-              <label key={opt} className="flex items-center space-x-2 text-sm text-text-secondary">
+              <label
+                key={opt}
+                className="flex items-center space-x-2 text-sm text-text-secondary"
+              >
                 <input
                   type="checkbox"
                   checked={selected.includes(opt)}
