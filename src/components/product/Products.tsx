@@ -20,7 +20,7 @@ console.log("SubCategory Data in Products:", subCategoryData);
         <p className="text-sm text-text-secondary mb-6">
           Showing results for:{" "}
           <span className="font-medium text-primary">
-            {subCategoryData?.subCategoryId || "all"}
+            {subCategoryData?.subCategoryName || "all"}
           </span>
         </p>
 

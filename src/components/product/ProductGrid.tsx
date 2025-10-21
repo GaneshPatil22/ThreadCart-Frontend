@@ -1,7 +1,7 @@
-// import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import { useState, useEffect, useCallback } from "react";
-import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
+import { EmptyState, ErrorState } from "../CategoryGrid";
+import ShortProductDetail from "./ShortProductDetail";
 
 interface SubCategoryData {
   subCategoryId?: string;
@@ -24,19 +24,11 @@ interface ProductModel {
 
 async function fetchProducts(subCategoryId?: string) {
   let query = supabase.from("product").select("*");
-
-  if (subCategoryId) {
-    query = query.eq("sub_cat_id", subCategoryId);
-  }
+  if (subCategoryId) query = query.eq("sub_cat_id", subCategoryId);
 
   const res = await query;
-  if (res.error) {
-    throw new Error(res.error.message);
-  }
-
-  if (!res.data) {
-    throw new Error("No data received from server");
-  }
+  if (res.error) throw new Error(res.error.message);
+  if (!res.data) throw new Error("No data received from server");
 
   return res.data.map((product: ProductModel) => ({
     id: product.id,
@@ -50,13 +42,21 @@ async function fetchProducts(subCategoryId?: string) {
 }
 
 export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
-  // const navigate = useNavigate();
   const [products, setProducts] = useState<
-    { id: string; name: string; image: string; desc: string }[]
+    {
+      id: string;
+      name: string;
+      image: string;
+      desc: string;
+      dimensions: string;
+      quantity: number;
+      price: number;
+    }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-console.log("RECEIVED SubCategory Data in ProductGrid:", subCategoryData);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+
   const loadProducts = useCallback(() => {
     setLoading(true);
     setError(null);
@@ -64,7 +64,7 @@ console.log("RECEIVED SubCategory Data in ProductGrid:", subCategoryData);
     fetchProducts(subCategoryData?.subCategoryId)
       .then(setProducts)
       .catch((e) => {
-        console.error("Error fetching categories:", e);
+        console.error("Error fetching products:", e);
         setError(e.message || "An unexpected error occurred");
       })
       .finally(() => setLoading(false));
@@ -74,62 +74,89 @@ console.log("RECEIVED SubCategory Data in ProductGrid:", subCategoryData);
     loadProducts();
   }, [loadProducts]);
 
-  // const handleSubCategoryClick = (cat: {
-  //   id: string;
-  //   name: string;
-  //   desc: string;
-  // }) => {
-  //   navigate(`/products`, {
-  //     state: {
-  //       categoryId: cat.id,
-  //       categoryName: cat.name,
-  //       description: cat.desc,
-  //     },
-  //   });
-  // };
+  const toggleExpand = (id: string) => {
+    setExpandedRow((prev) => (prev === id ? null : id));
+  };
+
+  if (loading)
+    return (
+      <div className="text-center py-10 text-gray-500">Loading products...</div>
+    );
+
+  if (error) return <ErrorState message={error} onRetry={loadProducts} />;
+
+  if (products.length === 0) return <EmptyState />;
 
   return (
     <section className="py-14 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <CategorySkeleton key={i} />
-            ))}
-          </div>
-        )}
+      <div className="max-w-6xl mx-auto px-6">
+        <h2 className="text-2xl font-semibold text-text-primary mb-6">
+          Products
+        </h2>
 
-        {error && <ErrorState message={error} onRetry={loadProducts} />}
+        <div className="overflow-hidden border-t border-gray-200">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="text-left border-b border-gray-200 bg-gray-50">
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/2">
+                  Name
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/4">
+                  Price
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/4">
+                  Dimensions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <>
+                  {/* Main Row */}
+                  <tr
+                    key={p.id}
+                    className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => toggleExpand(p.id)}
+                  >
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.name}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      ₹{p.price}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.dimensions || "-"}
+                    </td>
+                  </tr>
 
-        {!loading && !error && products.length === 0 && <EmptyState />}
-
-        {!loading && !error && products.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {products.map((cat) => (
-              <div
-                key={cat.id}
-                // onClick={() => handleSubCategoryClick(cat)}
-                className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-32 object-contain"
-                  onError={(e) => {
-                    // Fallback for broken images
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/200x128?text=No+Image";
-                  }}
-                />
-                <div className="p-3 text-center">
-                  <p className="text-sm font-medium text-text-primary">
-                    {cat.name}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  {/* Expandable Row */}
+                  <tr
+                    className={`transition-all duration-300 ease-in-out ${
+                      expandedRow === p.id
+                        ? "opacity-100"
+                        : "opacity-0 pointer-events-none"
+                    }`}
+                  >
+                    <td colSpan={3} className="p-0 border-b border-gray-200">
+                      <div
+                        className={`overflow-hidden transition-[max-height] duration-300 ${
+                          expandedRow === p.id ? "max-h-[400px]" : "max-h-0"
+                        }`}
+                      >
+                        <ShortProductDetail
+                          name={p.name}
+                          image={p.image}
+                          desc={p.desc}
+                          quantity={p.quantity}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
