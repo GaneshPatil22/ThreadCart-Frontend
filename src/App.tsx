@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
 import Products from "./components/Products";
+import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/subcategory" element={<SubCategoryHome/>}/>
           {/* more routes */}
         </Routes>
       </div>
