@@ -36,7 +36,7 @@ export default function Hero() {
         </div>
 
         <Link
-          to="/products"
+          to="/subcategory"
           className="inline-block mt-8 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-hover font-medium"
         >
           Shop Now

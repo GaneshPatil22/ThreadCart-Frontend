@@ -1,29 +1,32 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import { useState, useEffect, useCallback } from "react";
 import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
 
-interface CategoryData {
-  categoryId?: string;
-  categoryName?: string;
+interface SubCategoryData {
+  subCategoryId?: string;
+  subCategoryName?: string;
 }
 
 interface SubCategoryGridProps {
-  categoryData?: CategoryData;
+  subCategoryData?: SubCategoryData;
 }
 
-interface SubCategory {
+interface ProductModel {
   id: string;
   name: string;
   image_url: string;
   description: string;
+  price: number;
+  quantity: number;
+  dummy_dimensions: string;
 }
 
-async function fetchSubCategories(categoryId?: string) {
-  let query = supabase.from("sub-categories").select("*");
+async function fetchProducts(subCategoryId?: string) {
+  let query = supabase.from("product").select("*");
 
-  if (categoryId) {
-    query = query.eq("category_id", categoryId);
+  if (subCategoryId) {
+    query = query.eq("sub_cat_id", subCategoryId);
   }
 
   const res = await query;
@@ -35,56 +38,55 @@ async function fetchSubCategories(categoryId?: string) {
     throw new Error("No data received from server");
   }
 
-  return res.data.map((subCat: SubCategory) => ({
-    id: subCat.id,
-    name: subCat.name,
-    image: subCat.image_url,
-    desc: subCat.description,
+  return res.data.map((product: ProductModel) => ({
+    id: product.id,
+    name: product.name,
+    image: product.image_url,
+    desc: product.description,
+    price: product.price,
+    quantity: product.quantity,
+    dimensions: product.dummy_dimensions,
   }));
 }
 
-export default function SubCategoryGrid({
-  categoryData,
-}: SubCategoryGridProps) {
-  const navigate = useNavigate();
-  const [subCategories, setSubCategories] = useState<
+export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
+  // const navigate = useNavigate();
+  const [products, setProducts] = useState<
     { id: string; name: string; image: string; desc: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const loadSubCategories = useCallback(() => {
+console.log("RECEIVED SubCategory Data in ProductGrid:", subCategoryData);
+  const loadProducts = useCallback(() => {
     setLoading(true);
     setError(null);
 
-    fetchSubCategories(categoryData?.categoryId)
-      .then(setSubCategories)
+    fetchProducts(subCategoryData?.subCategoryId)
+      .then(setProducts)
       .catch((e) => {
         console.error("Error fetching categories:", e);
         setError(e.message || "An unexpected error occurred");
       })
       .finally(() => setLoading(false));
-  }, [categoryData?.categoryId]);
+  }, [subCategoryData?.subCategoryId]);
 
   useEffect(() => {
-    loadSubCategories();
-  }, [loadSubCategories]);
+    loadProducts();
+  }, [loadProducts]);
 
-  const handleSubCategoryClick = (cat: {
-    id: string;
-    name: string;
-    desc: string;
-  }) => {
-    console.log("Navigating to products with sub-category:", cat);
-
-    navigate(`/products`, {
-      state: {
-        subCategoryId: cat.id,
-        subCategoryName: cat.name,
-        description: cat.desc,
-      },
-    });
-  };
+  // const handleSubCategoryClick = (cat: {
+  //   id: string;
+  //   name: string;
+  //   desc: string;
+  // }) => {
+  //   navigate(`/products`, {
+  //     state: {
+  //       categoryId: cat.id,
+  //       categoryName: cat.name,
+  //       description: cat.desc,
+  //     },
+  //   });
+  // };
 
   return (
     <section className="py-14 bg-white">
@@ -97,16 +99,16 @@ export default function SubCategoryGrid({
           </div>
         )}
 
-        {error && <ErrorState message={error} onRetry={loadSubCategories} />}
+        {error && <ErrorState message={error} onRetry={loadProducts} />}
 
-        {!loading && !error && subCategories.length === 0 && <EmptyState />}
+        {!loading && !error && products.length === 0 && <EmptyState />}
 
-        {!loading && !error && subCategories.length > 0 && (
+        {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {subCategories.map((cat) => (
+            {products.map((cat) => (
               <div
                 key={cat.id}
-                onClick={() => handleSubCategoryClick(cat)}
+                // onClick={() => handleSubCategoryClick(cat)}
                 className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
               >
                 <img

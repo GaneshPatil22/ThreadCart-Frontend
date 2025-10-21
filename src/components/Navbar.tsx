@@ -12,7 +12,7 @@ export default function Navbar() {
             <span className="font-semibold text-lg text-white">Thread Cart</span>
           </Link>
 
-          <Link to="/products" className="text-white hover:text-blue-200">
+          <Link to="/subcategory" className="text-white hover:text-blue-200">
             Catalog
           </Link>
           <a href="#" className="text-white hover:text-blue-50">
