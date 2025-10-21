@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../config/api";
+import supabase from "../utils/supabase";
 
 // Match the API response structure
 interface Category {
-  identifier: string;
+  id: string;
   name: string;
   image_url: string;
 }
 
 async function fetchCategories() {
-  const res = await fetch(api.getCategories());
-  if (!res.ok) throw new Error("Failed to fetch categories");
-  const data = await res.json();
+  const res = await supabase.from("categories").select();
+  console.log(res);
   // Map API response to UI-friendly structure
-  return data.data.map((cat: Category) => ({
-    id: cat.identifier,
+  return res.data!.map((cat: Category) => ({
+    id: cat.id,
     name: cat.name,
     image: cat.image_url,
   }));
@@ -44,7 +43,7 @@ export default function CategoryGrid() {
       },
     });
   };
-
+  console.log(categories);
   return (
     <section className="py-14 bg-white">
       <div className="max-w-7xl mx-auto px-6">
