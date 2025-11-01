@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import Home from "./components/Home";
 import Products from "./components/product/Products";
 import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
+import { AddItem } from "./components/AddItems/AddItem";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/subcategory" element={<SubCategoryHome />} />
+          <Route path="/add_item" element={<AddItem/>}/>
           {/* more routes */}
         </Routes>
       </div>

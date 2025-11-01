@@ -12,6 +12,7 @@ interface Category {
 
 async function fetchCategories() {
   const res = await supabase.from("categories").select();
+  console.log(res)
 
   if (res.error) {
     throw new Error(res.error.message);
