@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import { NumberInput } from "../../utils/NumberInput";
 
 export default function AddProductForm() {
   const [subcategories, setSubcategories] = useState<
@@ -10,16 +11,15 @@ export default function AddProductForm() {
   const [price, setPrice] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number | null>(null);
   const [fastenerLength, setFastenerLength] = useState<number | null>(null);
+  const [headHeight, setHeadHeight] = useState<number | null>(null);
+  const [grade, setGrade] = useState<number | null>(null);
+  const [hexHeight, setHexHeight] = useState<number | null>(null);
 
   const [productName, setProductName] = useState("");
-
-  const [url, setUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[] | null>(null);
   const [threadStyle, setThreadStyle] = useState<string | null>(null);
   const [threadSize, setThreadSize] = useState<string | null>(null);
-  const [headHeight, setHeadHeight] = useState<string | null>(null);
-  const [grade, setGrade] = useState<string | null>(null);
   const [coating, setCoating] = useState<string | null>(null);
-  const [hexHeight, setHexHeight] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +34,21 @@ export default function AddProductForm() {
     fetchSubs();
   }, []);
 
+  const handleImageChange = (index: number, value: string) => {
+    const newImages = [...(images ?? [])];
+    newImages[index] = value;
+    setImages(newImages);
+  };
+
+  const addImageField = () => {
+    setImages([...(images ?? []), ""]);
+  };
+
+  const removeImageField = (index: number) => {
+    const newImages = images && images.filter((_, i) => i !== index);
+    setImages(newImages);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSub) return alert("Select a subcategory first");
@@ -42,7 +57,7 @@ export default function AddProductForm() {
     const { error } = await supabase.from("product").insert([
       {
         name: productName,
-        image_url: url,
+        image_url: images,
         price,
         quantity,
         thread_style: threadStyle,
@@ -60,8 +75,18 @@ export default function AddProductForm() {
     else {
       alert("Product added!");
       setProductName("");
-      setPrice(null);
       setSelectedSub(null);
+      setImages(null);
+      setPrice(null);
+      setQuantity(null);
+      setThreadStyle(null);
+      setThreadSize(null);
+      setThreadStyle(null);
+      setFastenerLength(null);
+      setHeadHeight(null);
+      setGrade(null);
+      setCoating(null);
+      setHexHeight(null);
     }
 
     setLoading(false);
@@ -91,30 +116,82 @@ export default function AddProductForm() {
         className="w-full border rounded-lg p-2"
         required
       />
-      <input
-        type="text"
-        placeholder="Image Url"
-        value={url ?? ""}
-        onChange={(e) => setUrl(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
-      <input
-        type="number"
-        placeholder="Price"
-        value={price ?? ""}
-        onChange={(e) => setPrice(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-      />
-      <input
-        type="number"
-        placeholder="Total Quantity"
-        value={quantity ?? ""}
-        onChange={(e) => setQuantity(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div className="space-y-2">
+        <label className="font-medium text-gray-700">Image URLs</label>
+        {images &&
+          images.map((url, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder={`Image URL ${index + 1}`}
+                value={url}
+                onChange={(e) => handleImageChange(index, e.target.value)}
+                className="flex-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+                required
+              />
+              {images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeImageField(index)}
+                  className="text-red-500 hover:text-red-700 font-bold text-lg"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+
+        <button
+          type="button"
+          onClick={addImageField}
+          className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+        >
+          + Add another image
+        </button>
+      </div>
+
+      {/* Preview Section */}
+      {images && images.some((i) => i.trim()) && (
+        <div className="flex gap-2 flex-wrap mt-2">
+          {images
+            .filter((url) => url.trim())
+            .map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`Preview ${i + 1}`}
+                className="w-16 h-16 object-cover rounded border"
+                onError={(e) =>
+                  (e.currentTarget.src =
+                    "https://via.placeholder.com/150x150?text=No+Image")
+                }
+              />
+            ))}
+        </div>
+      )}
+
+      <div>
+        <NumberInput
+          value={price}
+          onChange={setPrice}
+          placeholder="Enter price"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
+      <div>
+        <NumberInput
+          value={quantity}
+          onChange={setQuantity}
+          placeholder="Total Quantity"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
       <input
         type="text"
         placeholder="Thread Style"
@@ -129,28 +206,40 @@ export default function AddProductForm() {
         onChange={(e) => setThreadSize(e.target.value)}
         className="w-full border rounded-lg p-2"
       />
-      <input
-        type="number"
-        placeholder="Fastener Length"
-        value={fastenerLength ?? ""}
-        onChange={(e) => setFastenerLength(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-      />
 
-      <input
-        type="text"
-        placeholder="Head height"
-        value={headHeight ?? ""}
-        onChange={(e) => setHeadHeight(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
-      <input
-        type="text"
-        placeholder="Grade"
-        value={grade ?? ""}
-        onChange={(e) => setGrade(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
+      <div>
+        <NumberInput
+          value={fastenerLength}
+          onChange={setFastenerLength}
+          placeholder="Fastener Length"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
+      <div>
+        <NumberInput
+          value={headHeight}
+          onChange={setHeadHeight}
+          placeholder="Head height"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
+      <div>
+        <NumberInput
+          value={grade}
+          onChange={setGrade}
+          placeholder="Grade"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
       <input
         type="text"
         placeholder="Coating"
@@ -158,13 +247,18 @@ export default function AddProductForm() {
         onChange={(e) => setCoating(e.target.value)}
         className="w-full border rounded-lg p-2"
       />
-      <input
-        type="text"
-        placeholder="Hex height"
-        value={hexHeight ?? ""}
-        onChange={(e) => setHexHeight(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
+
+      <div>
+        <NumberInput
+          value={hexHeight}
+          onChange={setHexHeight}
+          placeholder="Hex height"
+          className="w-full"
+          required
+          min={0}
+        />
+      </div>
+
       <button
         type="submit"
         disabled={loading}

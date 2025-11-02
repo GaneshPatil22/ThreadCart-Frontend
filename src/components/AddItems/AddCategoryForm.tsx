@@ -14,12 +14,12 @@ export default function AddCategoryForm() {
     const { error } = await supabase
       .from("categories")
       .insert([{ name, image_url: url, description }]);
-    //   .insert([{ name: productName, price, subcategory_id: selectedSub }]);
-
     if (error) alert(error.message);
     else {
       alert("Category added successfully!");
       setName("");
+      setDescription("");
+      setUrl("");
     }
 
     setLoading(false);

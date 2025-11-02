@@ -15,7 +15,7 @@ interface SubCategoryGridProps {
 interface ProductModel {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string[];
   description: string;
   price: number;
   quantity: number;
@@ -46,7 +46,7 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
     {
       id: string;
       name: string;
-      image: string;
+      image: string[];
       desc: string;
       dimensions: string;
       quantity: number;

@@ -32,6 +32,8 @@ export default function AddSubCategoryForm() {
       alert("SubCategory added!");
       setSubName("");
       setSelectedCategory(null);
+      setDescription("");
+      setUrl("");
     }
 
     setLoading(false);
