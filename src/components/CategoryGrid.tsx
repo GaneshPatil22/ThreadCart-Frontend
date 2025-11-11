@@ -12,7 +12,7 @@ interface Category {
 
 async function fetchCategories() {
   const res = await supabase.from("categories").select();
-  console.log(res)
+  console.log(res);
 
   if (res.error) {
     throw new Error(res.error.message);
@@ -150,6 +150,20 @@ export default function CategoryGrid() {
     });
   };
 
+  const convertGoogleDriveUrl = (url: string): string => {
+    // Match /d/FILE_ID/ or id=FILE_ID
+    const fileIdMatch =
+      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+
+    if (fileIdMatch && fileIdMatch[1]) {
+      const fileId = fileIdMatch[1];
+      // Use thumbnail endpoint - more reliable than uc?export=view
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    }
+
+    return url;
+  };
+
   return (
     <section className="py-14 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -178,11 +192,15 @@ export default function CategoryGrid() {
                 className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
               >
                 <img
-                  src={cat.image}
+                  src={convertGoogleDriveUrl(cat.image)}
                   alt={cat.name}
                   className="w-full h-32 object-contain"
+                  onLoad={() =>
+                    console.log("Image loaded successfully:", cat.image)
+                  }
                   onError={(e) => {
-                    // Fallback for broken images
+                    console.error("Image failed to load:", cat.image);
+                    console.error(e);
                     e.currentTarget.src =
                       "https://via.placeholder.com/200x128?text=No+Image";
                   }}
