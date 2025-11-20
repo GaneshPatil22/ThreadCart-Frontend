@@ -24,13 +24,25 @@ export default function ShortProductDetail({
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === image.length - 1 ? 0 : prev + 1));
   };
+  const convertGoogleDriveUrl = (url: string): string => {
+    // Match /d/FILE_ID/ or id=FILE_ID
+    const fileIdMatch =
+      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
 
+    if (fileIdMatch && fileIdMatch[1]) {
+      const fileId = fileIdMatch[1];
+      // Use thumbnail endpoint - more reliable than uc?export=view
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    }
+
+    return url;
+  };
   return (
     <div className="bg-gray-50 p-4 border-t border-gray-200 flex gap-4">
       {/* Image Carousel */}
       <div className="relative w-32 h-32 flex-shrink-0">
         <img
-          src={image[currentIndex]}
+          src={convertGoogleDriveUrl(image[currentIndex])}
           alt={name}
           className="w-full h-full object-contain rounded border cursor-pointer"
           onClick={() => setShowModal(true)}
