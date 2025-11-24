@@ -34,7 +34,7 @@ export async function getCurrentUserEmail(): Promise<string | null> {
       return null;
     }
 
-    return user.email;
+    return user.email ?? null;
   } catch (error) {
     console.error("Error getting user email:", error);
     return null;
