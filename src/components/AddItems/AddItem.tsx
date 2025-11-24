@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddCategoryForm from "./AddCategoryForm";
 import AddSubCategoryForm from "./AddSubCategoryForm";
 import AddProductForm from "./AddProductForm";
 import ManageCategories from "./ManageCategories";
 import ManageSubCategories from "./ManageSubCategories";
 import ManageProducts from "./ManageProducts";
+import Unauthorized from "../Unauthorized";
+import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
 type ItemType = "category" | "subcategory" | "product" | null;
@@ -12,6 +14,29 @@ type ItemType = "category" | "subcategory" | "product" | null;
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
   const [activeForm, setActiveForm] = useState<ItemType>(null);
+  const [isUserAdmin, setIsUserAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const adminStatus = await isAdmin();
+      setIsUserAdmin(adminStatus);
+    };
+    checkAdminStatus();
+  }, []);
+
+  // Show loading state while checking admin status
+  if (isUserAdmin === null) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Show unauthorized if not admin
+  if (!isUserAdmin) {
+    return <Unauthorized />;
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

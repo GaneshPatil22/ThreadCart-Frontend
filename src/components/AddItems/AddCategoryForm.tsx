@@ -1,5 +1,6 @@
 import { useState } from "react";
 import supabase from "../../utils/supabase";
+import { requireAdmin } from "../../utils/adminCheck";
 
 export default function AddCategoryForm() {
   const [name, setName] = useState("");
@@ -12,19 +13,30 @@ export default function AddCategoryForm() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase
-      .from("categories")
-      .insert([{ name, image_url: url, description, sort_number: sortNumber }]);
-    if (error) alert(error.message);
-    else {
+    try {
+      // Check admin status before proceeding
+      await requireAdmin();
+
+      const { error } = await supabase
+        .from("categories")
+        .insert([{ name, image_url: url, description, sort_number: sortNumber }]);
+
+      if (error) throw error;
+
       alert("Category added successfully!");
       setName("");
       setDescription("");
       setUrl("");
       setSortNumber(0);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("An error occurred while adding the category");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

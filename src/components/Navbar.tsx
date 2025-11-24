@@ -3,22 +3,40 @@ import { Bolt } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthModal from "./auth/AuthModal";
 import supabase from "../utils/supabase";
+import { isAdmin } from "../utils/adminCheck";
 
 export default function Navbar() {
   const [authMode, setAuthMode] = useState<"signin" | "register" | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
-  // ✅ Check login state on mount
+  // ✅ Check login state and admin status on mount
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
       setUserEmail(data.user?.email ?? null);
+
+      // Check if user is admin
+      if (data.user?.email) {
+        const adminStatus = await isAdmin();
+        setIsUserAdmin(adminStatus);
+      } else {
+        setIsUserAdmin(false);
+      }
     };
     fetchUser();
 
     // ✅ Realtime listener for login/logout changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUserEmail(session?.user?.email ?? null);
+
+      // Check admin status when auth state changes
+      if (session?.user?.email) {
+        const adminStatus = await isAdmin();
+        setIsUserAdmin(adminStatus);
+      } else {
+        setIsUserAdmin(false);
+      }
     });
 
     return () => {
@@ -29,7 +47,8 @@ export default function Navbar() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUserEmail(null);
-    alert("You’ve been logged out!");
+    setIsUserAdmin(false);
+    alert("You've been logged out!");
   };
 
   return (
@@ -48,9 +67,11 @@ export default function Navbar() {
             <Link to="/subcategory" className="text-white hover:text-blue-200">
               Catalog
             </Link>
-            {userEmail && <Link to="/add_item" className="text-white hover:text-blue-200">
-              Add Item
-            </Link>}
+            {isUserAdmin && (
+              <Link to="/add_item" className="text-white hover:text-blue-200">
+                Admin Panel
+              </Link>
+            )}
             <a href="#" className="text-white hover:text-blue-50">
               Help
             </a>

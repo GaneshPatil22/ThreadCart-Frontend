@@ -76,7 +76,7 @@ Notes:
 - All tables include `sort_number` field for controlling display order on the frontend
 - All data is sorted by `sort_number` in ascending order when fetched
 
-### Authentication
+### Authentication & Authorization
 - Supabase Auth integration via `src/utils/supabase.tsx`
 - Modal-based authentication UI (`src/components/auth/AuthModal.tsx`) with signin/register modes
 - Full authentication flow:
@@ -85,7 +85,19 @@ Notes:
   - Google OAuth sign-in (requires Supabase provider configuration)
   - Confirmation page at `/confirm-email` for post-registration email verification
 - Auth state persisted via Supabase and synced with `onAuthStateChange` listener in Navbar
-- Protected routes: `/add_item` link only visible when user is authenticated
+
+#### Admin Authorization
+- **Admin Email**: `superadmin@threadcart.com` (hardcoded in `src/utils/adminCheck.ts`)
+- **Frontend Protection**:
+  - Admin Panel link only visible to admin user
+  - `/add_item` route protected with admin check (shows Unauthorized page for non-admins)
+  - All add/edit forms validate admin status before submission
+- **Backend Protection** (CRITICAL):
+  - Row Level Security (RLS) policies in Supabase database
+  - Only admin email can INSERT/UPDATE/DELETE data
+  - Even if frontend is bypassed, database rejects unauthorized operations
+  - Public users can READ all data (categories, subcategories, products)
+- **Setup Required**: Run `supabase_admin_setup.sql` in Supabase SQL Editor to enable RLS policies
 
 ### Image Handling
 The app includes a Google Drive URL converter utility (`convertGoogleDriveUrl`) in `CategoryGrid.tsx` that transforms Drive sharing URLs into direct image URLs using the thumbnail API endpoint. This pattern may be reused in other components dealing with image URLs from Google Drive.
