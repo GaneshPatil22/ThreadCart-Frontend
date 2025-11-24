@@ -13,7 +13,8 @@ export default function AddProductForm() {
   const [fastenerLength, setFastenerLength] = useState<number | null>(null);
   const [headHeight, setHeadHeight] = useState<number | null>(null);
   const [grade, setGrade] = useState<number | null>(null);
-  const [hexHeight, setHexHeight] = useState<number | null>(null);
+  const [partNumber, setPartNumber] = useState<number | null>(null);
+  const [sortNumber, setSortNumber] = useState<number>(0);
 
   const [productName, setProductName] = useState("");
   const [images, setImages] = useState<string[] | null>(null);
@@ -67,7 +68,8 @@ export default function AddProductForm() {
         head_height: headHeight,
         Grade: grade,
         Coating: coating,
-        hex_height: hexHeight,
+        part_number: partNumber,
+        sort_number: sortNumber,
       },
     ]);
 
@@ -86,7 +88,8 @@ export default function AddProductForm() {
       setHeadHeight(null);
       setGrade(null);
       setCoating(null);
-      setHexHeight(null);
+      setPartNumber(null);
+      setSortNumber(0);
     }
 
     setLoading(false);
@@ -250,14 +253,24 @@ export default function AddProductForm() {
 
       <div>
         <NumberInput
-          value={hexHeight}
-          onChange={setHexHeight}
-          placeholder="Hex height"
+          value={partNumber}
+          onChange={setPartNumber}
+          placeholder="Part Number"
           className="w-full"
           required
           min={0}
         />
       </div>
+
+      <input
+        type="number"
+        placeholder="Sort Number (for display order)"
+        value={sortNumber}
+        onChange={(e) => setSortNumber(Number(e.target.value))}
+        className="w-full border rounded-lg p-2"
+        required
+        min={0}
+      />
 
       <button
         type="submit"

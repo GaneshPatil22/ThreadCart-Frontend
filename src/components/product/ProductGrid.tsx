@@ -23,7 +23,10 @@ interface ProductModel {
 }
 
 async function fetchProducts(subCategoryId?: string) {
-  let query = supabase.from("product").select("*");
+  let query = supabase
+    .from("product")
+    .select("*")
+    .order("sort_number", { ascending: true });
   if (subCategoryId) query = query.eq("sub_cat_id", subCategoryId);
 
   const res = await query;

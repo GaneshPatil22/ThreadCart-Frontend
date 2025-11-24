@@ -2,41 +2,106 @@ import { useState } from "react";
 import AddCategoryForm from "./AddCategoryForm";
 import AddSubCategoryForm from "./AddSubCategoryForm";
 import AddProductForm from "./AddProductForm";
+import ManageCategories from "./ManageCategories";
+import ManageSubCategories from "./ManageSubCategories";
+import ManageProducts from "./ManageProducts";
+
+type ViewMode = "add" | "manage";
+type ItemType = "category" | "subcategory" | "product" | null;
 
 export const AddItem = () => {
-  const [activeForm, setActiveForm] = useState<"category" | "subcategory" | "product" | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("add");
+  const [activeForm, setActiveForm] = useState<ItemType>(null);
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Add Item</h2>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Manage Inventory</h2>
 
-      <div className="flex gap-3 mb-6">
+      {/* View Mode Toggle */}
+      <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setViewMode("add")}
+          className={`px-4 py-2 rounded-lg transition ${
+            viewMode === "add"
+              ? "bg-white text-gray-900 shadow"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          Add New
+        </button>
+        <button
+          onClick={() => setViewMode("manage")}
+          className={`px-4 py-2 rounded-lg transition ${
+            viewMode === "manage"
+              ? "bg-white text-gray-900 shadow"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          View & Edit
+        </button>
+      </div>
+
+      {/* Item Type Buttons */}
+      <div className="flex gap-3 mb-6 flex-wrap">
         <button
           onClick={() => setActiveForm("category")}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "category"
+              ? "bg-blue-500 text-white"
+              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
         >
-          Add Category
+          {viewMode === "add" ? "Add" : "Manage"} Category
         </button>
 
         <button
           onClick={() => setActiveForm("subcategory")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "subcategory"
+              ? "bg-green-500 text-white"
+              : "bg-green-100 text-green-700 hover:bg-green-200"
+          }`}
         >
-          Add SubCategory
+          {viewMode === "add" ? "Add" : "Manage"} SubCategory
         </button>
 
         <button
           onClick={() => setActiveForm("product")}
-          className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "product"
+              ? "bg-purple-500 text-white"
+              : "bg-purple-100 text-purple-700 hover:bg-purple-200"
+          }`}
         >
-          Add Product
+          {viewMode === "add" ? "Add" : "Manage"} Product
         </button>
       </div>
 
-      <div className="border rounded-xl p-4 shadow">
-        {activeForm === "category" && <AddCategoryForm />}
-        {activeForm === "subcategory" && <AddSubCategoryForm />}
-        {activeForm === "product" && <AddProductForm />}
+      {/* Content Area */}
+      <div className="border rounded-xl p-6 shadow bg-white">
+        {viewMode === "add" ? (
+          <>
+            {activeForm === "category" && <AddCategoryForm />}
+            {activeForm === "subcategory" && <AddSubCategoryForm />}
+            {activeForm === "product" && <AddProductForm />}
+            {!activeForm && (
+              <p className="text-gray-500 text-center py-12">
+                Select an item type to add
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            {activeForm === "category" && <ManageCategories />}
+            {activeForm === "subcategory" && <ManageSubCategories />}
+            {activeForm === "product" && <ManageProducts />}
+            {!activeForm && (
+              <p className="text-gray-500 text-center py-12">
+                Select an item type to manage
+              </p>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

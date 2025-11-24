@@ -7,6 +7,7 @@ export default function AddSubCategoryForm() {
   const [subName, setSubName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [sortNumber, setSortNumber] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function AddSubCategoryForm() {
 
     const { error } = await supabase
       .from("sub-categories")
-      .insert([{ name: subName, category_id: selectedCategory, image_url: url, description }]);
+      .insert([{ name: subName, category_id: selectedCategory, image_url: url, description, sort_number: sortNumber }]);
 
     if (error) alert(error.message);
     else {
@@ -34,6 +35,7 @@ export default function AddSubCategoryForm() {
       setSelectedCategory(null);
       setDescription("");
       setUrl("");
+      setSortNumber(0);
     }
 
     setLoading(false);
@@ -82,6 +84,16 @@ export default function AddSubCategoryForm() {
         onChange={(e) => setDescription(e.target.value)}
         className="w-full border rounded-lg p-2"
         required
+      />
+
+      <input
+        type="number"
+        placeholder="Sort Number (for display order)"
+        value={sortNumber}
+        onChange={(e) => setSortNumber(Number(e.target.value))}
+        className="w-full border rounded-lg p-2"
+        required
+        min={0}
       />
 
       <button

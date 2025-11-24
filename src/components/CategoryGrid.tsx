@@ -11,7 +11,10 @@ interface Category {
 }
 
 async function fetchCategories() {
-  const res = await supabase.from("categories").select();
+  const res = await supabase
+    .from("categories")
+    .select()
+    .order("sort_number", { ascending: true });
   console.log(res);
 
   if (res.error) {

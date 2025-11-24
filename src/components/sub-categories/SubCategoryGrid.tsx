@@ -20,7 +20,10 @@ interface SubCategory {
 }
 
 async function fetchSubCategories(categoryId?: string) {
-  let query = supabase.from("sub-categories").select("*");
+  let query = supabase
+    .from("sub-categories")
+    .select("*")
+    .order("sort_number", { ascending: true });
 
   if (categoryId) {
     query = query.eq("category_id", categoryId);

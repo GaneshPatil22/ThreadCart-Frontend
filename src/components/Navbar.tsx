@@ -90,7 +90,13 @@ export default function Navbar() {
 
       {/* Auth Modal */}
       {authMode && (
-        <AuthModal mode={authMode} onClose={() => setAuthMode(null)} />
+        <AuthModal
+          mode={authMode}
+          onClose={() => setAuthMode(null)}
+          onSwitchMode={() =>
+            setAuthMode(authMode === "signin" ? "register" : "signin")
+          }
+        />
       )}
     </>
   );

@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import Products from "./components/product/Products";
 import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
 import { AddItem } from "./components/AddItems/AddItem";
+import ConfirmEmail from "./pages/ConfirmEmail";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/subcategory" element={<SubCategoryHome />} />
           <Route path="/add_item" element={<AddItem/>}/>
+          <Route path="/confirm-email" element={<ConfirmEmail />} />
           {/* more routes */}
         </Routes>
       </div>

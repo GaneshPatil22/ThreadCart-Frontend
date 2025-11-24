@@ -5,6 +5,7 @@ export default function AddCategoryForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
+  const [sortNumber, setSortNumber] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -13,13 +14,14 @@ export default function AddCategoryForm() {
 
     const { error } = await supabase
       .from("categories")
-      .insert([{ name, image_url: url, description }]);
+      .insert([{ name, image_url: url, description, sort_number: sortNumber }]);
     if (error) alert(error.message);
     else {
       alert("Category added successfully!");
       setName("");
       setDescription("");
       setUrl("");
+      setSortNumber(0);
     }
 
     setLoading(false);
@@ -53,6 +55,16 @@ export default function AddCategoryForm() {
         onChange={(e) => setUrl(e.target.value)}
         className="w-full border rounded-lg p-2"
         required
+      />
+
+      <input
+        type="number"
+        placeholder="Sort Number (for display order)"
+        value={sortNumber}
+        onChange={(e) => setSortNumber(Number(e.target.value))}
+        className="w-full border rounded-lg p-2"
+        required
+        min={0}
       />
 
       <button
