@@ -56,22 +56,36 @@ export default function SubCategoryGrid({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadSubCategories = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchSubCategories(categoryData?.categoryId)
-      .then(setSubCategories)
-      .catch((e) => {
-        console.error("Error fetching categories:", e);
-        setError(e.message || "An unexpected error occurred");
-      })
-      .finally(() => setLoading(false));
-  }, [categoryData?.categoryId]);
-
   useEffect(() => {
+    let isMounted = true;
+
+    const loadSubCategories = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchSubCategories(categoryData?.categoryId);
+
+        if (!isMounted) return;
+
+        setSubCategories(data);
+      } catch (e) {
+        if (!isMounted) return;
+        console.error("Error fetching subcategories:", e);
+        setError(e instanceof Error ? e.message : "An unexpected error occurred");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     loadSubCategories();
-  }, [loadSubCategories]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [categoryData?.categoryId]);
 
   const handleSubCategoryClick = (cat: {
     id: string;

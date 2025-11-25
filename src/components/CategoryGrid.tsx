@@ -11,19 +11,26 @@ interface Category {
 }
 
 async function fetchCategories() {
+  console.log('[CategoryGrid] Starting fetchCategories...');
+
   const res = await supabase
     .from("categories")
     .select()
     .order("sort_number", { ascending: true });
-  console.log(res);
+
+  console.log('[CategoryGrid] Supabase response:', res);
 
   if (res.error) {
+    console.error('[CategoryGrid] Error from Supabase:', res.error);
     throw new Error(res.error.message);
   }
 
   if (!res.data) {
+    console.error('[CategoryGrid] No data received');
     throw new Error("No data received from server");
   }
+
+  console.log('[CategoryGrid] Successfully fetched categories:', res.data.length);
 
   // Map API response to UI-friendly structure
   return res.data.map((cat: Category) => ({
@@ -121,23 +128,67 @@ export default function CategoryGrid() {
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const loadCategories = () => {
-    setLoading(true);
-    setError(null);
-
-    fetchCategories()
-      .then(setCategories)
-      .catch((e) => {
-        console.error("Error fetching categories:", e);
-        setError(e.message || "An unexpected error occurred");
-      })
-      .finally(() => setLoading(false));
+    console.log('[CategoryGrid] Retry triggered');
+    setRefetchTrigger(prev => prev + 1);
   };
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    console.log('[CategoryGrid] useEffect triggered');
+    let isMounted = true;
+
+    const load = async () => {
+      console.log('[CategoryGrid] Starting load...');
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Give Supabase client time to initialize from localStorage
+        console.log('[CategoryGrid] Waiting for Supabase to initialize...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (!isMounted) return;
+
+        console.log('[CategoryGrid] Fetching categories...');
+
+        // Set a timeout for the fetch
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000)
+        );
+
+        const data = await Promise.race([
+          fetchCategories(),
+          timeoutPromise
+        ]) as Awaited<ReturnType<typeof fetchCategories>>;
+
+        if (!isMounted) {
+          console.log('[CategoryGrid] Component unmounted after fetch, aborting');
+          return;
+        }
+
+        console.log('[CategoryGrid] Setting categories:', data.length);
+        setCategories(data);
+      } catch (e) {
+        if (!isMounted) return;
+        console.error("[CategoryGrid] Error fetching categories:", e);
+        setError(e instanceof Error ? e.message : "An unexpected error occurred");
+      } finally {
+        if (isMounted) {
+          console.log('[CategoryGrid] Finished loading');
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      console.log('[CategoryGrid] Cleanup - component unmounting');
+      isMounted = false;
+    };
+  }, [refetchTrigger]);
 
   const handleCategoryClick = (cat: {
     id: string;

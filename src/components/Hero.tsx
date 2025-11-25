@@ -6,7 +6,7 @@ export default function Hero() {
     <section
       className="relative border-b border-border py-16 bg-background"
       style={{
-        backgroundImage: "url('https://as2.ftcdn.net/v2/jpg/14/47/94/97/1000_F_1447949745_0Qme6SoNSRxzZ7hbpfnKaXhAGKcDicIF.jpg')",
+        backgroundImage: "url('/background.jpeg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

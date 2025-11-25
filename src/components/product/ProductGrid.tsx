@@ -60,22 +60,36 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
   const [error, setError] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
-  const loadProducts = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchProducts(subCategoryData?.subCategoryId)
-      .then(setProducts)
-      .catch((e) => {
-        console.error("Error fetching products:", e);
-        setError(e.message || "An unexpected error occurred");
-      })
-      .finally(() => setLoading(false));
-  }, [subCategoryData?.subCategoryId]);
-
   useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchProducts(subCategoryData?.subCategoryId);
+
+        if (!isMounted) return;
+
+        setProducts(data);
+      } catch (e) {
+        if (!isMounted) return;
+        console.error("Error fetching products:", e);
+        setError(e instanceof Error ? e.message : "An unexpected error occurred");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     loadProducts();
-  }, [loadProducts]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [subCategoryData?.subCategoryId]);
 
   const toggleExpand = (id: string) => {
     setExpandedRow((prev) => (prev === id ? null : id));
