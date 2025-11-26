@@ -1,16 +1,29 @@
 import supabase from "./supabase";
+import type { User } from "@supabase/supabase-js";
 
 const ADMIN_EMAIL = "superadmin@threadcart.com";
 
 /**
  * Check if the current user is an admin
+ * Can accept an optional user object to avoid redundant API calls
+ * @param user - Optional user object from supabase.auth.getUser()
  * @returns Promise<boolean> - true if user is admin, false otherwise
  */
-export async function isAdmin(): Promise<boolean> {
+export async function isAdmin(user?: User | null): Promise<boolean> {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    // If user not provided, fetch it
+    if (user === undefined) {
+      const { data: { user: fetchedUser }, error } = await supabase.auth.getUser();
 
-    if (error || !user) {
+      if (error || !fetchedUser) {
+        return false;
+      }
+
+      user = fetchedUser;
+    }
+
+    // If user is explicitly null, return false
+    if (!user) {
       return false;
     }
 

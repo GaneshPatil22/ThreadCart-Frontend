@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
 
 interface CategoryData {
@@ -55,11 +55,16 @@ export default function SubCategoryGrid({
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+  const loadSubCategories = () => {
+    setRefetchTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     let isMounted = true;
 
-    const loadSubCategories = async () => {
+    const load = async () => {
       setLoading(true);
       setError(null);
 
@@ -80,12 +85,12 @@ export default function SubCategoryGrid({
       }
     };
 
-    loadSubCategories();
+    load();
 
     return () => {
       isMounted = false;
     };
-  }, [categoryData?.categoryId]);
+  }, [categoryData?.categoryId, refetchTrigger]);
 
   const handleSubCategoryClick = (cat: {
     id: string;

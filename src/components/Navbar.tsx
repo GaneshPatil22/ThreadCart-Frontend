@@ -13,29 +13,25 @@ export default function Navbar() {
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
-      setUserEmail(data.user?.email ?? null);
+      const user = data.user;
 
-      // Check if user is admin
-      if (data.user?.email) {
-        const adminStatus = await isAdmin();
-        setIsUserAdmin(adminStatus);
-      } else {
-        setIsUserAdmin(false);
-      }
+      setUserEmail(user?.email ?? null);
+
+      // Check if user is admin (pass user to avoid redundant API call)
+      const adminStatus = await isAdmin(user);
+      setIsUserAdmin(adminStatus);
     };
     fetchUser();
 
     // ✅ Realtime listener for login/logout changes
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUserEmail(session?.user?.email ?? null);
+      const user = session?.user ?? null;
 
-      // Check admin status when auth state changes
-      if (session?.user?.email) {
-        const adminStatus = await isAdmin();
-        setIsUserAdmin(adminStatus);
-      } else {
-        setIsUserAdmin(false);
-      }
+      setUserEmail(user?.email ?? null);
+
+      // Check admin status when auth state changes (pass user to avoid redundant API call)
+      const adminStatus = await isAdmin(user);
+      setIsUserAdmin(adminStatus);
     });
 
     return () => {

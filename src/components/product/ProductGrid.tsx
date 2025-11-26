@@ -1,5 +1,5 @@
 import supabase from "../../utils/supabase";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { EmptyState, ErrorState } from "../CategoryGrid";
 import ShortProductDetail from "./ShortProductDetail";
 
@@ -59,11 +59,16 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+  const loadProducts = () => {
+    setRefetchTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     let isMounted = true;
 
-    const loadProducts = async () => {
+    const load = async () => {
       setLoading(true);
       setError(null);
 
@@ -84,12 +89,12 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
       }
     };
 
-    loadProducts();
+    load();
 
     return () => {
       isMounted = false;
     };
-  }, [subCategoryData?.subCategoryId]);
+  }, [subCategoryData?.subCategoryId, refetchTrigger]);
 
   const toggleExpand = (id: string) => {
     setExpandedRow((prev) => (prev === id ? null : id));
