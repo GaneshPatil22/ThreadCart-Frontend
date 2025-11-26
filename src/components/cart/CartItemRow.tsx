@@ -16,6 +16,8 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   const product = item.product;
 
@@ -47,11 +49,37 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
     await removeFromCart(product.id);
   };
 
-  // Get first product image
-  const productImage =
+  // Google Drive URL Converter
+  const convertGoogleDriveUrl = (url: string): string => {
+    const fileIdMatch =
+      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+
+    if (fileIdMatch && fileIdMatch[1]) {
+      const fileId = fileIdMatch[1];
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    }
+
+    return url;
+  };
+
+  // Get product images
+  const productImages =
     product.image_url && product.image_url.length > 0
-      ? product.image_url[0]
-      : '/placeholder-product.png';
+      ? product.image_url
+      : ['https://via.placeholder.com/150x150?text=No+Image'];
+
+  // Image navigation
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? productImages.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === productImages.length - 1 ? 0 : prev + 1
+    );
+  };
 
   return (
     <div
@@ -59,16 +87,52 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
         isRemoving ? 'opacity-50' : ''
       }`}
     >
-      {/* Product Image */}
-      <div className="flex-shrink-0">
+      {/* Product Image Carousel */}
+      <div className="flex-shrink-0 relative w-32 h-32">
         <img
-          src={productImage}
+          src={convertGoogleDriveUrl(productImages[currentImageIndex])}
           alt={product.name}
-          className="w-24 h-24 object-cover rounded-md"
-          onError={(e) => {
-            e.currentTarget.src = '/placeholder-product.png';
-          }}
+          className="w-full h-full object-contain rounded-md border cursor-pointer"
+          onClick={() => setShowModal(true)}
+          onError={(e) =>
+            (e.currentTarget.src =
+              'https://via.placeholder.com/150x150?text=No+Image')
+          }
         />
+
+        {/* Navigation Arrows */}
+        {productImages.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevImage}
+              className="absolute top-1/2 left-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1 text-xs shadow-md"
+              aria-label="Previous image"
+            >
+              ◀
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute top-1/2 right-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1 text-xs shadow-md"
+              aria-label="Next image"
+            >
+              ▶
+            </button>
+          </>
+        )}
+
+        {/* Image Indicator Dots */}
+        {productImages.length > 1 && (
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+            {productImages.map((_, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full ${
+                  i === currentImageIndex ? 'bg-gray-800' : 'bg-gray-400'
+                }`}
+              ></div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Product Details */}
@@ -151,6 +215,29 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           Remove
         </button>
       </div>
+
+      {/* Fullscreen Image Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="relative max-w-full max-h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={convertGoogleDriveUrl(productImages[currentImageIndex])}
+              alt={product.name}
+              className="max-w-[90vw] max-h-[80vh] object-contain cursor-zoom-in"
+              onClick={(e) => {
+                e.currentTarget.classList.toggle('scale-150');
+                e.currentTarget.classList.toggle('cursor-zoom-out');
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

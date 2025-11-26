@@ -2,7 +2,6 @@ import supabase from "../../utils/supabase";
 import { useState, useEffect } from "react";
 import { EmptyState, ErrorState } from "../CategoryGrid";
 import ShortProductDetail from "./ShortProductDetail";
-import { useCart } from "../../hooks/useCart";
 
 interface SubCategoryData {
   subCategoryId?: string;
@@ -21,6 +20,13 @@ interface ProductModel {
   price: number;
   quantity: number;
   dummy_dimensions: string;
+  thread_style: string | null;
+  thread_size_pitch: string | null;
+  fastener_length: string | null;
+  head_height: string | null;
+  Grade: string | null;
+  Coating: string | null;
+  part_number: string | null;
 }
 
 async function fetchProducts(subCategoryId?: string) {
@@ -42,6 +48,13 @@ async function fetchProducts(subCategoryId?: string) {
     price: product.price,
     quantity: product.quantity,
     dimensions: product.dummy_dimensions,
+    thread_style: product.thread_style,
+    thread_size_pitch: product.thread_size_pitch,
+    fastener_length: product.fastener_length,
+    head_height: product.head_height,
+    Grade: product.Grade,
+    Coating: product.Coating,
+    part_number: product.part_number,
   }));
 }
 
@@ -55,15 +68,19 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
       dimensions: string;
       quantity: number;
       price: number;
+      thread_style: string | null;
+      thread_size_pitch: string | null;
+      fastener_length: string | null;
+      head_height: string | null;
+      Grade: string | null;
+      Coating: string | null;
+      part_number: string | null;
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
-
-  const { addToCart, isInCart, getItemQuantity } = useCart();
-  const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   const loadProducts = () => {
     setRefetchTrigger(prev => prev + 1);
@@ -104,29 +121,6 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
 
-  const handleAddToCart = async (productId: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent row expansion when clicking button
-
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    if (product.quantity === 0) {
-      alert('This product is out of stock');
-      return;
-    }
-
-    setAddingToCart(productId);
-    const result = await addToCart(Number(productId), 1);
-    setAddingToCart(null);
-
-    if (result.success) {
-      // Optional: Show success message
-      console.log('Added to cart successfully');
-    } else {
-      alert(result.message);
-    }
-  };
-
   if (loading)
     return (
       <div className="text-center py-10 text-gray-500">Loading products...</div>
@@ -147,17 +141,23 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-left border-b border-gray-200 bg-gray-50">
-                <th className="py-3 px-4 font-semibold text-gray-700 w-2/5">
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/4">
                   Name
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/5">
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
                   Price
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/5">
-                  Dimensions
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                  Part Number
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/5 text-center">
-                  Action
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                  Thread Style
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                  Grade
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                  Stock
                 </th>
               </tr>
             </thead>
@@ -172,40 +172,24 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                   >
                     <td className="py-3 px-4 text-gray-800 align-top">
                       {p.name}
-                      {p.quantity === 0 && (
-                        <span className="ml-2 text-xs text-red-600 font-semibold">
-                          Out of Stock
-                        </span>
-                      )}
                     </td>
                     <td className="py-3 px-4 text-gray-800 align-top">
                       ₹{p.price}
                     </td>
                     <td className="py-3 px-4 text-gray-800 align-top">
-                      {p.dimensions || "-"}
+                      {p.part_number || "-"}
                     </td>
-                    <td className="py-3 px-4 text-center align-top">
-                      {isInCart(Number(p.id)) ? (
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-xs text-green-600 font-semibold">
-                            In Cart ({getItemQuantity(Number(p.id))})
-                          </span>
-                          <button
-                            onClick={(e) => handleAddToCart(p.id, e)}
-                            disabled={addingToCart === p.id || p.quantity === 0}
-                            className="text-xs text-primary hover:text-primary-hover underline disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            Add More
-                          </button>
-                        </div>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.thread_style || "-"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.Grade || "-"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.quantity > 0 ? (
+                        <span className="text-green-600 font-semibold">{p.quantity}</span>
                       ) : (
-                        <button
-                          onClick={(e) => handleAddToCart(p.id, e)}
-                          disabled={addingToCart === p.id || p.quantity === 0}
-                          className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                        >
-                          {addingToCart === p.id ? 'Adding...' : 'Add to Cart'}
-                        </button>
+                        <span className="text-red-600 font-semibold">Out of Stock</span>
                       )}
                     </td>
                   </tr>
@@ -218,10 +202,10 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                         : "opacity-0 pointer-events-none"
                     }`}
                   >
-                    <td colSpan={4} className="p-0 border-b border-gray-200">
+                    <td colSpan={6} className="p-0 border-b border-gray-200">
                       <div
                         className={`overflow-hidden transition-[max-height] duration-300 ${
-                          expandedRow === p.id ? "max-h-[400px]" : "max-h-0"
+                          expandedRow === p.id ? "max-h-[500px]" : "max-h-0"
                         }`}
                       >
                         <ShortProductDetail
@@ -229,6 +213,15 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                           image={p.image}
                           desc={p.desc}
                           quantity={p.quantity}
+                          productId={Number(p.id)}
+                          price={p.price}
+                          thread_style={p.thread_style}
+                          thread_size_pitch={p.thread_size_pitch}
+                          fastener_length={p.fastener_length}
+                          head_height={p.head_height}
+                          Grade={p.Grade}
+                          Coating={p.Coating}
+                          part_number={p.part_number}
                         />
                       </div>
                     </td>
