@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AuthModal from "./auth/AuthModal";
 import supabase from "../utils/supabase";
 import { isAdmin } from "../utils/adminCheck";
+import { CartIcon } from "./cart/CartIcon";
 
 export default function Navbar() {
   const [authMode, setAuthMode] = useState<"signin" | "register" | null>(null);
@@ -75,6 +76,9 @@ export default function Navbar() {
 
           {/* Right section */}
           <div className="flex items-center space-x-4">
+            {/* Cart Icon */}
+            <CartIcon />
+
             {userEmail ? (
               <>
                 <span className="text-white">{userEmail}</span>
