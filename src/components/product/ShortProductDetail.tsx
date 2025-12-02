@@ -167,7 +167,7 @@ export default function ShortProductDetail({
             <span className="ml-2 font-semibold text-primary">₹{price}</span>
           </div>
 
-          <div>
+          {/* <div>
             <span className="text-gray-500">Stock:</span>
             <span className="ml-2 font-semibold">
               {quantity > 0 ? (
@@ -183,7 +183,7 @@ export default function ShortProductDetail({
                 <span className="text-red-600">Out of Stock</span>
               )}
             </span>
-          </div>
+          </div> */}
 
           {part_number && (
             <div>

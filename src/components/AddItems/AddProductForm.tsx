@@ -13,7 +13,6 @@ export default function AddProductForm() {
   const [fastenerLength, setFastenerLength] = useState<number | null>(null);
   const [headHeight, setHeadHeight] = useState<number | null>(null);
   const [grade, setGrade] = useState<number | null>(null);
-  const [partNumber, setPartNumber] = useState<number | null>(null);
   const [sortNumber, setSortNumber] = useState<number>(0);
 
   const [productName, setProductName] = useState("");
@@ -21,6 +20,7 @@ export default function AddProductForm() {
   const [threadStyle, setThreadStyle] = useState<string | null>(null);
   const [threadSize, setThreadSize] = useState<string | null>(null);
   const [coating, setCoating] = useState<string | null>(null);
+  const [partNumber, setPartNumber] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -208,6 +208,7 @@ export default function AddProductForm() {
         value={threadSize ?? ""}
         onChange={(e) => setThreadSize(e.target.value)}
         className="w-full border rounded-lg p-2"
+        required
       />
 
       <div>
@@ -216,7 +217,6 @@ export default function AddProductForm() {
           onChange={setFastenerLength}
           placeholder="Fastener Length"
           className="w-full"
-          required
           min={0}
         />
       </div>
@@ -227,7 +227,6 @@ export default function AddProductForm() {
           onChange={setHeadHeight}
           placeholder="Head height"
           className="w-full"
-          required
           min={0}
         />
       </div>
@@ -238,7 +237,6 @@ export default function AddProductForm() {
           onChange={setGrade}
           placeholder="Grade"
           className="w-full"
-          required
           min={0}
         />
       </div>
@@ -249,18 +247,17 @@ export default function AddProductForm() {
         value={coating ?? ""}
         onChange={(e) => setCoating(e.target.value)}
         className="w-full border rounded-lg p-2"
+        required
       />
 
-      <div>
-        <NumberInput
-          value={partNumber}
-          onChange={setPartNumber}
-          placeholder="Part Number"
-          className="w-full"
-          required
-          min={0}
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="Part Number"
+        value={partNumber ?? ""}
+        onChange={(e) => setPartNumber(e.target.value)}
+        className="w-full border rounded-lg p-2"
+        required
+      />
 
       <input
         type="number"

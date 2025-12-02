@@ -157,7 +157,6 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                   Grade
                 </th>
                 <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
-                  Stock
                 </th>
               </tr>
             </thead>
@@ -186,11 +185,7 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                       {p.Grade || "-"}
                     </td>
                     <td className="py-3 px-4 text-gray-800 align-top">
-                      {p.quantity > 0 ? (
-                        <span className="text-green-600 font-semibold">{p.quantity}</span>
-                      ) : (
-                        <span className="text-red-600 font-semibold">Out of Stock</span>
-                      )}
+                      {p.quantity == 0 && <span className="text-red-600 font-semibold">Out of Stock</span>}
                     </td>
                   </tr>
 
