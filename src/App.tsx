@@ -4,7 +4,13 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import PageViewTracker from "./components/PageViewTracker";
-import { initGA } from "./utils/analytics";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import {
+  initGA,
+  initWebVitals,
+  initErrorTracking,
+  initScrollTracking,
+} from "./utils/analytics";
 import Home from "./components/Home";
 import Products from "./components/product/Products";
 import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
@@ -31,52 +37,57 @@ import AboutPage from "./pages/static/AboutPage";
 import ContactPage from "./pages/static/ContactPage";
 
 export default function App() {
-  // Initialize Google Analytics on app mount
+  // Initialize all analytics tracking on app mount
   useEffect(() => {
     initGA();
+    initWebVitals();
+    initErrorTracking();
+    initScrollTracking();
   }, []);
 
   return (
-    <CartProvider>
-      <div className="bg-background min-h-screen text-text-primary flex flex-col">
-        <ScrollToTop />
-        <PageViewTracker />
-        <Navbar />
+    <ErrorBoundary>
+      <CartProvider>
+        <div className="bg-background min-h-screen text-text-primary flex flex-col">
+          <ScrollToTop />
+          <PageViewTracker />
+          <Navbar />
 
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/subcategory" element={<SubCategoryHome />} />
-            <Route path="/add_item" element={<AddItem/>}/>
-            <Route path="/confirm-email" element={<ConfirmEmail />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/order/success" element={<OrderSuccessPage />} />
-            <Route path="/orders" element={<OrderHistoryPage />} />
-            <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
-            <Route path="/search" element={<SearchResultsPage />} />
+          <div className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/subcategory" element={<SubCategoryHome />} />
+              <Route path="/add_item" element={<AddItem />} />
+              <Route path="/confirm-email" element={<ConfirmEmail />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order/success" element={<OrderSuccessPage />} />
+              <Route path="/orders" element={<OrderHistoryPage />} />
+              <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
 
-            {/* Static pages - Support */}
-            <Route path="/help" element={<HelpCenterPage />} />
-            <Route path="/shipping" element={<ShippingReturnsPage />} />
-            <Route path="/faqs" element={<FAQsPage />} />
-            <Route path="/terms" element={<TermsPage />} />
+              {/* Static pages - Support */}
+              <Route path="/help" element={<HelpCenterPage />} />
+              <Route path="/shipping" element={<ShippingReturnsPage />} />
+              <Route path="/faqs" element={<FAQsPage />} />
+              <Route path="/terms" element={<TermsPage />} />
 
-            {/* Static pages - Resources */}
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/catalogs" element={<CatalogsPage />} />
-            <Route path="/guides" element={<BuyingGuidesPage />} />
-            <Route path="/careers" element={<CareersPage />} />
+              {/* Static pages - Resources */}
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/catalogs" element={<CatalogsPage />} />
+              <Route path="/guides" element={<BuyingGuidesPage />} />
+              <Route path="/careers" element={<CareersPage />} />
 
-            {/* Static pages - Company */}
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-          </Routes>
+              {/* Static pages - Company */}
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </div>
+
+          <Footer />
         </div>
-
-        <Footer />
-      </div>
-    </CartProvider>
+      </CartProvider>
+    </ErrorBoundary>
   );
 }
