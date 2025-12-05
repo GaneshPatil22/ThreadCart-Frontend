@@ -126,7 +126,7 @@ export default function Footer() {
       <div className="border-t border-border mt-8">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-xs">
           <p className="text-text-secondary">
-            &copy; {new Date().getFullYear()} ShopMate. All rights reserved.
+            &copy; {new Date().getFullYear()} ThreadCart. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-2 md:mt-0">
             <Link to="/privacy" className="hover:text-text-primary">

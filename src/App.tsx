@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./components/Home";
 import Products from "./components/product/Products";
 import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
@@ -13,10 +14,23 @@ import { OrderSuccessPage } from "./pages/order/OrderSuccessPage";
 import { OrderHistoryPage } from "./pages/order/OrderHistoryPage";
 import { OrderDetailsPage } from "./pages/order/OrderDetailsPage";
 
+// Static pages
+import HelpCenterPage from "./pages/static/HelpCenterPage";
+import ShippingReturnsPage from "./pages/static/ShippingReturnsPage";
+import FAQsPage from "./pages/static/FAQsPage";
+import TermsPage from "./pages/static/TermsPage";
+import BlogPage from "./pages/static/BlogPage";
+import CatalogsPage from "./pages/static/CatalogsPage";
+import BuyingGuidesPage from "./pages/static/BuyingGuidesPage";
+import CareersPage from "./pages/static/CareersPage";
+import AboutPage from "./pages/static/AboutPage";
+import ContactPage from "./pages/static/ContactPage";
+
 export default function App() {
   return (
     <CartProvider>
       <div className="bg-background min-h-screen text-text-primary flex flex-col">
+        <ScrollToTop />
         <Navbar />
 
         <div className="flex-1">
@@ -31,7 +45,22 @@ export default function App() {
             <Route path="/order/success" element={<OrderSuccessPage />} />
             <Route path="/orders" element={<OrderHistoryPage />} />
             <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
-            {/* more routes */}
+
+            {/* Static pages - Support */}
+            <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/shipping" element={<ShippingReturnsPage />} />
+            <Route path="/faqs" element={<FAQsPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+
+            {/* Static pages - Resources */}
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/catalogs" element={<CatalogsPage />} />
+            <Route path="/guides" element={<BuyingGuidesPage />} />
+            <Route path="/careers" element={<CareersPage />} />
+
+            {/* Static pages - Company */}
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
           </Routes>
         </div>
 
