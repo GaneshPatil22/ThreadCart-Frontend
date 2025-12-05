@@ -168,7 +168,10 @@ export default function ManageProducts() {
                   <select
                     value={editForm.sub_cat_id}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, sub_cat_id: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        sub_cat_id: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                   >
@@ -182,20 +185,26 @@ export default function ManageProducts() {
                   <input
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Product Name"
                   />
 
                   <div className="space-y-2">
-                    <label className="font-medium text-sm text-gray-700">Image URLs</label>
+                    <label className="font-medium text-sm text-gray-700">
+                      Image URLs
+                    </label>
                     {editForm.image_url.map((url, index) => (
                       <div key={index} className="flex gap-2 items-center">
                         <input
                           type="text"
                           placeholder={`Image URL ${index + 1}`}
                           value={url}
-                          onChange={(e) => handleImageChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleImageChange(index, e.target.value)
+                          }
                           className="flex-1 border rounded-lg p-2"
                         />
                         {editForm.image_url.length > 1 && (
@@ -221,7 +230,12 @@ export default function ManageProducts() {
                   <input
                     type="number"
                     value={editForm.price}
-                    onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        price: Number(e.target.value),
+                      })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Price"
                     min={0}
@@ -229,7 +243,12 @@ export default function ManageProducts() {
                   <input
                     type="number"
                     value={editForm.quantity}
-                    onChange={(e) => setEditForm({ ...editForm, quantity: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        quantity: Number(e.target.value),
+                      })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Quantity"
                     min={0}
@@ -237,7 +256,9 @@ export default function ManageProducts() {
                   <input
                     type="text"
                     value={editForm.thread_style || ""}
-                    onChange={(e) => setEditForm({ ...editForm, thread_style: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, thread_style: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Thread Style"
                   />
@@ -245,7 +266,10 @@ export default function ManageProducts() {
                     type="text"
                     value={editForm.thread_size_pitch || ""}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, thread_size_pitch: e.target.value })
+                      setEditForm({
+                        ...editForm,
+                        thread_size_pitch: e.target.value,
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Thread Size x Pitch"
@@ -254,7 +278,10 @@ export default function ManageProducts() {
                     type="number"
                     value={editForm.fastener_length || ""}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, fastener_length: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        fastener_length: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Fastener Length"
@@ -264,7 +291,10 @@ export default function ManageProducts() {
                     type="number"
                     value={editForm.head_height || ""}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, head_height: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        head_height: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Head Height"
@@ -273,7 +303,12 @@ export default function ManageProducts() {
                   <input
                     type="number"
                     value={editForm.Grade || ""}
-                    onChange={(e) => setEditForm({ ...editForm, Grade: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        Grade: Number(e.target.value),
+                      })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Grade"
                     min={0}
@@ -281,7 +316,9 @@ export default function ManageProducts() {
                   <input
                     type="text"
                     value={editForm.Coating || ""}
-                    onChange={(e) => setEditForm({ ...editForm, Coating: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, Coating: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Coating"
                   />
@@ -289,7 +326,10 @@ export default function ManageProducts() {
                     type="number"
                     value={editForm.part_number || ""}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, part_number: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        part_number: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Part Number"
@@ -299,7 +339,10 @@ export default function ManageProducts() {
                     type="number"
                     value={editForm.sort_number}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, sort_number: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        sort_number: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Sort Number"
@@ -329,20 +372,29 @@ export default function ManageProducts() {
                         alt={product.name}
                         className="w-20 h-20 object-cover rounded"
                         onError={(e) => {
-                          e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
+                          e.currentTarget.src =
+                            "https://via.placeholder.com/150?text=No+Image";
                         }}
                       />
                     )}
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg">{product.name}</h4>
                       <div className="text-sm text-gray-600 space-y-1 mt-1">
-                        <p>SubCategory: {getSubCategoryName(product.sub_cat_id)}</p>
-                        <p>Price: ${product.price} | Quantity: {product.quantity}</p>
-                        {product.thread_style && <p>Thread Style: {product.thread_style}</p>}
+                        <p>
+                          SubCategory: {getSubCategoryName(product.sub_cat_id)}
+                        </p>
+                        <p>
+                          Price: ${product.price} | Quantity: {product.quantity}
+                        </p>
+                        {product.thread_style && (
+                          <p>Thread Style: {product.thread_style}</p>
+                        )}
                         {product.thread_size_pitch && (
                           <p>Thread Size: {product.thread_size_pitch}</p>
                         )}
-                        <p className="text-xs text-gray-500">Sort Order: {product.sort_number}</p>
+                        <p className="text-xs text-gray-500">
+                          Sort Order: {product.sort_number}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -355,7 +407,7 @@ export default function ManageProducts() {
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                      className="bg-primary text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                     >
                       Delete
                     </button>

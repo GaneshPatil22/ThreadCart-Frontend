@@ -92,11 +92,18 @@ export default function ManageSubCategories() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this subcategory? This will also affect related products.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this subcategory? This will also affect related products."
+      )
+    ) {
       return;
     }
 
-    const { error } = await supabase.from("sub-categories").delete().eq("id", id);
+    const { error } = await supabase
+      .from("sub-categories")
+      .delete()
+      .eq("id", id);
 
     if (error) {
       alert("Error deleting subcategory: " + error.message);
@@ -134,7 +141,10 @@ export default function ManageSubCategories() {
                   <select
                     value={editForm.category_id}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, category_id: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        category_id: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                   >
@@ -148,21 +158,27 @@ export default function ManageSubCategories() {
                   <input
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="SubCategory Name"
                   />
                   <input
                     type="text"
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Description"
                   />
                   <input
                     type="text"
                     value={editForm.image_url}
-                    onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, image_url: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Image URL"
                   />
@@ -170,7 +186,10 @@ export default function ManageSubCategories() {
                     type="number"
                     value={editForm.sort_number}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, sort_number: Number(e.target.value) })
+                      setEditForm({
+                        ...editForm,
+                        sort_number: Number(e.target.value),
+                      })
                     }
                     className="w-full border rounded-lg p-2"
                     placeholder="Sort Number"
@@ -199,15 +218,20 @@ export default function ManageSubCategories() {
                       alt={subCategory.name}
                       className="w-16 h-16 object-cover rounded"
                       onError={(e) => {
-                        e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
+                        e.currentTarget.src =
+                          "https://via.placeholder.com/150?text=No+Image";
                       }}
                     />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-lg">{subCategory.name}</h4>
-                      <p className="text-sm text-gray-600">{subCategory.description}</p>
+                      <h4 className="font-semibold text-lg">
+                        {subCategory.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {subCategory.description}
+                      </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Category: {getCategoryName(subCategory.category_id)} | Sort Order:{" "}
-                        {subCategory.sort_number}
+                        Category: {getCategoryName(subCategory.category_id)} |
+                        Sort Order: {subCategory.sort_number}
                       </p>
                     </div>
                   </div>
@@ -220,7 +244,7 @@ export default function ManageSubCategories() {
                     </button>
                     <button
                       onClick={() => handleDelete(subCategory.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                      className="bg-primary text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                     >
                       Delete
                     </button>

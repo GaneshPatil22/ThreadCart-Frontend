@@ -34,8 +34,7 @@ export const CartSummary = () => {
     }
 
     // Proceed to checkout
-    // TODO: Navigate to checkout page (Phase 7)
-    alert('Checkout functionality coming soon!');
+    navigate('/checkout');
   };
 
   return (

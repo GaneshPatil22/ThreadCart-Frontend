@@ -69,7 +69,11 @@ export default function ManageCategories() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this category? This will also affect related subcategories.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this category? This will also affect related subcategories."
+      )
+    ) {
       return;
     }
 
@@ -96,7 +100,9 @@ export default function ManageCategories() {
       <h3 className="text-xl font-semibold mb-4">Manage Categories</h3>
 
       {categories.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">No categories found. Add one using the form above.</p>
+        <p className="text-gray-500 text-center py-8">
+          No categories found. Add one using the form above.
+        </p>
       ) : (
         <div className="space-y-3">
           {categories.map((category) => (
@@ -109,28 +115,39 @@ export default function ManageCategories() {
                   <input
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Category Name"
                   />
                   <input
                     type="text"
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Description"
                   />
                   <input
                     type="text"
                     value={editForm.image_url}
-                    onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, image_url: e.target.value })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Image URL"
                   />
                   <input
                     type="number"
                     value={editForm.sort_number}
-                    onChange={(e) => setEditForm({ ...editForm, sort_number: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        sort_number: Number(e.target.value),
+                      })
+                    }
                     className="w-full border rounded-lg p-2"
                     placeholder="Sort Number"
                     min={0}
@@ -158,13 +175,18 @@ export default function ManageCategories() {
                       alt={category.name}
                       className="w-16 h-16 object-cover rounded"
                       onError={(e) => {
-                        e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
+                        e.currentTarget.src =
+                          "https://via.placeholder.com/150?text=No+Image";
                       }}
                     />
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg">{category.name}</h4>
-                      <p className="text-sm text-gray-600">{category.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">Sort Order: {category.sort_number}</p>
+                      <p className="text-sm text-gray-600">
+                        {category.description}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Sort Order: {category.sort_number}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -176,7 +198,7 @@ export default function ManageCategories() {
                     </button>
                     <button
                       onClick={() => handleDelete(category.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                      className="bg-primary text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                     >
                       Delete
                     </button>
