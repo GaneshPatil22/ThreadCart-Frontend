@@ -1,0 +1,12 @@
+# ThreadCart Robots.txt
+# https://threadcart.in
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /add_item
+Disallow: /confirm-email
+
+# Sitemap location
+Sitemap: https://threadcart.in/sitemap.xml
