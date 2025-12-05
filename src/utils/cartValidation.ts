@@ -100,9 +100,9 @@ export const validateCartItems = async (
         product_id: cartItem.product_id,
         product_name: product.name,
         issue_type: 'price_changed',
-        message: `Price has changed from $${cartItem.product.price.toFixed(
+        message: `Price has changed from ₹${cartItem.product.price.toFixed(
           2
-        )} to $${product.price.toFixed(2)}`,
+        )} to ₹${product.price.toFixed(2)}`,
         old_price: cartItem.product.price,
         new_price: product.price,
       });
@@ -269,7 +269,7 @@ export const calculateCartTotals = (
   const tax = 0;
 
   // TODO: Implement shipping calculation based on weight/location
-  // Free shipping over $100
+  // Free shipping over ₹100
   const shipping = subtotal >= 100 ? 0 : 0;
 
   const total = subtotal + tax + shipping;
@@ -291,9 +291,9 @@ export const calculateCartTotals = (
 // ============================================================================
 
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(amount);
 };
 

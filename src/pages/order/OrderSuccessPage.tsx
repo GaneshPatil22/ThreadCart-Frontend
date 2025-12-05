@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { OrderWithItems } from '../../types/order.types';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
+import { convertGoogleDriveUrl } from '../../utils/imageUtils';
+import { trackPurchase } from '../../utils/analytics';
 
 export const OrderSuccessPage = () => {
   const location = useLocation();
@@ -25,6 +27,15 @@ export const OrderSuccessPage = () => {
     }
 
     setOrder(orderData);
+
+    // Track purchase event
+    const items = orderData.items.map(item => ({
+      id: item.product_id,
+      name: item.product?.name || 'Product',
+      price: item.price_at_purchase,
+      quantity: item.quantity,
+    }));
+    trackPurchase(orderData.order_number, items, orderData.total_amount);
 
     // Clear the navigation state to prevent showing same order on refresh
     window.history.replaceState({}, document.title);
@@ -172,9 +183,12 @@ export const OrderSuccessPage = () => {
                     <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       {item.product?.image_url?.[0] && (
                         <img
-                          src={item.product.image_url[0]}
+                          src={convertGoogleDriveUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x150?text=No+Image';
+                          }}
                         />
                       )}
                     </div>
@@ -183,12 +197,12 @@ export const OrderSuccessPage = () => {
                         {item.product?.name || 'Product'}
                       </p>
                       <p className="text-xs text-text-secondary">
-                        Qty: {item.quantity} × ${item.price_at_purchase.toFixed(2)}
+                        Qty: {item.quantity} × ₹{item.price_at_purchase.toFixed(2)}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="font-semibold text-text-primary">
-                        ${(item.quantity * item.price_at_purchase).toFixed(2)}
+                        ₹{(item.quantity * item.price_at_purchase).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -201,7 +215,7 @@ export const OrderSuccessPage = () => {
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-text-primary">Total Amount</span>
                 <span className="text-2xl font-bold text-primary">
-                  ${order.total_amount.toFixed(2)}
+                  ₹{order.total_amount.toFixed(2)}
                 </span>
               </div>
               {isCod && (

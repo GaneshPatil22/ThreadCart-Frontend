@@ -384,7 +384,7 @@ export default function ManageProducts() {
                           SubCategory: {getSubCategoryName(product.sub_cat_id)}
                         </p>
                         <p>
-                          Price: ${product.price} | Quantity: {product.quantity}
+                          Price: ₹{product.price} | Quantity: {product.quantity}
                         </p>
                         {product.thread_style && (
                           <p>Thread Style: {product.thread_style}</p>

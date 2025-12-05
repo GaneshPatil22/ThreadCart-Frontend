@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import type { CartItemWithProduct } from '../../types/cart.types';
 import { useCart } from '../../hooks/useCart';
+import { convertGoogleDriveUrl } from '../../utils/imageUtils';
 
 interface CartItemRowProps {
   item: CartItemWithProduct;
@@ -47,19 +48,6 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
 
     setIsRemoving(true);
     await removeFromCart(product.id);
-  };
-
-  // Google Drive URL Converter
-  const convertGoogleDriveUrl = (url: string): string => {
-    const fileIdMatch =
-      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-
-    if (fileIdMatch && fileIdMatch[1]) {
-      const fileId = fileIdMatch[1];
-      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-    }
-
-    return url;
   };
 
   // Get product images
@@ -160,7 +148,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
 
         {/* Price */}
         <p className="text-lg font-semibold text-primary mt-2">
-          ${product.price.toFixed(2)}
+          ₹{product.price.toFixed(2)}
         </p>
       </div>
 
@@ -202,7 +190,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
 
         {/* Subtotal */}
         <p className="text-lg font-semibold text-text-primary">
-          ${subtotal.toFixed(2)}
+          ₹{subtotal.toFixed(2)}
         </p>
 
         {/* Remove Button */}

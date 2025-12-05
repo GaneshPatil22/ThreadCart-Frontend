@@ -1,7 +1,19 @@
+import { useState } from "react";
 import { Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Hero() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`);
+    }
+  };
+
   return (
     <section
       className="relative border-b border-border py-16 bg-background"
@@ -22,18 +34,23 @@ export default function Hero() {
           From industrial supplies to safety equipment — get quality products at unbeatable prices.
         </p>
 
-        <div className="flex justify-center max-w-xl mx-auto">
+        <form onSubmit={handleSearch} className="flex justify-center max-w-xl mx-auto">
           <div className="flex w-full bg-white border border-border rounded-lg shadow-sm overflow-hidden">
             <input
               type="text"
-              placeholder="Search products, brands, or categories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products, categories..."
               className="flex-1 px-4 py-3 focus:outline-none"
             />
-            <button className="bg-primary text-white px-5 flex items-center justify-center hover:bg-primary-hover">
+            <button
+              type="submit"
+              className="bg-primary text-white px-5 flex items-center justify-center hover:bg-primary-hover"
+            >
               <Search className="w-5 h-5" />
             </button>
           </div>
-        </div>
+        </form>
 
         <Link
           to="/subcategory"

@@ -13,6 +13,7 @@ import { OrderStatusTimeline } from '../../components/order/OrderStatusTimeline'
 import { EmailInvoiceModal } from '../../components/order/EmailInvoiceModal';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
+import { convertGoogleDriveUrl } from '../../utils/imageUtils';
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -157,9 +158,12 @@ export const OrderDetailsPage = () => {
                     <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-border">
                       {item.product?.image_url?.[0] ? (
                         <img
-                          src={item.product.image_url[0]}
+                          src={convertGoogleDriveUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x150?text=No+Image';
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -185,11 +189,11 @@ export const OrderDetailsPage = () => {
                           Qty: {item.quantity}
                         </span>
                         <span className="font-semibold text-text-primary">
-                          ${(item.quantity * item.price_at_purchase).toFixed(2)}
+                          ₹{(item.quantity * item.price_at_purchase).toFixed(2)}
                         </span>
                       </div>
                       <p className="text-xs text-text-secondary mt-1">
-                        ${item.price_at_purchase.toFixed(2)} each
+                        ₹{item.price_at_purchase.toFixed(2)} each
                       </p>
                     </div>
                   </div>
@@ -216,7 +220,7 @@ export const OrderDetailsPage = () => {
               <div className="space-y-3">
                 <div className="flex justify-between text-text-secondary">
                   <span>Subtotal</span>
-                  <span>${order.total_amount.toFixed(2)}</span>
+                  <span>₹{order.total_amount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-text-secondary">
                   <span>Shipping</span>
@@ -224,13 +228,13 @@ export const OrderDetailsPage = () => {
                 </div>
                 <div className="flex justify-between text-text-secondary">
                   <span>Tax</span>
-                  <span>$0.00</span>
+                  <span>₹0.00</span>
                 </div>
                 <div className="border-t border-border pt-3">
                   <div className="flex justify-between">
                     <span className="font-semibold text-text-primary">Total</span>
                     <span className="font-bold text-xl text-primary">
-                      ${order.total_amount.toFixed(2)}
+                      ₹{order.total_amount.toFixed(2)}
                     </span>
                   </div>
                 </div>

@@ -442,32 +442,32 @@ export const CheckoutPage = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-text-secondary">
                   <span>Subtotal ({cart.total_quantity} items)</span>
-                  <span>${cart.subtotal.toFixed(2)}</span>
+                  <span>₹{cart.subtotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between text-text-secondary">
                   <span>Shipping</span>
                   <span className={cart.shipping === 0 ? 'text-green-600 font-medium' : ''}>
-                    {cart.shipping === 0 ? 'FREE' : `$${cart.shipping.toFixed(2)}`}
+                    {cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-text-secondary">
                   <span>Tax</span>
-                  <span>${cart.tax.toFixed(2)}</span>
+                  <span>₹{cart.tax.toFixed(2)}</span>
                 </div>
 
                 {paymentMethod === 'cod' && (
                   <div className="flex justify-between text-text-secondary">
                     <span>COD Charges</span>
-                    <span>$0.00</span>
+                    <span>₹0.00</span>
                   </div>
                 )}
 
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between text-lg font-semibold text-text-primary">
                     <span>Total</span>
-                    <span>${cart.total.toFixed(2)}</span>
+                    <span>₹{cart.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -493,7 +493,7 @@ export const CheckoutPage = () => {
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                       />
                     </svg>
-                    <span>Pay ${cart.total.toFixed(2)}</span>
+                    <span>Pay ₹{cart.total.toFixed(2)}</span>
                   </>
                 ) : (
                   <>

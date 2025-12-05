@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import { useState, useEffect } from "react";
 import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
+import { convertGoogleDriveUrl } from "../../utils/imageUtils";
 
 interface CategoryData {
   categoryId?: string;
@@ -106,20 +107,6 @@ export default function SubCategoryGrid({
         description: cat.desc,
       },
     });
-  };
-
-  const convertGoogleDriveUrl = (url: string): string => {
-    // Match /d/FILE_ID/ or id=FILE_ID
-    const fileIdMatch =
-      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-
-    if (fileIdMatch && fileIdMatch[1]) {
-      const fileId = fileIdMatch[1];
-      // Use thumbnail endpoint - more reliable than uc?export=view
-      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-    }
-
-    return url;
   };
 
   return (

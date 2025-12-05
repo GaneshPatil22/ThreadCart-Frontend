@@ -112,7 +112,7 @@ export const CartPage = () => {
           <div>
             <h3 className="font-semibold text-text-primary mb-1">Free Shipping</h3>
             <p className="text-sm text-text-secondary">
-              On orders over $100
+              On orders over ₹100
             </p>
           </div>
         </div>

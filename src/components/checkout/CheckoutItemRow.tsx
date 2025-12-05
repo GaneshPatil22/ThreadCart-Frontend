@@ -5,6 +5,7 @@
 // ============================================================================
 
 import type { CartItemWithProduct } from '../../types/cart.types';
+import { convertGoogleDriveUrl } from '../../utils/imageUtils';
 
 interface CheckoutItemRowProps {
   item: CartItemWithProduct;
@@ -17,7 +18,7 @@ export const CheckoutItemRow = ({ item }: CheckoutItemRowProps) => {
   // Get the first image or use placeholder
   const imageUrl =
     product.image_url && product.image_url.length > 0
-      ? product.image_url[0]
+      ? convertGoogleDriveUrl(product.image_url[0])
       : '/placeholder-product.png';
 
   return (
@@ -51,10 +52,10 @@ export const CheckoutItemRow = ({ item }: CheckoutItemRowProps) => {
 
       {/* Price */}
       <div className="text-right flex-shrink-0">
-        <p className="font-semibold text-text-primary">${itemTotal.toFixed(2)}</p>
+        <p className="font-semibold text-text-primary">₹{itemTotal.toFixed(2)}</p>
         {quantity > 1 && (
           <p className="text-xs text-text-secondary">
-            ${product.price.toFixed(2)} each
+            ₹{product.price.toFixed(2)} each
           </p>
         )}
       </div>

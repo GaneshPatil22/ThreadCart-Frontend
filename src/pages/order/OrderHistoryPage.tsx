@@ -10,6 +10,7 @@ import { supabase } from '../../utils/supabase';
 import { getUserOrders } from '../../services/order.service';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
+import { convertGoogleDriveUrl } from '../../utils/imageUtils';
 
 export const OrderHistoryPage = () => {
   const navigate = useNavigate();
@@ -150,9 +151,12 @@ export const OrderHistoryPage = () => {
                           >
                             {item.product?.image_url?.[0] && (
                               <img
-                                src={item.product.image_url[0]}
+                                src={convertGoogleDriveUrl(item.product.image_url[0])}
                                 alt={item.product.name}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x150?text=No+Image';
+                                }}
                               />
                             )}
                           </div>
@@ -184,7 +188,7 @@ export const OrderHistoryPage = () => {
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-lg font-semibold text-text-primary">
-                          ${order.total_amount.toFixed(2)}
+                          ₹{order.total_amount.toFixed(2)}
                         </span>
                         <svg
                           className="w-5 h-5 text-text-secondary"

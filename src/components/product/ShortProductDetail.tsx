@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useCart } from "../../hooks/useCart";
+import { convertGoogleDriveUrl } from "../../utils/imageUtils";
+import { trackAddToCart } from "../../utils/analytics";
 
 interface ProductDetailProps {
   name: string;
@@ -71,6 +73,8 @@ export default function ShortProductDetail({
     setAddingToCart(false);
 
     if (result.success) {
+      // Track add to cart event
+      trackAddToCart({ id: productId, name, price }, cartQuantity);
       setCartQuantity(1); // Reset quantity after adding
       alert(`Successfully added ${cartQuantity} item(s) to cart!`);
     } else {
@@ -96,19 +100,6 @@ export default function ShortProductDetail({
     setCartQuantity(newQty);
   };
 
-  const convertGoogleDriveUrl = (url: string): string => {
-    // Match /d/FILE_ID/ or id=FILE_ID
-    const fileIdMatch =
-      url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-
-    if (fileIdMatch && fileIdMatch[1]) {
-      const fileId = fileIdMatch[1];
-      // Use thumbnail endpoint - more reliable than uc?export=view
-      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-    }
-
-    return url;
-  };
   return (
     <div className="bg-gray-50 p-4 border-t border-gray-200 flex gap-4">
       {/* Image Carousel */}
@@ -357,12 +348,15 @@ export default function ShortProductDetail({
             onClick={(e) => e.stopPropagation()} // prevent closing on image click
           >
             <img
-              src={image[currentIndex]}
+              src={convertGoogleDriveUrl(image[currentIndex])}
               alt={name}
               className="max-w-[90vw] max-h-[80vh] object-contain cursor-zoom-in"
               onClick={(e) => {
                 e.currentTarget.classList.toggle("scale-150");
                 e.currentTarget.classList.toggle("cursor-zoom-out");
+              }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=No+Image';
               }}
             />
           </div>

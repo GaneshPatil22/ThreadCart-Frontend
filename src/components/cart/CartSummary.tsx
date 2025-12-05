@@ -46,19 +46,19 @@ export const CartSummary = () => {
       {/* Cart Items Count */}
       <div className="flex justify-between text-text-secondary mb-2">
         <span>Items ({cart.item_count})</span>
-        <span>${cart.subtotal.toFixed(2)}</span>
+        <span>₹{cart.subtotal.toFixed(2)}</span>
       </div>
 
       {/* Tax (Future) */}
       <div className="flex justify-between text-text-secondary mb-2">
         <span>Tax</span>
-        <span>${cart.tax.toFixed(2)}</span>
+        <span>₹{cart.tax.toFixed(2)}</span>
       </div>
 
       {/* Shipping (Future) */}
       <div className="flex justify-between text-text-secondary mb-4">
         <span>Shipping</span>
-        <span>{cart.shipping === 0 ? 'FREE' : `$${cart.shipping.toFixed(2)}`}</span>
+        <span>{cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}</span>
       </div>
 
       {/* Divider */}
@@ -67,7 +67,7 @@ export const CartSummary = () => {
       {/* Total */}
       <div className="flex justify-between text-lg font-semibold text-text-primary mb-6">
         <span>Total</span>
-        <span>${cart.total.toFixed(2)}</span>
+        <span>₹{cart.total.toFixed(2)}</span>
       </div>
 
       {/* Checkout Button */}

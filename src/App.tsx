@@ -1,7 +1,10 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import PageViewTracker from "./components/PageViewTracker";
+import { initGA } from "./utils/analytics";
 import Home from "./components/Home";
 import Products from "./components/product/Products";
 import { SubCategoryHome } from "./components/sub-categories/SubCategoryHome";
@@ -15,6 +18,7 @@ import { OrderHistoryPage } from "./pages/order/OrderHistoryPage";
 import { OrderDetailsPage } from "./pages/order/OrderDetailsPage";
 
 // Static pages
+import SearchResultsPage from "./pages/SearchResultsPage";
 import HelpCenterPage from "./pages/static/HelpCenterPage";
 import ShippingReturnsPage from "./pages/static/ShippingReturnsPage";
 import FAQsPage from "./pages/static/FAQsPage";
@@ -27,10 +31,16 @@ import AboutPage from "./pages/static/AboutPage";
 import ContactPage from "./pages/static/ContactPage";
 
 export default function App() {
+  // Initialize Google Analytics on app mount
+  useEffect(() => {
+    initGA();
+  }, []);
+
   return (
     <CartProvider>
       <div className="bg-background min-h-screen text-text-primary flex flex-col">
         <ScrollToTop />
+        <PageViewTracker />
         <Navbar />
 
         <div className="flex-1">
@@ -45,6 +55,7 @@ export default function App() {
             <Route path="/order/success" element={<OrderSuccessPage />} />
             <Route path="/orders" element={<OrderHistoryPage />} />
             <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
+            <Route path="/search" element={<SearchResultsPage />} />
 
             {/* Static pages - Support */}
             <Route path="/help" element={<HelpCenterPage />} />

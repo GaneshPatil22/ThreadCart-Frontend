@@ -71,9 +71,9 @@ export default function Navbar() {
                 Admin Panel
               </Link>
             )}
-            <a href="#" className="text-white hover:text-blue-50">
+            <Link to="/help" className="text-white hover:text-blue-200">
               Help
-            </a>
+            </Link>
           </div>
 
           {/* Right section */}

@@ -165,8 +165,8 @@ export const generateInvoicePDF = (order: OrderWithItems): jsPDF => {
 
     addText(displayName, colItem, yPos);
     addText(item.quantity.toString(), colQty, yPos);
-    addText(`$${item.price_at_purchase.toFixed(2)}`, colPrice, yPos);
-    addText(`$${itemTotal.toFixed(2)}`, colTotal, yPos);
+    addText(`₹${item.price_at_purchase.toFixed(2)}`, colPrice, yPos);
+    addText(`₹${itemTotal.toFixed(2)}`, colTotal, yPos);
 
     yPos += 7;
 
@@ -192,7 +192,7 @@ export const generateInvoicePDF = (order: OrderWithItems): jsPDF => {
   const totalsX = pageWidth - 80;
 
   addText('Subtotal:', totalsX, yPos);
-  addText(`$${order.total_amount.toFixed(2)}`, rightMargin - 2, yPos, { align: 'right' });
+  addText(`₹${order.total_amount.toFixed(2)}`, rightMargin - 2, yPos, { align: 'right' });
   yPos += 7;
 
   addText('Shipping:', totalsX, yPos);
@@ -200,7 +200,7 @@ export const generateInvoicePDF = (order: OrderWithItems): jsPDF => {
   yPos += 7;
 
   addText('Tax:', totalsX, yPos);
-  addText('$0.00', rightMargin - 2, yPos, { align: 'right' });
+  addText('₹0.00', rightMargin - 2, yPos, { align: 'right' });
   yPos += 10;
 
   // Total
@@ -208,7 +208,7 @@ export const generateInvoicePDF = (order: OrderWithItems): jsPDF => {
   doc.rect(totalsX - 10, yPos - 5, rightMargin - totalsX + 12, 12, 'F');
   doc.setTextColor(255, 255, 255);
   addText('TOTAL:', totalsX, yPos + 2, { fontStyle: 'bold', fontSize: 11 });
-  addText(`$${order.total_amount.toFixed(2)}`, rightMargin - 2, yPos + 2, {
+  addText(`₹${order.total_amount.toFixed(2)}`, rightMargin - 2, yPos + 2, {
     fontStyle: 'bold',
     fontSize: 11,
     align: 'right'
