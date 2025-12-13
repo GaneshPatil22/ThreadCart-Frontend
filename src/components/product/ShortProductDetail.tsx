@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCart } from "../../hooks/useCart";
-import { convertGoogleDriveUrl } from "../../utils/imageUtils";
+import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 
 interface ProductDetailProps {
@@ -109,10 +109,7 @@ export default function ShortProductDetail({
           alt={name}
           className="w-full h-full object-contain rounded border cursor-pointer"
           onClick={() => setShowModal(true)}
-          onError={(e) =>
-            (e.currentTarget.src =
-              "https://via.placeholder.com/150x150?text=No+Image")
-          }
+          onError={handleImageError}
         />
 
         {/* Left/Right Navigation (Optional) */}
@@ -159,7 +156,7 @@ export default function ShortProductDetail({
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3 text-sm">
           <div>
             <span className="text-gray-500">Price:</span>
-            <span className="ml-2 font-semibold text-primary">₹{price}</span>
+            <span className="ml-2 font-semibold text-accent">₹{price}</span>
           </div>
 
           {/* <div>
@@ -355,9 +352,7 @@ export default function ShortProductDetail({
                 e.currentTarget.classList.toggle("scale-150");
                 e.currentTarget.classList.toggle("cursor-zoom-out");
               }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=No+Image';
-              }}
+              onError={handleImageError}
             />
           </div>
         </div>

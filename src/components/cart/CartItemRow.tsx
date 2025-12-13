@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import type { CartItemWithProduct } from '../../types/cart.types';
 import { useCart } from '../../hooks/useCart';
-import { convertGoogleDriveUrl } from '../../utils/imageUtils';
+import { convertGoogleDriveUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
 
 interface CartItemRowProps {
   item: CartItemWithProduct;
@@ -54,7 +54,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const productImages =
     product.image_url && product.image_url.length > 0
       ? product.image_url
-      : ['https://via.placeholder.com/150x150?text=No+Image'];
+      : [PLACEHOLDER_IMAGE];
 
   // Image navigation
   const handlePrevImage = () => {
@@ -82,10 +82,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           alt={product.name}
           className="w-full h-full object-contain rounded-md border cursor-pointer"
           onClick={() => setShowModal(true)}
-          onError={(e) =>
-            (e.currentTarget.src =
-              'https://via.placeholder.com/150x150?text=No+Image')
-          }
+          onError={handleImageError}
         />
 
         {/* Navigation Arrows */}
@@ -147,7 +144,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
         )}
 
         {/* Price */}
-        <p className="text-lg font-semibold text-primary mt-2">
+        <p className="text-lg font-semibold text-accent mt-2">
           ₹{product.price.toFixed(2)}
         </p>
       </div>

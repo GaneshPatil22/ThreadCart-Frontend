@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import { handleImageError } from "../../utils/imageUtils";
 
 interface Product {
   id: number;
@@ -371,10 +372,7 @@ export default function ManageProducts() {
                         src={product.image_url[0]}
                         alt={product.name}
                         className="w-20 h-20 object-cover rounded"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            "https://via.placeholder.com/150?text=No+Image";
-                        }}
+                        onError={handleImageError}
                       />
                     )}
                     <div className="flex-1">

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { SOCIAL_MEDIA } from "../utils/constants";
 
 export default function Footer() {
   return (
@@ -90,16 +91,31 @@ export default function Footer() {
         <div>
           <h3 className="text-text-primary font-semibold mb-4">Stay Connected</h3>
           <div className="flex space-x-4 mb-4">
-            <a href="#" className="hover:text-primary transition-colors duration-200">
+            <a
+              href={SOCIAL_MEDIA.FACEBOOK.URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={SOCIAL_MEDIA.FACEBOOK.LABEL}
+              className="hover:text-primary transition-colors duration-200"
+            >
               <FaFacebookF className="w-5 h-5" />
             </a>
-            <a href="#" className="hover:text-primary transition-colors duration-200">
-              <FaTwitter className="w-5 h-5" />
-            </a>
-            <a href="#" className="hover:text-primary transition-colors duration-200">
+            <a
+              href={SOCIAL_MEDIA.LINKEDIN.URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={SOCIAL_MEDIA.LINKEDIN.LABEL}
+              className="hover:text-primary transition-colors duration-200"
+            >
               <FaLinkedinIn className="w-5 h-5" />
             </a>
-            <a href="#" className="hover:text-primary transition-colors duration-200">
+            <a
+              href={SOCIAL_MEDIA.INSTAGRAM.URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={SOCIAL_MEDIA.INSTAGRAM.LABEL}
+              className="hover:text-primary transition-colors duration-200"
+            >
               <FaInstagram className="w-5 h-5" />
             </a>
           </div>

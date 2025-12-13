@@ -25,13 +25,13 @@ export function SubCategoryHome() {
 
         <p className="text-sm text-text-secondary mb-6">
           Showing results for:{" "}
-          <span className="font-medium text-primary">
+          <span className="font-medium text-accent">
             {categoryData?.categoryName || "all"}
           </span>
         </p>
 
         <p className="text-sm text-text-secondary mb-6">
-          <span className="font-medium text-primary">
+          <span className="font-medium text-accent">
             {categoryData?.description || ""}
           </span>
         </p>

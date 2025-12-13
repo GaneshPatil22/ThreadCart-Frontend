@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import { handleImageError } from "../../utils/imageUtils";
 
 interface Category {
   id: number;
@@ -174,10 +175,7 @@ export default function ManageCategories() {
                       src={category.image_url}
                       alt={category.name}
                       className="w-16 h-16 object-cover rounded"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://via.placeholder.com/150?text=No+Image";
-                      }}
+                      onError={handleImageError}
                     />
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg">{category.name}</h4>

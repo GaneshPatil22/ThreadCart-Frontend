@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { NumberInput } from "../../utils/NumberInput";
+import { handleImageError } from "../../utils/imageUtils";
 
 export default function AddProductForm() {
   const [subcategories, setSubcategories] = useState<
@@ -164,10 +165,7 @@ export default function AddProductForm() {
                 src={url}
                 alt={`Preview ${i + 1}`}
                 className="w-16 h-16 object-cover rounded border"
-                onError={(e) =>
-                  (e.currentTarget.src =
-                    "https://via.placeholder.com/150x150?text=No+Image")
-                }
+                onError={handleImageError}
               />
             ))}
         </div>

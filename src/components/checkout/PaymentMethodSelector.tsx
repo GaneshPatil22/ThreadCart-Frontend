@@ -67,7 +67,7 @@ export const PaymentMethodSelector = ({
             key={method.value}
             className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all ${
               isSelected
-                ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                ? 'border-accent bg-accent-light ring-1 ring-accent'
                 : 'border-border hover:border-gray-300'
             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
@@ -78,11 +78,11 @@ export const PaymentMethodSelector = ({
               checked={isSelected}
               onChange={() => onChange(method.value)}
               disabled={isDisabled}
-              className="mt-1 h-4 w-4 text-primary focus:ring-primary border-gray-300"
+              className="mt-1 h-4 w-4 text-accent focus:ring-accent border-gray-300"
             />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className={isSelected ? 'text-primary' : 'text-text-secondary'}>
+                <span className={isSelected ? 'text-accent' : 'text-text-secondary'}>
                   {method.icon}
                 </span>
                 <span className="font-medium text-text-primary">{method.label}</span>

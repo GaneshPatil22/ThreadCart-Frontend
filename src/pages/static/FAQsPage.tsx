@@ -1,6 +1,7 @@
 import { useState } from "react";
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 interface FAQ {
   question: string;
@@ -30,7 +31,7 @@ const faqs: FAQ[] = [
   },
   {
     question: "Can I get a quote for bulk orders?",
-    answer: "Absolutely! For bulk orders, please contact our sales team at sales@threadcart.com with your requirements. We offer competitive pricing and customized solutions for large quantity orders."
+    answer: `Absolutely! For bulk orders, please contact our sales team at ${CONTACT.EMAIL} with your requirements. We offer competitive pricing and customized solutions for large quantity orders.`
   },
   {
     question: "What is your return policy?",
@@ -46,7 +47,7 @@ const faqs: FAQ[] = [
   },
   {
     question: "Do you offer technical support?",
-    answer: "Yes, our technical team is available to help you choose the right fasteners for your application. Contact us at support@threadcart.com or call our helpline for assistance."
+    answer: `Yes, our technical team is available to help you choose the right fasteners for your application. Contact us at ${CONTACT.EMAIL} or call our helpline at ${CONTACT.PHONE} for assistance.`
   }
 ];
 
@@ -92,8 +93,8 @@ export default function FAQsPage() {
         <h3 className="font-semibold text-text-primary mb-2">Still have questions?</h3>
         <p>
           Can't find what you're looking for? Contact our support team at{" "}
-          <a href="mailto:support@threadcart.com" className="text-primary hover:underline">
-            support@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
         </p>
       </div>

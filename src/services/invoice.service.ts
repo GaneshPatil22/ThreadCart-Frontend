@@ -6,6 +6,7 @@
 
 import jsPDF from 'jspdf';
 import type { OrderWithItems } from '../types/order.types';
+import { CONTACT } from '../utils/constants';
 
 // ============================================================================
 // GENERATE INVOICE PDF
@@ -230,7 +231,7 @@ export const generateInvoicePDF = (order: OrderWithItems): jsPDF => {
     fontSize: 10
   });
   yPos += 6;
-  addText('For support, contact: support@threadcart.com', pageWidth / 2, yPos, {
+  addText(`For support, contact: ${CONTACT.EMAIL}`, pageWidth / 2, yPos, {
     align: 'center',
     fontSize: 9
   });

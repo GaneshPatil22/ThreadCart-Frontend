@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { Truck, RotateCcw, Package, Clock } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 export default function ShippingReturnsPage() {
   return (
@@ -69,7 +70,7 @@ export default function ShippingReturnsPage() {
 
       <h3 className="font-semibold text-text-primary mt-6 mb-2">How to Return</h3>
       <ol className="space-y-2 mb-6 list-decimal list-inside">
-        <li>Contact our support team at support@threadcart.com</li>
+        <li>Contact our support team at {CONTACT.EMAIL}</li>
         <li>Provide your order number and reason for return</li>
         <li>Receive return authorization and shipping label</li>
         <li>Pack items securely and ship using provided label</li>
@@ -80,8 +81,8 @@ export default function ShippingReturnsPage() {
         <h3 className="font-semibold text-text-primary mb-2">Questions?</h3>
         <p>
           For any shipping or return queries, contact us at{" "}
-          <a href="mailto:support@threadcart.com" className="text-primary hover:underline">
-            support@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
         </p>
       </div>

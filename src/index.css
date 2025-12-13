@@ -9,6 +9,11 @@
   --color-primary: #e11d48;
   --color-primary-hover: #be123c;
 
+  /* Accent color for prices, stats, and emphasis text (non-error contexts) */
+  --color-accent: #1e293b;
+  --color-accent-hover: #0f172a;
+  --color-accent-light: #f1f5f9;
+
   /* Background */
   --color-background: #f9f9f9;
 

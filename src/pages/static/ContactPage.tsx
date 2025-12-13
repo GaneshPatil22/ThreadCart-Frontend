@@ -1,6 +1,7 @@
 import { useState } from "react";
 import StaticPageLayout from "../../components/StaticPageLayout";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, Clock } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -36,13 +37,9 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-semibold text-text-primary mb-1">Email</h3>
-              <p className="text-text-secondary text-sm">General Inquiries</p>
-              <a href="mailto:info@threadcart.com" className="text-primary hover:underline">
-                info@threadcart.com
-              </a>
-              <p className="text-text-secondary text-sm mt-2">Sales & Orders</p>
-              <a href="mailto:sales@threadcart.com" className="text-primary hover:underline">
-                sales@threadcart.com
+              <p className="text-text-secondary text-sm">General Inquiries & Sales</p>
+              <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+                {CONTACT.EMAIL}
               </a>
             </div>
           </div>
@@ -53,29 +50,10 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-semibold text-text-primary mb-1">Phone</h3>
-              <p className="text-text-secondary text-sm">Sales Helpline</p>
-              <a href="tel:+911800XXXXXXX" className="text-primary hover:underline">
-                +91 1800-XXX-XXXX
+              <p className="text-text-secondary text-sm">Sales & Customer Support</p>
+              <a href={CONTACT.PHONE_TEL} className="text-primary hover:underline">
+                {CONTACT.PHONE}
               </a>
-              <p className="text-text-secondary text-sm mt-2">Customer Support</p>
-              <a href="tel:+911800XXXXXXX" className="text-primary hover:underline">
-                +91 1800-XXX-XXXX
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <MapPin className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-text-primary mb-1">Office Address</h3>
-              <p className="text-text-secondary">
-                ThreadCart Industries Pvt. Ltd.<br />
-                123 Industrial Area, Phase 2<br />
-                Mumbai, Maharashtra 400001<br />
-                India
-              </p>
             </div>
           </div>
 
@@ -86,8 +64,8 @@ export default function ContactPage() {
             <div>
               <h3 className="font-semibold text-text-primary mb-1">Business Hours</h3>
               <p className="text-text-secondary">
-                Monday - Saturday: 9:00 AM - 6:00 PM<br />
-                Sunday: Closed
+                {CONTACT.BUSINESS_HOURS.WEEKDAYS}<br />
+                {CONTACT.BUSINESS_HOURS.WEEKEND}
               </p>
             </div>
           </div>

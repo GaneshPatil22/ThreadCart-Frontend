@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type { CartItemWithProduct } from '../../types/cart.types';
-import { convertGoogleDriveUrl } from '../../utils/imageUtils';
+import { convertGoogleDriveUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
 
 interface CheckoutItemRowProps {
   item: CartItemWithProduct;
@@ -19,7 +19,7 @@ export const CheckoutItemRow = ({ item }: CheckoutItemRowProps) => {
   const imageUrl =
     product.image_url && product.image_url.length > 0
       ? convertGoogleDriveUrl(product.image_url[0])
-      : '/placeholder-product.png';
+      : PLACEHOLDER_IMAGE;
 
   return (
     <div className="flex gap-4 py-3 border-b border-border last:border-b-0">
@@ -29,9 +29,7 @@ export const CheckoutItemRow = ({ item }: CheckoutItemRowProps) => {
           src={imageUrl}
           alt={product.name}
           className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/placeholder-product.png';
-          }}
+          onError={handleImageError}
         />
       </div>
 

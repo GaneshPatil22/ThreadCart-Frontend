@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import { useState, useEffect } from "react";
 import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
-import { convertGoogleDriveUrl } from "../../utils/imageUtils";
+import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
 
 interface CategoryData {
   categoryId?: string;
@@ -136,11 +136,7 @@ export default function SubCategoryGrid({
                   src={convertGoogleDriveUrl(cat.image)}
                   alt={cat.name}
                   className="w-full h-32 object-contain"
-                  onError={(e) => {
-                    // Fallback for broken images
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/200x128?text=No+Image";
-                  }}
+                  onError={handleImageError}
                 />
                 <div className="p-3 text-center">
                   <p className="text-sm font-medium text-text-primary">

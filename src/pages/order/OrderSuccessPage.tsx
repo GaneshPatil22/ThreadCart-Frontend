@@ -8,8 +8,9 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { OrderWithItems } from '../../types/order.types';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
-import { convertGoogleDriveUrl } from '../../utils/imageUtils';
+import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
 import { trackPurchase } from '../../utils/analytics';
+import { CONTACT } from '../../utils/constants';
 
 export const OrderSuccessPage = () => {
   const location = useLocation();
@@ -186,9 +187,7 @@ export const OrderSuccessPage = () => {
                           src={convertGoogleDriveUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x150?text=No+Image';
-                          }}
+                          onError={handleImageError}
                         />
                       )}
                     </div>
@@ -214,7 +213,7 @@ export const OrderSuccessPage = () => {
             <div className="px-6 py-4 bg-gray-50">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-text-primary">Total Amount</span>
-                <span className="text-2xl font-bold text-primary">
+                <span className="text-2xl font-bold text-accent">
                   ₹{order.total_amount.toFixed(2)}
                 </span>
               </div>
@@ -262,7 +261,7 @@ export const OrderSuccessPage = () => {
           <div className="mt-8 text-center">
             <p className="text-sm text-text-secondary">
               Questions about your order?{' '}
-              <a href="mailto:support@threadcart.com" className="text-primary hover:underline">
+              <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
                 Contact Support
               </a>
             </p>

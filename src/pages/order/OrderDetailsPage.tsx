@@ -13,7 +13,8 @@ import { OrderStatusTimeline } from '../../components/order/OrderStatusTimeline'
 import { EmailInvoiceModal } from '../../components/order/EmailInvoiceModal';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
-import { convertGoogleDriveUrl } from '../../utils/imageUtils';
+import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
+import { CONTACT } from '../../utils/constants';
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -161,9 +162,7 @@ export const OrderDetailsPage = () => {
                           src={convertGoogleDriveUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x150?text=No+Image';
-                          }}
+                          onError={handleImageError}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -233,7 +232,7 @@ export const OrderDetailsPage = () => {
                 <div className="border-t border-border pt-3">
                   <div className="flex justify-between">
                     <span className="font-semibold text-text-primary">Total</span>
-                    <span className="font-bold text-xl text-primary">
+                    <span className="font-bold text-xl text-accent">
                       ₹{order.total_amount.toFixed(2)}
                     </span>
                   </div>
@@ -333,10 +332,10 @@ export const OrderDetailsPage = () => {
                 If you have questions about your order, please contact our support team.
               </p>
               <a
-                href="mailto:support@threadcart.com"
+                href={`mailto:${CONTACT.EMAIL}`}
                 className="text-primary hover:underline text-sm font-medium"
               >
-                support@threadcart.com
+                {CONTACT.EMAIL}
               </a>
             </div>
           </div>

@@ -65,9 +65,9 @@ export const CartSummary = () => {
       <div className="border-t border-border my-4"></div>
 
       {/* Total */}
-      <div className="flex justify-between text-lg font-semibold text-text-primary mb-6">
-        <span>Total</span>
-        <span>₹{cart.total.toFixed(2)}</span>
+      <div className="flex justify-between text-lg font-semibold mb-6">
+        <span className="text-text-primary">Total</span>
+        <span className="text-accent">₹{cart.total.toFixed(2)}</span>
       </div>
 
       {/* Checkout Button */}

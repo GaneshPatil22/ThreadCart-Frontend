@@ -465,9 +465,9 @@ export const CheckoutPage = () => {
                 )}
 
                 <div className="border-t border-border pt-3 mt-3">
-                  <div className="flex justify-between text-lg font-semibold text-text-primary">
-                    <span>Total</span>
-                    <span>₹{cart.total.toFixed(2)}</span>
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span className="text-text-primary">Total</span>
+                    <span className="text-accent">₹{cart.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

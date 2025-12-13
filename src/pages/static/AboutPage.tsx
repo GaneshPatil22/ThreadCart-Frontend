@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { Target, Eye, Award, Users } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 const stats = [
   { value: "10+", label: "Years of Experience" },
@@ -49,7 +50,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white p-6 rounded-lg border border-border text-center">
-              <div className="text-2xl font-bold text-primary mb-1">{stat.value}</div>
+              <div className="text-2xl font-bold text-accent mb-1">{stat.value}</div>
               <div className="text-sm text-text-secondary">{stat.label}</div>
             </div>
           ))}
@@ -95,8 +96,8 @@ export default function AboutPage() {
         <p className="text-text-secondary">
           Whether you need a single part or bulk quantities, our team is ready to help.
           Contact us at{" "}
-          <a href="mailto:sales@threadcart.com" className="text-primary hover:underline">
-            sales@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
           {" "}to discuss your requirements.
         </p>

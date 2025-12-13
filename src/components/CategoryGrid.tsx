@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../utils/supabase";
-import { convertGoogleDriveUrl } from "../utils/imageUtils";
+import { convertGoogleDriveUrl, handleImageError } from "../utils/imageUtils";
 
 // Match the API response structure
 interface Category {
@@ -236,15 +236,7 @@ export default function CategoryGrid() {
                   src={convertGoogleDriveUrl(cat.image)}
                   alt={cat.name}
                   className="w-full h-32 object-contain"
-                  onLoad={() =>
-                    console.log("Image loaded successfully:", cat.image)
-                  }
-                  onError={(e) => {
-                    console.error("Image failed to load:", cat.image);
-                    console.error(e);
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/200x128?text=No+Image";
-                  }}
+                  onError={handleImageError}
                 />
                 <div className="p-3 text-center">
                   <p className="text-sm font-medium text-text-primary">
