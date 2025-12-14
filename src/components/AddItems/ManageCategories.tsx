@@ -15,6 +15,7 @@ export default function ManageCategories() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Category | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchCategories();
@@ -96,17 +97,38 @@ export default function ManageCategories() {
     );
   }
 
+  const filteredCategories = categories.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold mb-4">Manage Categories</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold">Manage Categories</h3>
+        <span className="text-sm text-gray-500">
+          {searchTerm
+            ? `${filteredCategories.length} of ${categories.length} categories`
+            : `${categories.length} categories`}
+        </span>
+      </div>
 
-      {categories.length === 0 ? (
+      <input
+        type="text"
+        placeholder="Search by name or description..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full border rounded-lg p-2 mb-4"
+      />
+
+      {filteredCategories.length === 0 ? (
         <p className="text-gray-500 text-center py-8">
-          No categories found. Add one using the form above.
+          {searchTerm ? "No categories found matching your search." : "No categories found. Add one using the form above."}
         </p>
       ) : (
-        <div className="space-y-3">
-          {categories.map((category) => (
+        <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          {filteredCategories.map((category) => (
             <div
               key={category.id}
               className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition"

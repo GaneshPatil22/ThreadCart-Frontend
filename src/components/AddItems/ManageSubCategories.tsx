@@ -22,6 +22,7 @@ export default function ManageSubCategories() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<SubCategory | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -122,17 +123,42 @@ export default function ManageSubCategories() {
     );
   }
 
+  const filteredSubCategories = subCategories.filter((sc) => {
+    const categoryName = getCategoryName(sc.category_id).toLowerCase();
+    const term = searchTerm.toLowerCase();
+    return (
+      sc.name.toLowerCase().includes(term) ||
+      sc.description.toLowerCase().includes(term) ||
+      categoryName.includes(term)
+    );
+  });
+
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold mb-4">Manage SubCategories</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold">Manage SubCategories</h3>
+        <span className="text-sm text-gray-500">
+          {searchTerm
+            ? `${filteredSubCategories.length} of ${subCategories.length} subcategories`
+            : `${subCategories.length} subcategories`}
+        </span>
+      </div>
 
-      {subCategories.length === 0 ? (
+      <input
+        type="text"
+        placeholder="Search by name, description, or category..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full border rounded-lg p-2 mb-4"
+      />
+
+      {filteredSubCategories.length === 0 ? (
         <p className="text-gray-500 text-center py-8">
-          No subcategories found. Add one using the form above.
+          {searchTerm ? "No subcategories found matching your search." : "No subcategories found. Add one using the form above."}
         </p>
       ) : (
-        <div className="space-y-3">
-          {subCategories.map((subCategory) => (
+        <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          {filteredSubCategories.map((subCategory) => (
             <div
               key={subCategory.id}
               className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition"

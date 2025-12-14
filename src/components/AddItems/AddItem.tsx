@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import AddCategoryForm from "./AddCategoryForm";
 import AddSubCategoryForm from "./AddSubCategoryForm";
 import AddProductForm from "./AddProductForm";
+import AddPincodeForm from "./AddPincodeForm";
 import ManageCategories from "./ManageCategories";
 import ManageSubCategories from "./ManageSubCategories";
 import ManageProducts from "./ManageProducts";
+import ManagePincodes from "./ManagePincodes";
+import ManageContactSubmissions from "./ManageContactSubmissions";
 import Unauthorized from "../Unauthorized";
 import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
-type ItemType = "category" | "subcategory" | "product" | null;
+type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | null;
 
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
@@ -100,6 +103,31 @@ export const AddItem = () => {
         >
           {viewMode === "add" ? "Add" : "Manage"} Product
         </button>
+
+        <button
+          onClick={() => setActiveForm("pincode")}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "pincode"
+              ? "bg-orange-500 text-white"
+              : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+          }`}
+        >
+          {viewMode === "add" ? "Add" : "Manage"} Pincode
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveForm("contact");
+            setViewMode("manage");
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "contact"
+              ? "bg-teal-500 text-white"
+              : "bg-teal-100 text-teal-700 hover:bg-teal-200"
+          }`}
+        >
+          Contact Submissions
+        </button>
       </div>
 
       {/* Content Area */}
@@ -109,6 +137,8 @@ export const AddItem = () => {
             {activeForm === "category" && <AddCategoryForm />}
             {activeForm === "subcategory" && <AddSubCategoryForm />}
             {activeForm === "product" && <AddProductForm />}
+            {activeForm === "pincode" && <AddPincodeForm />}
+            {activeForm === "contact" && <ManageContactSubmissions />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to add
@@ -120,6 +150,8 @@ export const AddItem = () => {
             {activeForm === "category" && <ManageCategories />}
             {activeForm === "subcategory" && <ManageSubCategories />}
             {activeForm === "product" && <ManageProducts />}
+            {activeForm === "pincode" && <ManagePincodes />}
+            {activeForm === "contact" && <ManageContactSubmissions />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to manage

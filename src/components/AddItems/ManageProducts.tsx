@@ -30,6 +30,7 @@ export default function ManageProducts() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Product | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -149,17 +150,45 @@ export default function ManageProducts() {
     );
   }
 
+  const filteredProducts = products.filter((p) => {
+    const subCategoryName = getSubCategoryName(p.sub_cat_id).toLowerCase();
+    const term = searchTerm.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(term) ||
+      subCategoryName.includes(term) ||
+      (p.thread_style && p.thread_style.toLowerCase().includes(term)) ||
+      (p.thread_size_pitch && p.thread_size_pitch.toLowerCase().includes(term)) ||
+      (p.Coating && p.Coating.toLowerCase().includes(term)) ||
+      (p.part_number && p.part_number.toString().includes(term))
+    );
+  });
+
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold mb-4">Manage Products</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold">Manage Products</h3>
+        <span className="text-sm text-gray-500">
+          {searchTerm
+            ? `${filteredProducts.length} of ${products.length} products`
+            : `${products.length} products`}
+        </span>
+      </div>
 
-      {products.length === 0 ? (
+      <input
+        type="text"
+        placeholder="Search by name, subcategory, thread style, coating, or part number..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full border rounded-lg p-2 mb-4"
+      />
+
+      {filteredProducts.length === 0 ? (
         <p className="text-gray-500 text-center py-8">
-          No products found. Add one using the form above.
+          {searchTerm ? "No products found matching your search." : "No products found. Add one using the form above."}
         </p>
       ) : (
-        <div className="space-y-3">
-          {products.map((product) => (
+        <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          {filteredProducts.map((product) => (
             <div
               key={product.id}
               className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition"
