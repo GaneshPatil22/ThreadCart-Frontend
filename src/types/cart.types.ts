@@ -39,10 +39,10 @@ export interface LocalCart {
 
 export interface CartSummary {
   items: CartItemWithProduct[];
-  subtotal: number; // Sum of all item prices * quantities
-  tax: number; // Future: calculated tax
-  shipping: number; // Future: shipping cost
-  total: number; // subtotal + tax + shipping
+  subtotal: number; // Sum of item prices from DB (GST exclusive)
+  tax: number; // GST amount (18% of subtotal)
+  shipping: number; // Shipping cost (currently free)
+  total: number; // Final amount: subtotal + tax + shipping
   item_count: number; // Unique products count
   total_quantity: number; // Sum of all quantities
 }

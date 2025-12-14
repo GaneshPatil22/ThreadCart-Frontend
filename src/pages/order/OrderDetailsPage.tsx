@@ -14,7 +14,7 @@ import { EmailInvoiceModal } from '../../components/order/EmailInvoiceModal';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
 import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
-import { CONTACT } from '../../utils/constants';
+import { CONTACT, TAX } from '../../utils/constants';
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -64,9 +64,18 @@ export const OrderDetailsPage = () => {
     loadOrder();
   }, [orderId, navigate]);
 
-  const handleDownloadInvoice = () => {
-    if (order) {
-      downloadInvoice(order);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadInvoice = async () => {
+    if (order && !downloading) {
+      setDownloading(true);
+      try {
+        await downloadInvoice(order);
+      } catch (err) {
+        console.error('Failed to download invoice:', err);
+      } finally {
+        setDownloading(false);
+      }
     }
   };
 
@@ -216,28 +225,40 @@ export const OrderDetailsPage = () => {
               <h2 className="text-lg font-semibold text-text-primary mb-4">
                 Order Summary
               </h2>
-              <div className="space-y-3">
-                <div className="flex justify-between text-text-secondary">
-                  <span>Subtotal</span>
-                  <span>₹{order.total_amount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-text-secondary">
-                  <span>Shipping</span>
-                  <span className="text-green-600">FREE</span>
-                </div>
-                <div className="flex justify-between text-text-secondary">
-                  <span>Tax</span>
-                  <span>₹0.00</span>
-                </div>
-                <div className="border-t border-border pt-3">
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-text-primary">Total</span>
-                    <span className="font-bold text-xl text-accent">
-                      ₹{order.total_amount.toFixed(2)}
-                    </span>
+              {(() => {
+                // Calculate GST breakdown (prices in DB are EXCLUSIVE of GST)
+                const subtotalAmount = order.items.reduce(
+                  (sum, item) => sum + item.quantity * item.price_at_purchase,
+                  0
+                );
+                const gstAmount = subtotalAmount * TAX.GST_RATE;
+                const grandTotal = subtotalAmount + gstAmount;
+
+                return (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-text-secondary">
+                      <span>Subtotal</span>
+                      <span>₹{subtotalAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-text-secondary">
+                      <span>GST ({TAX.GST_PERCENTAGE}%)</span>
+                      <span>₹{gstAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-text-secondary">
+                      <span>Shipping</span>
+                      <span className="text-green-600">FREE</span>
+                    </div>
+                    <div className="border-t border-border pt-3">
+                      <div className="flex justify-between">
+                        <span className="font-semibold text-text-primary">Total</span>
+                        <span className="font-bold text-xl text-accent">
+                          ₹{grandTotal.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* Payment Info */}
@@ -304,12 +325,22 @@ export const OrderDetailsPage = () => {
               <div className="space-y-3">
                 <button
                   onClick={handleDownloadInvoice}
-                  className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors"
+                  disabled={downloading}
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span>Download Invoice</span>
+                  {downloading ? (
+                    <>
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      <span>Download Invoice</span>
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={() => setShowEmailModal(true)}

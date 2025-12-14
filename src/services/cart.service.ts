@@ -5,6 +5,7 @@
 // ============================================================================
 
 import { supabase } from '../utils/supabase';
+import { TAX } from '../utils/constants';
 import type {
   Cart,
   CartItemInsert,
@@ -116,13 +117,14 @@ export const getCartWithItems = async (
     }));
 
     // Calculate summary
+    // Product prices in DB are EXCLUSIVE of GST, so we add GST on top
     const subtotal = items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (sum, item) => sum + item.product.price * item.quantity,
       0
     );
-    const tax = 0; // Future: implement tax calculation
-    const shipping = 0; // Future: implement shipping calculation
-    const total = subtotal + tax + shipping;
+    const tax = subtotal * TAX.GST_RATE; // Add 18% GST
+    const shipping = 0; // Free shipping
+    const total = subtotal + tax + shipping; // Final amount with GST
     const item_count = items.length;
     const total_quantity = items.reduce((sum, item) => sum + item.quantity, 0);
 

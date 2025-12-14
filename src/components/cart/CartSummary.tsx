@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase';
+import { TAX } from '../../utils/constants';
 
 export const CartSummary = () => {
   const { cart } = useCart();
@@ -43,22 +44,24 @@ export const CartSummary = () => {
         Order Summary
       </h2>
 
-      {/* Cart Items Count */}
+      {/* Subtotal (excluding tax) */}
       <div className="flex justify-between text-text-secondary mb-2">
-        <span>Items ({cart.item_count})</span>
+        <span>Subtotal ({cart.item_count} items)</span>
         <span>₹{cart.subtotal.toFixed(2)}</span>
       </div>
 
-      {/* Tax (Future) */}
+      {/* GST */}
       <div className="flex justify-between text-text-secondary mb-2">
-        <span>Tax</span>
+        <span>GST ({TAX.GST_PERCENTAGE}%)</span>
         <span>₹{cart.tax.toFixed(2)}</span>
       </div>
 
-      {/* Shipping (Future) */}
+      {/* Shipping */}
       <div className="flex justify-between text-text-secondary mb-4">
         <span>Shipping</span>
-        <span>{cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}</span>
+        <span className={cart.shipping === 0 ? 'text-green-600 font-medium' : ''}>
+          {cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}
+        </span>
       </div>
 
       {/* Divider */}

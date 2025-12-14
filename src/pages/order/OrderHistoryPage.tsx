@@ -11,6 +11,7 @@ import { getUserOrders } from '../../services/order.service';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
 import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
+import { TAX } from '../../utils/constants';
 
 export const OrderHistoryPage = () => {
   const navigate = useNavigate();
@@ -114,6 +115,12 @@ export const OrderHistoryPage = () => {
             {orders.map((order) => {
               const statusConfig = ORDER_STATUS_CONFIG[order.status];
               const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+              // Calculate total with GST (prices in DB are exclusive of GST)
+              const subtotal = order.items.reduce(
+                (sum, item) => sum + item.quantity * item.price_at_purchase,
+                0
+              );
+              const grandTotal = subtotal * (1 + TAX.GST_RATE);
 
               return (
                 <Link
@@ -186,7 +193,7 @@ export const OrderHistoryPage = () => {
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-lg font-semibold text-text-primary">
-                          ₹{order.total_amount.toFixed(2)}
+                          ₹{grandTotal.toFixed(2)}
                         </span>
                         <svg
                           className="w-5 h-5 text-text-secondary"

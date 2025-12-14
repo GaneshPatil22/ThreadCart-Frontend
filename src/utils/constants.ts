@@ -52,4 +52,17 @@ export const COMPANY = {
   NAME: 'ThreadCart',
   TAGLINE: 'Premium Fasteners & Hardware',
   COPYRIGHT: `© ${new Date().getFullYear()} ThreadCart. All rights reserved.`,
+
+  // Business Registration Details
+  UDYAM: 'UDYAM-KR-03-0604566',
+  GSTIN: '29CTGPM1143M1ZD',
+} as const;
+
+// ============================================================================
+// TAX CONFIGURATION
+// ============================================================================
+
+export const TAX = {
+  GST_RATE: 0.18, // 18% GST for India
+  GST_PERCENTAGE: 18,
 } as const;

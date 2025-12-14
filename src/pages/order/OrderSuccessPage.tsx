@@ -10,7 +10,7 @@ import type { OrderWithItems } from '../../types/order.types';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
 import { trackPurchase } from '../../utils/analytics';
-import { CONTACT } from '../../utils/constants';
+import { CONTACT, TAX } from '../../utils/constants';
 
 export const OrderSuccessPage = () => {
   const location = useLocation();
@@ -29,14 +29,19 @@ export const OrderSuccessPage = () => {
 
     setOrder(orderData);
 
-    // Track purchase event
+    // Track purchase event with GST-inclusive total
     const items = orderData.items.map(item => ({
       id: item.product_id,
       name: item.product?.name || 'Product',
       price: item.price_at_purchase,
       quantity: item.quantity,
     }));
-    trackPurchase(orderData.order_number, items, orderData.total_amount);
+    const subtotal = orderData.items.reduce(
+      (sum, item) => sum + item.quantity * item.price_at_purchase,
+      0
+    );
+    const totalWithGST = subtotal * (1 + TAX.GST_RATE);
+    trackPurchase(orderData.order_number, items, totalWithGST);
 
     // Clear the navigation state to prevent showing same order on refresh
     window.history.replaceState({}, document.title);
@@ -211,12 +216,40 @@ export const OrderSuccessPage = () => {
 
             {/* Order Total */}
             <div className="px-6 py-4 bg-gray-50">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-text-primary">Total Amount</span>
-                <span className="text-2xl font-bold text-accent">
-                  ₹{order.total_amount.toFixed(2)}
-                </span>
-              </div>
+              {(() => {
+                // Calculate totals with GST (prices in DB are exclusive of GST)
+                const subtotal = order.items.reduce(
+                  (sum, item) => sum + item.quantity * item.price_at_purchase,
+                  0
+                );
+                const gstAmount = subtotal * TAX.GST_RATE;
+                const grandTotal = subtotal + gstAmount;
+
+                return (
+                  <>
+                    <div className="space-y-2 mb-3">
+                      <div className="flex justify-between text-sm text-text-secondary">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-text-secondary">
+                        <span>GST ({TAX.GST_PERCENTAGE}%)</span>
+                        <span>₹{gstAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-text-secondary">
+                        <span>Shipping</span>
+                        <span className="text-green-600">FREE</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-3 border-t border-border">
+                      <span className="text-lg font-semibold text-text-primary">Total Amount</span>
+                      <span className="text-2xl font-bold text-accent">
+                        ₹{grandTotal.toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
               {isCod && (
                 <p className="text-sm text-text-secondary mt-2">
                   Please pay this amount in cash when your order is delivered.

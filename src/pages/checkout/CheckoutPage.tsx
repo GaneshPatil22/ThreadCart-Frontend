@@ -10,6 +10,7 @@ import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase';
 import { getUserAddress, saveUserAddress, getDeliveryEstimate } from '../../services/address.service';
 import { placeCodOrder, initiateRazorpayPayment, isRazorpayConfigured } from '../../services/checkout.service';
+import { TAX } from '../../utils/constants';
 import { AddressForm } from '../../components/checkout/AddressForm';
 import { AddressCard } from '../../components/checkout/AddressCard';
 import { CheckoutItemRow } from '../../components/checkout/CheckoutItemRow';
@@ -446,21 +447,21 @@ export const CheckoutPage = () => {
                 </div>
 
                 <div className="flex justify-between text-text-secondary">
+                  <span>GST ({TAX.GST_PERCENTAGE}%)</span>
+                  <span>₹{cart.tax.toFixed(2)}</span>
+                </div>
+
+                <div className="flex justify-between text-text-secondary">
                   <span>Shipping</span>
                   <span className={cart.shipping === 0 ? 'text-green-600 font-medium' : ''}>
                     {cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}
                   </span>
                 </div>
 
-                <div className="flex justify-between text-text-secondary">
-                  <span>Tax</span>
-                  <span>₹{cart.tax.toFixed(2)}</span>
-                </div>
-
                 {paymentMethod === 'cod' && (
                   <div className="flex justify-between text-text-secondary">
                     <span>COD Charges</span>
-                    <span>₹0.00</span>
+                    <span className="text-green-600 font-medium">FREE</span>
                   </div>
                 )}
 
@@ -469,6 +470,7 @@ export const CheckoutPage = () => {
                     <span className="text-text-primary">Total</span>
                     <span className="text-accent">₹{cart.total.toFixed(2)}</span>
                   </div>
+                  <p className="text-xs text-text-secondary mt-1">(Inclusive of all taxes)</p>
                 </div>
               </div>
 

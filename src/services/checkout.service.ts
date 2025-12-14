@@ -97,7 +97,7 @@ export const createOrder = async (
 
     // Update payment info if paid via Razorpay
     if (paymentId && data.paymentMethod === 'razorpay') {
-      await supabase
+      const { error: updateError } = await supabase
         .from('orders')
         .update({
           payment_id: paymentId,
@@ -107,10 +107,14 @@ export const createOrder = async (
         })
         .eq('id', result.order.id);
 
-      // Refresh order data
-      result.order.payment_id = paymentId;
-      result.order.payment_status = 'completed';
-      result.order.status = 'confirmed';
+      if (updateError) {
+        console.error('Error updating payment status:', updateError);
+      } else {
+        // Refresh order data
+        result.order.payment_id = paymentId;
+        result.order.payment_status = 'completed';
+        result.order.status = 'confirmed';
+      }
     }
 
     // Clear cart after successful order

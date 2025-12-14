@@ -6,6 +6,7 @@
 // ============================================================================
 
 import { supabase } from '../utils/supabase';
+import { TAX } from '../utils/constants';
 import type {
   OrderInsert,
   OrderItemInsert,
@@ -32,11 +33,14 @@ export const createOrderFromCart = async (
   try {
     const { user_id, shipping_address, payment_method, cart_items } = params;
 
-    // Calculate total amount
+    // Calculate total amount (subtotal without GST)
     const total_amount = cart_items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
+
+    // Calculate grand_total with GST
+    const grand_total = total_amount * (1 + TAX.GST_RATE);
 
     // Generate order number using DB function
     const { data: orderNumberData, error: orderNumberError } = await supabase.rpc(
@@ -58,6 +62,7 @@ export const createOrderFromCart = async (
       order_number,
       user_id,
       total_amount,
+      grand_total,
       status: 'pending',
       payment_method,
       payment_status: 'pending',

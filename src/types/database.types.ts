@@ -121,6 +121,7 @@ export interface Order {
   order_number: string;
   user_id: string;
   total_amount: number;
+  grand_total: number; // Total with GST
   status: OrderStatus;
   payment_method: PaymentMethod | null;
   payment_id: string | null;
@@ -140,6 +141,7 @@ export interface OrderInsert {
   order_number: string;
   user_id: string;
   total_amount: number;
+  grand_total: number; // Total with GST
   status?: OrderStatus;
   payment_method?: PaymentMethod | null;
   payment_id?: string | null;
