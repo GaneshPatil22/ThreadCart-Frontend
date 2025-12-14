@@ -240,3 +240,8 @@ export const initiateRazorpayPayment = async (
 export const isRazorpayConfigured = (): boolean => {
   return Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_ID !== 'rzp_test_XXXXXXXX');
 };
+
+// Check if Razorpay is in test mode (key starts with rzp_test_)
+export const isRazorpayTestMode = (): boolean => {
+  return RAZORPAY_KEY_ID.startsWith('rzp_test_');
+};

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import StaticPageLayout from "../../components/StaticPageLayout";
-import { Mail, Phone, Clock } from "lucide-react";
+import { Mail, Phone, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { CONTACT } from "../../utils/constants";
+import { submitContactForm } from "../../services/contact.service";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,16 +12,41 @@ export default function ContactPage() {
     subject: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form submission logic would go here
-    alert("Thank you for your message! We will get back to you soon.");
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
+
+    const result = await submitContactForm({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone || undefined,
+      subject: formData.subject,
+      message: formData.message,
+    });
+
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitStatus({ type: 'success', message: result.message });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    } else {
+      setSubmitStatus({ type: 'error', message: result.message });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear status when user starts typing again
+    if (submitStatus.type) {
+      setSubmitStatus({ type: null, message: '' });
+    }
   };
 
   return (
@@ -149,11 +175,37 @@ export default function ContactPage() {
                 className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
               />
             </div>
+            {/* Status Message */}
+            {submitStatus.type && (
+              <div
+                className={`flex items-center gap-2 p-3 rounded-lg ${
+                  submitStatus.type === 'success'
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
+                {submitStatus.type === 'success' ? (
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                )}
+                <span className="text-sm">{submitStatus.message}</span>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-hover transition-colors font-medium"
+              disabled={isSubmitting}
+              className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-hover transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Send Message
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Sending...</span>
+                </>
+              ) : (
+                'Send Message'
+              )}
             </button>
           </form>
         </div>

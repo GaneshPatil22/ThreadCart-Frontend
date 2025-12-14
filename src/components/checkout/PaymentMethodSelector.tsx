@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type { ReactNode } from 'react';
-import { isRazorpayConfigured } from '../../services/checkout.service';
+import { isRazorpayConfigured, isRazorpayTestMode } from '../../services/checkout.service';
 import type { PaymentMethod } from '../../types/database.types';
 
 interface PaymentMethodSelectorProps {
@@ -20,6 +20,7 @@ export const PaymentMethodSelector = ({
   disabled = false,
 }: PaymentMethodSelectorProps) => {
   const razorpayAvailable = isRazorpayConfigured();
+  const isTestMode = isRazorpayTestMode();
 
   const methods: { value: PaymentMethod; label: string; description: string; icon: ReactNode }[] = [
     {
@@ -87,9 +88,16 @@ export const PaymentMethodSelector = ({
                 </span>
                 <span className="font-medium text-text-primary">{method.label}</span>
                 {method.value === 'razorpay' && razorpayAvailable && (
-                  <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
-                    Recommended
-                  </span>
+                  <>
+                    <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
+                      Recommended
+                    </span>
+                    {isTestMode && (
+                      <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded">
+                        Test Mode
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
               <p className="mt-1 text-sm text-text-secondary">{method.description}</p>
