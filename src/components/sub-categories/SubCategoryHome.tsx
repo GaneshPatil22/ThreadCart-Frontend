@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import FilterSidebar from "../FilterSidebar";
+// import FilterSidebar from "../FilterSidebar"; // Hidden until filter functionality is implemented
 import SubCategoryGrid from "./SubCategoryGrid";
 
 export function SubCategoryHome() {
@@ -10,10 +10,10 @@ export function SubCategoryHome() {
     console.log("Category Data in SubCategoryHome:", categoryData);
   return (
     <main className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-8">
-      {/* Sidebar */}
-      <div className="flex-shrink-0">
+      {/* Sidebar - Hidden until filter functionality is implemented */}
+      {/* <div className="flex-shrink-0">
         <FilterSidebar />
-      </div>
+      </div> */}
 
       {/* Product Grid */}
       <div className="flex-1">

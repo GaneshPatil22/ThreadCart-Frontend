@@ -29,19 +29,14 @@ export const OrderSuccessPage = () => {
 
     setOrder(orderData);
 
-    // Track purchase event with GST-inclusive total
+    // Track purchase event with grand total (includes GST and shipping)
     const items = orderData.items.map(item => ({
       id: item.product_id,
       name: item.product?.name || 'Product',
       price: item.price_at_purchase,
       quantity: item.quantity,
     }));
-    const subtotal = orderData.items.reduce(
-      (sum, item) => sum + item.quantity * item.price_at_purchase,
-      0
-    );
-    const totalWithGST = subtotal * (1 + TAX.GST_RATE);
-    trackPurchase(orderData.order_number, items, totalWithGST);
+    trackPurchase(orderData.order_number, items, orderData.grand_total);
 
     // Clear the navigation state to prevent showing same order on refresh
     window.history.replaceState({}, document.title);
@@ -175,6 +170,11 @@ export const OrderSuccessPage = () => {
                   {order.shipping_address.postal_code}
                 </p>
                 <p className="mt-1">Phone: +91 {order.shipping_address.phone}</p>
+                {order.gst_number && (
+                  <p className="mt-1">
+                    GST: <span className="font-mono">{order.gst_number}</span>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -217,13 +217,10 @@ export const OrderSuccessPage = () => {
             {/* Order Total */}
             <div className="px-6 py-4 bg-gray-50">
               {(() => {
-                // Calculate totals with GST (prices in DB are exclusive of GST)
-                const subtotal = order.items.reduce(
-                  (sum, item) => sum + item.quantity * item.price_at_purchase,
-                  0
-                );
+                // Use values from order (prices in DB are exclusive of GST)
+                const subtotal = order.total_amount;
                 const gstAmount = subtotal * TAX.GST_RATE;
-                const grandTotal = subtotal + gstAmount;
+                const shippingCharge = order.shipping_charge || 0;
 
                 return (
                   <>
@@ -238,13 +235,17 @@ export const OrderSuccessPage = () => {
                       </div>
                       <div className="flex justify-between text-sm text-text-secondary">
                         <span>Shipping</span>
-                        <span className="text-green-600">FREE</span>
+                        {shippingCharge === 0 ? (
+                          <span className="text-green-600">FREE</span>
+                        ) : (
+                          <span>₹{shippingCharge.toFixed(2)}</span>
+                        )}
                       </div>
                     </div>
                     <div className="flex justify-between items-center pt-3 border-t border-border">
                       <span className="text-lg font-semibold text-text-primary">Total Amount</span>
                       <span className="text-2xl font-bold text-accent">
-                        ₹{grandTotal.toFixed(2)}
+                        ₹{order.grand_total.toFixed(2)}
                       </span>
                     </div>
                   </>

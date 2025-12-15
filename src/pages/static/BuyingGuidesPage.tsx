@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { BookOpen, ArrowRight } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 interface Guide {
   title: string;
@@ -83,8 +84,8 @@ export default function BuyingGuidesPage() {
         <p className="text-text-secondary">
           Our technical team is available to help you select the right products for your specific requirements.
           Contact us at{" "}
-          <a href="mailto:support@threadcart.com" className="text-primary hover:underline">
-            support@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
         </p>
       </div>

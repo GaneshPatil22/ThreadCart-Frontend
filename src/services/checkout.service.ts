@@ -8,6 +8,7 @@ import { supabase } from '../utils/supabase';
 import { createOrderFromCart } from './order.service';
 import { clearCart } from './cart.service';
 import { loadRazorpayScript } from '../utils/razorpay';
+import { sendOrderNotificationToAdmins } from './order-notification.service';
 import type { CartSummary } from '../types/cart.types';
 import type { UserAddress } from '../types/address.types';
 import type { PaymentMethod, ShippingAddress } from '../types/database.types';
@@ -21,6 +22,8 @@ export interface CheckoutData {
   cart: CartSummary;
   address: UserAddress;
   paymentMethod: PaymentMethod;
+  shippingCharge: number;
+  gstNumber?: string | null;
 }
 
 export interface CheckoutResult {
@@ -33,6 +36,8 @@ export interface RazorpayCheckoutParams {
   cart: CartSummary;
   address: UserAddress;
   userEmail: string;
+  shippingCharge: number;
+  gstNumber?: string | null;
   onSuccess: (order: OrderWithItems) => void;
   onFailure: (error: string) => void;
   onCancel: () => void;
@@ -88,6 +93,8 @@ export const createOrder = async (
       user_id: userId,
       shipping_address: toShippingAddress(data.address),
       payment_method: data.paymentMethod,
+      shipping_charge: data.shippingCharge || 0,
+      gst_number: data.gstNumber || null,
       cart_items: cartItems,
     });
 
@@ -120,6 +127,11 @@ export const createOrder = async (
     // Clear cart after successful order
     await clearCart(userId);
 
+    // Send notification to admins (don't block on failure)
+    sendOrderNotificationToAdmins(result.order).catch((err) => {
+      console.error('Failed to send order notification:', err);
+    });
+
     return { success: true, order: result.order };
   } catch (error) {
     console.error('Error creating order:', error);
@@ -136,12 +148,16 @@ export const createOrder = async (
 
 export const placeCodOrder = async (
   cart: CartSummary,
-  address: UserAddress
+  address: UserAddress,
+  shippingCharge: number,
+  gstNumber?: string | null
 ): Promise<CheckoutResult> => {
   return createOrder({
     cart,
     address,
     paymentMethod: 'cod',
+    shippingCharge,
+    gstNumber,
   });
 };
 
@@ -152,7 +168,7 @@ export const placeCodOrder = async (
 export const initiateRazorpayPayment = async (
   params: RazorpayCheckoutParams
 ): Promise<void> => {
-  const { cart, address, userEmail, onSuccess, onFailure, onCancel } = params;
+  const { cart, address, userEmail, shippingCharge, gstNumber, onSuccess, onFailure, onCancel } = params;
 
   try {
     // Check if Razorpay key is configured
@@ -177,8 +193,9 @@ export const initiateRazorpayPayment = async (
     // Generate a temporary order reference
     const tempOrderRef = `TC${Date.now()}`;
 
-    // Amount in paise (1 INR = 100 paise)
-    const amountInPaise = Math.round(cart.total * 100);
+    // Amount in paise (1 INR = 100 paise) - include shipping
+    const totalWithShipping = cart.total + (shippingCharge || 0);
+    const amountInPaise = Math.round(totalWithShipping * 100);
 
     // Razorpay options
     const options = {
@@ -203,7 +220,7 @@ export const initiateRazorpayPayment = async (
       handler: async (response: RazorpayPaymentResponse) => {
         // Payment successful - create order
         const result = await createOrder(
-          { cart, address, paymentMethod: 'razorpay' },
+          { cart, address, paymentMethod: 'razorpay', shippingCharge: shippingCharge || 0, gstNumber },
           response.razorpay_payment_id
         );
 

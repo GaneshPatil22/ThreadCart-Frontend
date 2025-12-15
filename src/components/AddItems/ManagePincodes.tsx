@@ -6,6 +6,7 @@ interface Pincode {
   city: string;
   state: string;
   delivery_days: number;
+  shipping_charge: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -57,6 +58,7 @@ export default function ManagePincodes() {
         city: editForm.city,
         state: editForm.state,
         delivery_days: editForm.delivery_days,
+        shipping_charge: editForm.shipping_charge,
         is_active: editForm.is_active,
       })
       .eq("pincode", editForm.pincode);
@@ -178,6 +180,25 @@ export default function ManagePincodes() {
                     min={1}
                     max={30}
                   />
+                  <div>
+                    <label className="text-sm text-gray-500 mb-1 block">
+                      Shipping Charge (₹) - Set 0 for free shipping
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.shipping_charge}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          shipping_charge: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Shipping Charge"
+                      min={0}
+                      step={10}
+                    />
+                  </div>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -218,9 +239,17 @@ export default function ManagePincodes() {
                     <p className="text-gray-700">
                       {pincode.city}, {pincode.state}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      Delivery: {pincode.delivery_days} days
-                    </p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>Delivery: {pincode.delivery_days} days</span>
+                      <span>
+                        Shipping:{" "}
+                        {(pincode.shipping_charge || 0) === 0 ? (
+                          <span className="text-green-600 font-medium">FREE</span>
+                        ) : (
+                          <span>₹{pincode.shipping_charge}</span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button

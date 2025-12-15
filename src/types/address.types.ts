@@ -13,6 +13,7 @@ export interface SupportedPincode {
   city: string;
   state: string;
   delivery_days: number;
+  shipping_charge: number; // Shipping charge in INR, 0 = free
   is_active: boolean;
 }
 
@@ -84,6 +85,7 @@ export interface PincodeValidationResult {
   city?: string;
   state?: string;
   delivery_days?: number;
+  shipping_charge?: number; // Shipping charge in INR, 0 = free
   message: string;
 }
 

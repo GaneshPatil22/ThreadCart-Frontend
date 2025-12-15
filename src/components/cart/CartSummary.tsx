@@ -56,22 +56,21 @@ export const CartSummary = () => {
         <span>₹{cart.tax.toFixed(2)}</span>
       </div>
 
-      {/* Shipping */}
+      {/* Shipping Note */}
       <div className="flex justify-between text-text-secondary mb-4">
         <span>Shipping</span>
-        <span className={cart.shipping === 0 ? 'text-green-600 font-medium' : ''}>
-          {cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}
-        </span>
+        <span className="text-gray-400 italic text-sm">Calculated at checkout</span>
       </div>
 
       {/* Divider */}
       <div className="border-t border-border my-4"></div>
 
       {/* Total */}
-      <div className="flex justify-between text-lg font-semibold mb-6">
-        <span className="text-text-primary">Total</span>
-        <span className="text-accent">₹{cart.total.toFixed(2)}</span>
+      <div className="flex justify-between text-lg font-semibold mb-2">
+        <span className="text-text-primary">Subtotal</span>
+        <span className="text-accent">₹{(cart.subtotal + cart.tax).toFixed(2)}</span>
       </div>
+      <p className="text-xs text-text-secondary mb-4">Shipping calculated at checkout based on delivery location</p>
 
       {/* Checkout Button */}
       <button

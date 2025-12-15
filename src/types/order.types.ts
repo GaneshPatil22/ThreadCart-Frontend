@@ -26,6 +26,8 @@ export interface CreateOrderParams {
   user_id: string;
   shipping_address: ShippingAddress;
   payment_method: PaymentMethod;
+  shipping_charge: number; // Shipping charge based on pincode
+  gst_number?: string | null; // Customer GST number (optional)
   cart_items: Array<{
     product_id: number; // BIGINT - matches product.id
     quantity: number;

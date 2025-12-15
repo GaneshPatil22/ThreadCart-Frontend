@@ -31,7 +31,7 @@ export const createOrderFromCart = async (
   params: CreateOrderParams
 ): Promise<CreateOrderResult> => {
   try {
-    const { user_id, shipping_address, payment_method, cart_items } = params;
+    const { user_id, shipping_address, payment_method, shipping_charge, gst_number, cart_items } = params;
 
     // Calculate total amount (subtotal without GST)
     const total_amount = cart_items.reduce(
@@ -39,8 +39,9 @@ export const createOrderFromCart = async (
       0
     );
 
-    // Calculate grand_total with GST
-    const grand_total = total_amount * (1 + TAX.GST_RATE);
+    // Calculate grand_total with GST and shipping
+    const gst_amount = total_amount * TAX.GST_RATE;
+    const grand_total = total_amount + gst_amount + (shipping_charge || 0);
 
     // Generate order number using DB function
     const { data: orderNumberData, error: orderNumberError } = await supabase.rpc(
@@ -63,6 +64,8 @@ export const createOrderFromCart = async (
       user_id,
       total_amount,
       grand_total,
+      shipping_charge: shipping_charge || 0,
+      gst_number: gst_number || null,
       status: 'pending',
       payment_method,
       payment_status: 'pending',

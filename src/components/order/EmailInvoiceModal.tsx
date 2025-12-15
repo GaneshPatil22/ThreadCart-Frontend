@@ -4,8 +4,9 @@
 // Modal form to send invoice to email address
 // ============================================================================
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { OrderWithItems } from '../../types/order.types';
+import { sendInvoiceEmail, isInvoiceEmailConfigured } from '../../services/invoice-email.service';
 
 interface EmailInvoiceModalProps {
   order: OrderWithItems;
@@ -24,6 +25,11 @@ export const EmailInvoiceModal = ({
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConfigured, setIsConfigured] = useState(true);
+
+  useEffect(() => {
+    setIsConfigured(isInvoiceEmailConfigured());
+  }, []);
 
   if (!isOpen) return null;
 
@@ -40,23 +46,13 @@ export const EmailInvoiceModal = ({
     setIsSending(true);
 
     try {
-      // TODO: Implement actual email sending via Supabase Edge Function or API
-      // For now, simulate sending
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const result = await sendInvoiceEmail(order, email);
 
-      // Simulated API call structure:
-      // const response = await fetch('/api/send-invoice', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     email,
-      //     orderId: order.id,
-      //     orderNumber: order.order_number,
-      //   }),
-      // });
-      // if (!response.ok) throw new Error('Failed to send');
-
-      setSent(true);
+      if (result.success) {
+        setSent(true);
+      } else {
+        setError(result.error || 'Failed to send email. Please try again.');
+      }
     } catch (err) {
       setError('Failed to send email. Please try again.');
     } finally {
@@ -148,10 +144,16 @@ export const EmailInvoiceModal = ({
               </div>
 
               {/* Info */}
-              <div className="bg-gray-50 rounded-lg p-3 mb-6">
-                <p className="text-xs text-text-secondary">
-                  The invoice will be sent as a PDF attachment to the email address above.
-                </p>
+              <div className={`rounded-lg p-3 mb-6 ${isConfigured ? 'bg-gray-50' : 'bg-amber-50 border border-amber-200'}`}>
+                {isConfigured ? (
+                  <p className="text-xs text-text-secondary">
+                    The invoice details will be sent to the email address above.
+                  </p>
+                ) : (
+                  <p className="text-xs text-amber-700">
+                    Email service is not configured. Please use the "Download Invoice" option instead.
+                  </p>
+                )}
               </div>
 
               {/* Actions */}
@@ -165,8 +167,8 @@ export const EmailInvoiceModal = ({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSending}
-                  className="flex-1 bg-primary text-white px-4 py-2.5 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  disabled={isSending || !isConfigured}
+                  className="flex-1 bg-primary text-white px-4 py-2.5 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSending ? (
                     <>

@@ -5,7 +5,7 @@ import { SOCIAL_MEDIA } from "../utils/constants";
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-border text-text-secondary">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Column 1: Company */}
         <div>
           <h3 className="text-text-primary font-semibold mb-4">Company</h3>
@@ -60,8 +60,8 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Column 3: Resources */}
-        <div>
+        {/* Column 3: Resources - Hidden until content is ready */}
+        {/* <div>
           <h3 className="text-text-primary font-semibold mb-4">Resources</h3>
           <ul className="space-y-2">
             <li>
@@ -85,7 +85,7 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
-        </div>
+        </div> */}
 
         {/* Column 4: Stay Connected */}
         <div>

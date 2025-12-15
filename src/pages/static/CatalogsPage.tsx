@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { FileText, Download } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 interface Catalog {
   title: string;
@@ -80,7 +81,7 @@ export default function CatalogsPage() {
           We can create customized catalogs for your specific requirements. Contact our team for personalized documentation.
         </p>
         <a
-          href="mailto:sales@threadcart.com"
+          href={`mailto:${CONTACT.EMAIL}`}
           className="text-primary font-medium hover:underline"
         >
           Contact Sales Team →

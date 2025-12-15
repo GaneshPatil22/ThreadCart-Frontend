@@ -55,6 +55,7 @@ export const validatePincode = async (
       city: pincodeData.city,
       state: pincodeData.state,
       delivery_days: pincodeData.delivery_days,
+      shipping_charge: pincodeData.shipping_charge || 0,
       message: `Delivery available in ${pincodeData.delivery_days} days`,
     };
   } catch (err) {
@@ -67,11 +68,20 @@ export const validatePincode = async (
 };
 
 /**
+ * Delivery estimate with shipping charge
+ */
+export interface DeliveryEstimate {
+  days: number;
+  date: string;
+  shipping_charge: number;
+}
+
+/**
  * Get delivery estimate for a pincode
  */
 export const getDeliveryEstimate = async (
   pincode: string
-): Promise<{ days: number; date: string } | null> => {
+): Promise<DeliveryEstimate | null> => {
   const validation = await validatePincode(pincode);
 
   if (!validation.valid || !validation.delivery_days) {
@@ -88,7 +98,17 @@ export const getDeliveryEstimate = async (
       day: 'numeric',
       month: 'long',
     }),
+    shipping_charge: validation.shipping_charge || 0,
   };
+};
+
+/**
+ * Get shipping charge for a pincode
+ * Returns 0 (free) if pincode not found or no charge set
+ */
+export const getShippingCharge = async (pincode: string): Promise<number> => {
+  const validation = await validatePincode(pincode);
+  return validation.valid ? (validation.shipping_charge || 0) : 0;
 };
 
 // ============================================================================

@@ -226,13 +226,10 @@ export const OrderDetailsPage = () => {
                 Order Summary
               </h2>
               {(() => {
-                // Calculate GST breakdown (prices in DB are EXCLUSIVE of GST)
-                const subtotalAmount = order.items.reduce(
-                  (sum, item) => sum + item.quantity * item.price_at_purchase,
-                  0
-                );
+                // Use values from order (prices in DB are EXCLUSIVE of GST)
+                const subtotalAmount = order.total_amount;
                 const gstAmount = subtotalAmount * TAX.GST_RATE;
-                const grandTotal = subtotalAmount + gstAmount;
+                const shippingCharge = order.shipping_charge || 0;
 
                 return (
                   <div className="space-y-3">
@@ -246,13 +243,17 @@ export const OrderDetailsPage = () => {
                     </div>
                     <div className="flex justify-between text-text-secondary">
                       <span>Shipping</span>
-                      <span className="text-green-600">FREE</span>
+                      {shippingCharge === 0 ? (
+                        <span className="text-green-600">FREE</span>
+                      ) : (
+                        <span>₹{shippingCharge.toFixed(2)}</span>
+                      )}
                     </div>
                     <div className="border-t border-border pt-3">
                       <div className="flex justify-between">
                         <span className="font-semibold text-text-primary">Total</span>
                         <span className="font-bold text-xl text-accent">
-                          ₹{grandTotal.toFixed(2)}
+                          ₹{order.grand_total.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -314,6 +315,12 @@ export const OrderDetailsPage = () => {
                   <span className="text-text-secondary">Phone: </span>
                   <span className="text-text-primary">+91 {order.shipping_address.phone}</span>
                 </p>
+                {order.gst_number && (
+                  <p className="mt-2">
+                    <span className="text-text-secondary">GST Number: </span>
+                    <span className="text-text-primary font-mono">{order.gst_number}</span>
+                  </p>
+                )}
               </div>
             </div>
 

@@ -7,6 +7,7 @@ export default function AddPincodeForm() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [deliveryDays, setDeliveryDays] = useState<number>(5);
+  const [shippingCharge, setShippingCharge] = useState<number>(0);
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -27,6 +28,7 @@ export default function AddPincodeForm() {
           city,
           state,
           delivery_days: deliveryDays,
+          shipping_charge: shippingCharge,
           is_active: isActive,
         },
       ]);
@@ -38,6 +40,7 @@ export default function AddPincodeForm() {
       setCity("");
       setState("");
       setDeliveryDays(5);
+      setShippingCharge(0);
       setIsActive(true);
     } catch (error) {
       if (error instanceof Error) {
@@ -93,6 +96,21 @@ export default function AddPincodeForm() {
         min={1}
         max={30}
       />
+
+      <div>
+        <label className="text-sm text-gray-500 mb-1 block">
+          Shipping Charge (₹) - Set 0 for free shipping
+        </label>
+        <input
+          type="number"
+          placeholder="Shipping Charge"
+          value={shippingCharge}
+          onChange={(e) => setShippingCharge(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          min={0}
+          step={10}
+        />
+      </div>
 
       <label className="flex items-center gap-2 cursor-pointer">
         <input

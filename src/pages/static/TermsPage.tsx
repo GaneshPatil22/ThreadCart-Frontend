@@ -1,4 +1,5 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
+import { CONTACT } from "../../utils/constants";
 
 export default function TermsPage() {
   return (
@@ -78,8 +79,8 @@ export default function TermsPage() {
         <h2 className="text-xl font-semibold text-text-primary mb-4">9. Contact Information</h2>
         <p>
           For questions about these Terms, please contact us at{" "}
-          <a href="mailto:legal@threadcart.com" className="text-primary hover:underline">
-            legal@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
         </p>
       </section>

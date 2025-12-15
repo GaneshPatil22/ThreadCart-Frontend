@@ -154,8 +154,13 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   addText('BILL TO / SHIP TO:', leftMargin, yPos, { fontSize: 10, fontStyle: 'bold' });
   yPos += 7;
 
+  // Calculate box height based on whether GST number and address_line2 exist
+  let addressBoxHeight = 35;
+  if (order.shipping_address.address_line2) addressBoxHeight += 5;
+  if (order.gst_number) addressBoxHeight += 5;
+
   doc.setFillColor(250, 250, 250);
-  doc.rect(leftMargin, yPos - 4, contentWidth / 2 - 5, 35, 'F');
+  doc.rect(leftMargin, yPos - 4, contentWidth / 2 - 5, addressBoxHeight, 'F');
 
   addText(order.shipping_address.full_name, leftMargin + 3, yPos, { fontSize: 10, fontStyle: 'bold' });
   yPos += 5;
@@ -175,6 +180,12 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   addText(`PIN: ${order.shipping_address.postal_code}`, leftMargin + 3, yPos, { fontSize: 9 });
   yPos += 5;
   addText(`Phone: +91 ${order.shipping_address.phone}`, leftMargin + 3, yPos, { fontSize: 9 });
+
+  // Customer GST Number (if provided)
+  if (order.gst_number) {
+    yPos += 5;
+    addText(`GSTIN: ${order.gst_number}`, leftMargin + 3, yPos, { fontSize: 9, fontStyle: 'bold', color: [225, 29, 72] });
+  }
 
   yPos += 15;
 
@@ -254,14 +265,10 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   // TOTALS WITH GST
   // ============================================================================
 
-  // Calculate GST (prices in DB are EXCLUSIVE of GST, so we add GST on top)
-  // Subtotal = sum of item prices, GST = 18% of subtotal, Total = subtotal + GST
-  const subtotalAmount = order.items.reduce(
-    (sum, item) => sum + item.quantity * item.price_at_purchase,
-    0
-  );
+  // Use values from order (prices in DB are EXCLUSIVE of GST)
+  const subtotalAmount = order.total_amount;
   const gstAmount = subtotalAmount * TAX.GST_RATE;
-  const grandTotal = subtotalAmount + gstAmount;
+  const shippingCharge = order.shipping_charge || 0;
 
   const totalsLabelX = rightMargin - 70;
   const totalsValueX = rightMargin - 3;
@@ -280,7 +287,7 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
 
   // Shipping
   doc.text('Shipping:', totalsLabelX, yPos, { align: 'right' });
-  doc.text('FREE', totalsValueX, yPos, { align: 'right' });
+  doc.text(shippingCharge === 0 ? 'FREE' : formatCurrency(shippingCharge), totalsValueX, yPos, { align: 'right' });
   yPos += 10;
 
   // Total Box
@@ -291,7 +298,7 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text('GRAND TOTAL:', rightMargin - 85, yPos + 2);
-  doc.text(formatCurrency(grandTotal), totalsValueX, yPos + 2, { align: 'right' });
+  doc.text(formatCurrency(order.grand_total), totalsValueX, yPos + 2, { align: 'right' });
 
   doc.setTextColor(0, 0, 0);
   yPos += 25;

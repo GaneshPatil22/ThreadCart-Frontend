@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { Briefcase, MapPin, Clock } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 interface JobOpening {
   title: string;
@@ -108,7 +109,7 @@ export default function CareersPage() {
           We're always interested in meeting talented people. Send us your resume and we'll keep you in mind for future opportunities.
         </p>
         <a
-          href="mailto:careers@threadcart.com"
+          href={`mailto:${CONTACT.EMAIL}`}
           className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium"
         >
           Send Your Resume

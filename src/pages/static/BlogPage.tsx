@@ -1,5 +1,6 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
 import { Calendar, ArrowRight } from "lucide-react";
+import { CONTACT } from "../../utils/constants";
 
 interface BlogPost {
   title: string;
@@ -76,8 +77,8 @@ export default function BlogPage() {
         <p className="text-text-secondary mb-4">More articles coming soon!</p>
         <p className="text-sm">
           Want to contribute? Reach out at{" "}
-          <a href="mailto:content@threadcart.com" className="text-primary hover:underline">
-            content@threadcart.com
+          <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
+            {CONTACT.EMAIL}
           </a>
         </p>
       </div>

@@ -8,9 +8,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase';
-import { getUserAddress, saveUserAddress, getDeliveryEstimate } from '../../services/address.service';
+import { getUserAddress, saveUserAddress, getDeliveryEstimate, type DeliveryEstimate } from '../../services/address.service';
 import { placeCodOrder, initiateRazorpayPayment, isRazorpayConfigured } from '../../services/checkout.service';
 import { TAX } from '../../utils/constants';
+import { validateGSTNumber, formatGSTNumber } from '../../utils/gstValidation';
 import { AddressForm } from '../../components/checkout/AddressForm';
 import { AddressCard } from '../../components/checkout/AddressCard';
 import { CheckoutItemRow } from '../../components/checkout/CheckoutItemRow';
@@ -49,11 +50,13 @@ export const CheckoutPage = () => {
   );
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Delivery estimate
-  const [deliveryEstimate, setDeliveryEstimate] = useState<{
-    days: number;
-    date: string;
-  } | null>(null);
+  // Delivery estimate and shipping
+  const [deliveryEstimate, setDeliveryEstimate] = useState<DeliveryEstimate | null>(null);
+  const [shippingCharge, setShippingCharge] = useState<number>(0);
+
+  // GST Number (optional)
+  const [gstNumber, setGstNumber] = useState<string>('');
+  const [gstError, setGstError] = useState<string>('');
 
   // Current step
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('address');
@@ -98,6 +101,7 @@ export const CheckoutPage = () => {
       if (address?.pincode) {
         const estimate = await getDeliveryEstimate(address.pincode);
         setDeliveryEstimate(estimate);
+        setShippingCharge(estimate?.shipping_charge || 0);
         if (address) {
           setCurrentStep('payment');
         }
@@ -126,9 +130,20 @@ export const CheckoutPage = () => {
 
       const estimate = await getDeliveryEstimate(data.pincode);
       setDeliveryEstimate(estimate);
+      setShippingCharge(estimate?.shipping_charge || 0);
       setCurrentStep('payment');
     } else {
       alert(result.message);
+    }
+  };
+
+  const handleGstChange = (value: string) => {
+    setGstNumber(value);
+    if (value.trim()) {
+      const validation = validateGSTNumber(value);
+      setGstError(validation.message);
+    } else {
+      setGstError('');
     }
   };
 
@@ -137,12 +152,23 @@ export const CheckoutPage = () => {
       return;
     }
 
+    // Validate GST if provided
+    if (gstNumber.trim()) {
+      const gstValidation = validateGSTNumber(gstNumber);
+      if (!gstValidation.valid) {
+        setGstError(gstValidation.message);
+        return;
+      }
+    }
+
     setIsProcessing(true);
     setCurrentStep('processing');
 
+    const formattedGst = gstNumber.trim() ? formatGSTNumber(gstNumber) : null;
+
     if (paymentMethod === 'cod') {
       // Place COD order directly
-      const result = await placeCodOrder(cart, savedAddress);
+      const result = await placeCodOrder(cart, savedAddress, shippingCharge, formattedGst);
 
       if (result.success && result.order) {
         await refreshCart();
@@ -161,6 +187,8 @@ export const CheckoutPage = () => {
         cart,
         address: savedAddress,
         userEmail: userEmail || '',
+        shippingCharge,
+        gstNumber: formattedGst,
         onSuccess: async (order) => {
           await refreshCart();
           navigate('/order/success', {
@@ -407,6 +435,45 @@ export const CheckoutPage = () => {
               </div>
             )}
 
+            {/* Business Details Section (GST) */}
+            {savedAddress && !isEditingAddress && (
+              <div className="bg-white rounded-xl border border-border p-6">
+                <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                  Business Details
+                  <span className="text-xs font-normal text-text-secondary">(Optional)</span>
+                </h2>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                    GST Number
+                  </label>
+                  <input
+                    type="text"
+                    value={gstNumber}
+                    onChange={(e) => handleGstChange(e.target.value.toUpperCase())}
+                    placeholder="22AAAAA0000A1Z5"
+                    maxLength={15}
+                    className={`w-full px-4 py-3 border rounded-lg text-text-primary focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${
+                      gstError ? 'border-red-500' : 'border-border'
+                    }`}
+                  />
+                  {gstError && (
+                    <p className="mt-1 text-sm text-red-500">{gstError}</p>
+                  )}
+                  <p className="mt-2 text-xs text-text-secondary">
+                    Enter your company's GST number for tax invoice. Leave empty if not applicable.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Order Items Section */}
             <div className="bg-white rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
@@ -453,9 +520,13 @@ export const CheckoutPage = () => {
 
                 <div className="flex justify-between text-text-secondary">
                   <span>Shipping</span>
-                  <span className={cart.shipping === 0 ? 'text-green-600 font-medium' : ''}>
-                    {cart.shipping === 0 ? 'FREE' : `₹${cart.shipping.toFixed(2)}`}
-                  </span>
+                  {!savedAddress ? (
+                    <span className="text-gray-400 italic">Enter address</span>
+                  ) : (
+                    <span className={shippingCharge === 0 ? 'text-green-600 font-medium' : ''}>
+                      {shippingCharge === 0 ? 'FREE' : `₹${shippingCharge.toFixed(2)}`}
+                    </span>
+                  )}
                 </div>
 
                 {paymentMethod === 'cod' && (
@@ -468,7 +539,7 @@ export const CheckoutPage = () => {
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-text-primary">Total</span>
-                    <span className="text-accent">₹{cart.total.toFixed(2)}</span>
+                    <span className="text-accent">₹{(cart.subtotal + cart.tax + shippingCharge).toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-text-secondary mt-1">(Inclusive of all taxes)</p>
                 </div>
@@ -495,7 +566,7 @@ export const CheckoutPage = () => {
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                       />
                     </svg>
-                    <span>Pay ₹{cart.total.toFixed(2)}</span>
+                    <span>Pay ₹{(cart.subtotal + cart.tax + shippingCharge).toFixed(2)}</span>
                   </>
                 ) : (
                   <>

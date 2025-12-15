@@ -8,11 +8,12 @@ import ManageSubCategories from "./ManageSubCategories";
 import ManageProducts from "./ManageProducts";
 import ManagePincodes from "./ManagePincodes";
 import ManageContactSubmissions from "./ManageContactSubmissions";
+import ManageOrders from "./ManageOrders";
 import Unauthorized from "../Unauthorized";
 import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
-type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | null;
+type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | null;
 
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
@@ -128,6 +129,20 @@ export const AddItem = () => {
         >
           Contact Submissions
         </button>
+
+        <button
+          onClick={() => {
+            setActiveForm("orders");
+            setViewMode("manage");
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "orders"
+              ? "bg-primary text-white"
+              : "bg-red-100 text-red-700 hover:bg-red-200"
+          }`}
+        >
+          Orders
+        </button>
       </div>
 
       {/* Content Area */}
@@ -139,6 +154,7 @@ export const AddItem = () => {
             {activeForm === "product" && <AddProductForm />}
             {activeForm === "pincode" && <AddPincodeForm />}
             {activeForm === "contact" && <ManageContactSubmissions />}
+            {activeForm === "orders" && <ManageOrders />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to add
@@ -152,6 +168,7 @@ export const AddItem = () => {
             {activeForm === "product" && <ManageProducts />}
             {activeForm === "pincode" && <ManagePincodes />}
             {activeForm === "contact" && <ManageContactSubmissions />}
+            {activeForm === "orders" && <ManageOrders />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to manage

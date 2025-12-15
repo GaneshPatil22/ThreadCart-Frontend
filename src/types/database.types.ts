@@ -121,12 +121,15 @@ export interface Order {
   order_number: string;
   user_id: string;
   total_amount: number;
-  grand_total: number; // Total with GST
+  grand_total: number; // Total with GST and shipping
+  shipping_charge: number; // Shipping charge at time of order
+  gst_number: string | null; // Customer GST number (optional)
   status: OrderStatus;
   payment_method: PaymentMethod | null;
   payment_id: string | null;
   payment_status: PaymentStatus;
   shipping_address: ShippingAddress;
+  notes: string | null; // Admin notes for order
   created_at: string;
   confirmed_at: string | null;
   packed_at: string | null;
@@ -141,12 +144,15 @@ export interface OrderInsert {
   order_number: string;
   user_id: string;
   total_amount: number;
-  grand_total: number; // Total with GST
+  grand_total: number; // Total with GST and shipping
+  shipping_charge?: number; // Shipping charge
+  gst_number?: string | null; // Customer GST number (optional)
   status?: OrderStatus;
   payment_method?: PaymentMethod | null;
   payment_id?: string | null;
   payment_status?: PaymentStatus;
   shipping_address: ShippingAddress;
+  notes?: string | null;
   created_at?: string;
 }
 
@@ -155,6 +161,7 @@ export interface OrderUpdate {
   payment_method?: PaymentMethod | null;
   payment_id?: string | null;
   payment_status?: PaymentStatus;
+  notes?: string | null;
   confirmed_at?: string | null;
   packed_at?: string | null;
   shipped_at?: string | null;
