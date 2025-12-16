@@ -18,6 +18,7 @@ import { AddItem } from "./components/AddItems/AddItem";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import { CartProvider } from "./context/CartContext";
 import { CartPage } from "./pages/cart/CartPage";
+import { FloatingWhatsApp } from "./components/common/FloatingWhatsApp";
 import { CheckoutPage } from "./pages/checkout/CheckoutPage";
 import { OrderSuccessPage } from "./pages/order/OrderSuccessPage";
 import { OrderHistoryPage } from "./pages/order/OrderHistoryPage";
@@ -86,6 +87,7 @@ export default function App() {
           </div>
 
           <Footer />
+          <FloatingWhatsApp />
         </div>
       </CartProvider>
     </ErrorBoundary>

@@ -16,6 +16,22 @@ When working on this project, always follow these principles:
 - **Vite**: Leverage Vite's fast HMR and build optimizations
 - **React Best Practices**: Use functional components, React hooks properly, and avoid prop drilling
 
+### Modularity & Configuration Guidelines
+
+**IMPORTANT**: Follow these guidelines for all features and code changes:
+
+1. **Centralized Constants**: Store all configurable values (phone numbers, emails, URLs, messages) in `src/utils/constants.ts`. Never hardcode values directly in components.
+
+2. **Modular Components**: Build components that accept props for configuration. Use dependency injection pattern - pass configurable values as props with sensible defaults from constants.
+
+3. **SOLID Principles** (moderate application):
+   - **Single Responsibility**: Each component/function should do one thing well
+   - **Open/Closed**: Components should be extendable via props without modifying source
+   - **Interface Segregation**: Define focused interfaces, not bloated ones
+   - **Dependency Inversion**: Depend on abstractions (props/interfaces) not concrete values
+
+4. **Balance**: Apply these principles moderately. Don't over-engineer simple features. Use good judgment - a small component doesn't need full abstraction layers.
+
 ## Development Commands
 
 ```bash
@@ -184,3 +200,15 @@ The `/add_item` page provides a comprehensive admin interface:
 3. All forms include `sort_number` field to control display order
 4. Edit mode allows admins to update all fields including sort order
 5. Delete operations include confirmation dialogs with cascade warnings
+
+## WhatsApp Business Integration
+
+- **WhatsApp Business Number**: +91 9187142260
+- **Implementation**: Simple Click-to-Chat using `wa.me` links
+- **Component**: `src/components/common/FloatingWhatsApp.tsx`
+- **Configuration**: All WhatsApp settings in `src/utils/constants.ts` under `WHATSAPP` object
+- **Features**:
+  - Floating button on bottom-right of all pages
+  - Configurable default message, tooltip, and position
+  - Opens WhatsApp Web (desktop) or WhatsApp app (mobile)
+  - Uses `getWhatsAppUrl()` utility function for generating links
