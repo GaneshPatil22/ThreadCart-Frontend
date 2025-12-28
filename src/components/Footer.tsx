@@ -44,7 +44,7 @@ export default function Footer() {
             </li>
             <li>
               <Link to="/shipping" className="hover:text-text-primary">
-                Shipping & Returns
+                Shipping
               </Link>
             </li>
             <li>

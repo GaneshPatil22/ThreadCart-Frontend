@@ -1,10 +1,10 @@
 import StaticPageLayout from "../../components/StaticPageLayout";
-import { Truck, RotateCcw, Package, Clock } from "lucide-react";
+import { Truck, Package, Clock, Shield } from "lucide-react";
 import { CONTACT } from "../../utils/constants";
 
-export default function ShippingReturnsPage() {
+export default function ShippingPage() {
   return (
-    <StaticPageLayout title="Shipping & Returns">
+    <StaticPageLayout title="Shipping Information">
       <div className="grid md:grid-cols-2 gap-6 mb-12">
         <div className="bg-white p-6 rounded-lg border border-border">
           <Truck className="w-10 h-10 text-primary mb-4" />
@@ -12,9 +12,9 @@ export default function ShippingReturnsPage() {
           <p className="text-sm">Express delivery within 24 hours for select locations</p>
         </div>
         <div className="bg-white p-6 rounded-lg border border-border">
-          <RotateCcw className="w-10 h-10 text-primary mb-4" />
-          <h3 className="font-semibold text-text-primary mb-2">Easy Returns</h3>
-          <p className="text-sm">Hassle-free returns within 7 days of delivery</p>
+          <Shield className="w-10 h-10 text-primary mb-4" />
+          <h3 className="font-semibold text-text-primary mb-2">Quality Assured</h3>
+          <p className="text-sm">All products are quality checked before dispatch</p>
         </div>
       </div>
 
@@ -58,29 +58,17 @@ export default function ShippingReturnsPage() {
         </table>
       </div>
 
-      <h2 className="text-xl font-semibold text-text-primary mt-8 mb-4">Return Policy</h2>
-
-      <h3 className="font-semibold text-text-primary mt-6 mb-2">Eligibility</h3>
+      <h3 className="font-semibold text-text-primary mt-6 mb-2">Order Tracking</h3>
       <ul className="space-y-2 mb-6">
-        <li>• Items must be returned within 7 days of delivery</li>
-        <li>• Products must be unused and in original packaging</li>
-        <li>• All tags and labels must be intact</li>
-        <li>• Custom orders and bulk orders may have different return policies</li>
+        <li>• Once your order is shipped, you will receive a tracking number via email and SMS</li>
+        <li>• You can track your shipment on our website or the courier partner's website</li>
+        <li>• For any delivery queries, contact our support team</li>
       </ul>
-
-      <h3 className="font-semibold text-text-primary mt-6 mb-2">How to Return</h3>
-      <ol className="space-y-2 mb-6 list-decimal list-inside">
-        <li>Contact our support team at {CONTACT.EMAIL}</li>
-        <li>Provide your order number and reason for return</li>
-        <li>Receive return authorization and shipping label</li>
-        <li>Pack items securely and ship using provided label</li>
-        <li>Refund processed within 5-7 business days after inspection</li>
-      </ol>
 
       <div className="bg-primary/10 p-6 rounded-lg border border-primary/20">
         <h3 className="font-semibold text-text-primary mb-2">Questions?</h3>
         <p>
-          For any shipping or return queries, contact us at{" "}
+          For any shipping queries, contact us at{" "}
           <a href={`mailto:${CONTACT.EMAIL}`} className="text-primary hover:underline">
             {CONTACT.EMAIL}
           </a>

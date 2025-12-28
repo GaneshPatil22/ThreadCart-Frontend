@@ -3,6 +3,72 @@ import { useCart } from "../../hooks/useCart";
 import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 
+/**
+ * Checks if a value represents "STANDARD" (0 or -1).
+ */
+const isStandardValue = (value: string | number | null | undefined): boolean => {
+  if (typeof value === "number") {
+    return value === 0 || value === -1;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed === "0" || trimmed === "-1";
+  }
+  return false;
+};
+
+/**
+ * Checks if a specification value should be displayed.
+ * - Show if value is 0 or -1 (will display as "STANDARD")
+ * - Show if value is a valid non-empty string
+ * - Hide if null, undefined, NaN, or empty
+ */
+const shouldShowSpec = (value: string | number | null | undefined): boolean => {
+  // Show if it's a "STANDARD" value (0 or -1)
+  if (isStandardValue(value)) {
+    return true;
+  }
+
+  // Hide null/undefined
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  // Hide NaN
+  if (typeof value === "number" && isNaN(value)) {
+    return false;
+  }
+
+  // Hide empty strings and invalid string values
+  if (typeof value === "string") {
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed === "" || trimmed === "null" || trimmed === "nan" || trimmed === "undefined") {
+      return false;
+    }
+  }
+
+  // Show valid values
+  return true;
+};
+
+/**
+ * Formats a product specification value.
+ * Returns "STANDARD" for 0 or -1, otherwise returns the original value.
+ */
+const formatSpecValue = (value: string | number | null | undefined): string => {
+  // Return "STANDARD" for 0 or -1
+  if (isStandardValue(value)) {
+    return "STANDARD";
+  }
+
+  // Return the value as-is (shouldShowSpec already filters invalid values)
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return value ?? "";
+};
+
 interface ProductDetailProps {
   name: string;
   image: string[]; // multiple images
@@ -177,62 +243,62 @@ export default function ShortProductDetail({
             </span>
           </div> */}
 
-          {part_number && (
+          {shouldShowSpec(part_number) && (
             <div>
               <span className="text-gray-500">Part Number:</span>
               <span className="ml-2 font-medium text-gray-800">
-                {part_number}
+                {formatSpecValue(part_number)}
               </span>
             </div>
           )}
 
-          {thread_style && (
+          {shouldShowSpec(thread_style) && (
             <div>
               <span className="text-gray-500">Thread Style:</span>
               <span className="ml-2 font-medium text-gray-800">
-                {thread_style}
+                {formatSpecValue(thread_style)}
               </span>
             </div>
           )}
 
-          {thread_size_pitch && (
+          {shouldShowSpec(thread_size_pitch) && (
             <div>
               <span className="text-gray-500">Thread Size/Pitch:</span>
               <span className="ml-2 font-medium text-gray-800">
-                {thread_size_pitch}
+                {formatSpecValue(thread_size_pitch)}
               </span>
             </div>
           )}
 
-          {fastener_length && (
+          {shouldShowSpec(fastener_length) && (
             <div>
               <span className="text-gray-500">Fastener Length:</span>
               <span className="ml-2 font-medium text-gray-800">
-                {fastener_length}
+                {formatSpecValue(fastener_length)}
               </span>
             </div>
           )}
 
-          {head_height && (
+          {shouldShowSpec(head_height) && (
             <div>
               <span className="text-gray-500">Head Height:</span>
               <span className="ml-2 font-medium text-gray-800">
-                {head_height}
+                {formatSpecValue(head_height)}
               </span>
             </div>
           )}
 
-          {Grade && (
+          {shouldShowSpec(Grade) && (
             <div>
               <span className="text-gray-500">Grade:</span>
-              <span className="ml-2 font-medium text-gray-800">{Grade}</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Grade)}</span>
             </div>
           )}
 
-          {Coating && (
+          {shouldShowSpec(Coating) && (
             <div>
-              <span className="text-gray-500">Coating:</span>
-              <span className="ml-2 font-medium text-gray-800">{Coating}</span>
+              <span className="text-gray-500">Finish:</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Coating)}</span>
             </div>
           )}
         </div>

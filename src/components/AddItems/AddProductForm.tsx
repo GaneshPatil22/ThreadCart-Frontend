@@ -241,7 +241,7 @@ export default function AddProductForm() {
 
       <input
         type="text"
-        placeholder="Coating"
+        placeholder="Finish"
         value={coating ?? ""}
         onChange={(e) => setCoating(e.target.value)}
         className="w-full border rounded-lg p-2"

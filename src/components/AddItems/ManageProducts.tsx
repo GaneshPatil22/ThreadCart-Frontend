@@ -176,7 +176,7 @@ export default function ManageProducts() {
 
       <input
         type="text"
-        placeholder="Search by name, subcategory, thread style, coating, or part number..."
+        placeholder="Search by name, subcategory, thread style, finish, or part number..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full border rounded-lg p-2 mb-4"
@@ -350,7 +350,7 @@ export default function ManageProducts() {
                       setEditForm({ ...editForm, Coating: e.target.value })
                     }
                     className="w-full border rounded-lg p-2"
-                    placeholder="Coating"
+                    placeholder="Finish"
                   />
                   <input
                     type="number"

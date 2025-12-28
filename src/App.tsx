@@ -27,7 +27,7 @@ import { OrderDetailsPage } from "./pages/order/OrderDetailsPage";
 // Static pages
 import SearchResultsPage from "./pages/SearchResultsPage";
 import HelpCenterPage from "./pages/static/HelpCenterPage";
-import ShippingReturnsPage from "./pages/static/ShippingReturnsPage";
+import ShippingPage from "./pages/static/ShippingReturnsPage";
 import FAQsPage from "./pages/static/FAQsPage";
 import TermsPage from "./pages/static/TermsPage";
 import BlogPage from "./pages/static/BlogPage";
@@ -70,7 +70,7 @@ export default function App() {
 
               {/* Static pages - Support */}
               <Route path="/help" element={<HelpCenterPage />} />
-              <Route path="/shipping" element={<ShippingReturnsPage />} />
+              <Route path="/shipping" element={<ShippingPage />} />
               <Route path="/faqs" element={<FAQsPage />} />
               <Route path="/terms" element={<TermsPage />} />
 

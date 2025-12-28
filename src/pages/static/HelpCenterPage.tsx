@@ -50,7 +50,7 @@ export default function HelpCenterPage() {
         </li>
         <li className="flex items-start">
           <span className="text-accent mr-2">•</span>
-          <span>What is your return policy?</span>
+          <span>What are the shipping charges?</span>
         </li>
       </ul>
 

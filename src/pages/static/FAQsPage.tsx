@@ -34,10 +34,6 @@ const faqs: FAQ[] = [
     answer: `Absolutely! For bulk orders, please contact our sales team at ${CONTACT.EMAIL} with your requirements. We offer competitive pricing and customized solutions for large quantity orders.`
   },
   {
-    question: "What is your return policy?",
-    answer: "We offer hassle-free returns within 7 days of delivery. Items must be unused and in original packaging. Custom orders may have different return policies. Please refer to our Shipping & Returns page for details."
-  },
-  {
     question: "Do you ship across India?",
     answer: "Yes, we deliver to all major cities and towns across India. We also offer international shipping for select products. Contact us for international shipping queries."
   },
