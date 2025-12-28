@@ -64,7 +64,7 @@ export default function Navbar() {
             </Link>
 
             <Link to="/subcategory" className="text-white hover:text-blue-200">
-              Catalog1
+              Catalog
             </Link>
             {isUserAdmin && (
               <Link to="/add_item" className="text-white hover:text-blue-200">
@@ -87,18 +87,8 @@ export default function Navbar() {
                   to="/orders"
                   className="text-white hover:text-blue-200 flex items-center gap-1"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   My Orders
                 </Link>
