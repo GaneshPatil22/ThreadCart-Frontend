@@ -129,6 +129,7 @@ export interface Order {
   payment_id: string | null;
   payment_status: PaymentStatus;
   shipping_address: ShippingAddress;
+  billing_address: ShippingAddress | null; // Billing address (null if same as shipping)
   notes: string | null; // Admin notes for order
   created_at: string;
   confirmed_at: string | null;
@@ -152,6 +153,7 @@ export interface OrderInsert {
   payment_id?: string | null;
   payment_status?: PaymentStatus;
   shipping_address: ShippingAddress;
+  billing_address?: ShippingAddress | null; // Billing address (null if same as shipping)
   notes?: string | null;
   created_at?: string;
 }
@@ -216,6 +218,8 @@ export interface Product {
   part_number: string | null;
   sub_cat_id: string;
   sort_number: number;
+  Material: string | null;
+  'HSN/SAC': string | null;
 }
 
 export interface ProductInsert {
@@ -233,6 +237,8 @@ export interface ProductInsert {
   part_number?: string | null;
   sub_cat_id: string;
   sort_number?: number;
+  Material?: string | null;
+  'HSN/SAC'?: string | null;
 }
 
 export interface ProductUpdate {
@@ -249,4 +255,6 @@ export interface ProductUpdate {
   part_number?: string | null;
   sub_cat_id?: string;
   sort_number?: number;
+  Material?: string | null;
+  'HSN/SAC'?: string | null;
 }

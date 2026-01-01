@@ -80,9 +80,10 @@ interface ProductDetailProps {
   thread_size_pitch?: string | null;
   fastener_length?: string | null;
   head_height?: string | null;
-  Grade?: string | null;
   Coating?: string | null;
   part_number?: string | null;
+  Material?: string | null;
+  hsnSac?: string | null;
 }
 
 export default function ShortProductDetail({
@@ -96,9 +97,10 @@ export default function ShortProductDetail({
   thread_size_pitch,
   fastener_length,
   head_height,
-  Grade,
   Coating,
   part_number,
+  Material,
+  hsnSac,
 }: ProductDetailProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -167,9 +169,9 @@ export default function ShortProductDetail({
   };
 
   return (
-    <div className="bg-gray-50 p-4 border-t border-gray-200 flex gap-4">
+    <div className="bg-gray-50 p-3 sm:p-4 border-t border-gray-200 flex flex-col sm:flex-row gap-4">
       {/* Image Carousel */}
-      <div className="relative w-32 h-32 flex-shrink-0">
+      <div className="relative w-full sm:w-32 h-48 sm:h-32 flex-shrink-0 mx-auto sm:mx-0 max-w-[200px] sm:max-w-none">
         <img
           src={convertGoogleDriveUrl(image[currentIndex])}
           alt={name}
@@ -183,13 +185,13 @@ export default function ShortProductDetail({
           <>
             <button
               onClick={handlePrev}
-              className="absolute top-1/2 left-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1 text-xs"
+              className="absolute top-1/2 left-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-2 sm:p-1 text-sm sm:text-xs"
             >
               ◀
             </button>
             <button
               onClick={handleNext}
-              className="absolute top-1/2 right-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1 text-xs"
+              className="absolute top-1/2 right-1 -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-2 sm:p-1 text-sm sm:text-xs"
             >
               ▶
             </button>
@@ -212,14 +214,14 @@ export default function ShortProductDetail({
       </div>
 
       {/* Product Info */}
-      <div className="flex-1">
-        <h3 className="font-semibold text-gray-800 mb-2">{name}</h3>
-        <p className="text-gray-600 text-sm mb-3">
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">{name}</h3>
+        <p className="text-gray-600 text-xs sm:text-sm mb-3">
           {desc || "No description available"}
         </p>
 
         {/* Product Details Grid */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-3 text-xs sm:text-sm">
           <div>
             <span className="text-gray-500">Price:</span>
             <span className="ml-2 font-semibold text-accent">₹{price}</span>
@@ -288,17 +290,24 @@ export default function ShortProductDetail({
             </div>
           )}
 
-          {shouldShowSpec(Grade) && (
-            <div>
-              <span className="text-gray-500">Grade:</span>
-              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Grade)}</span>
-            </div>
-          )}
-
           {shouldShowSpec(Coating) && (
             <div>
               <span className="text-gray-500">Finish:</span>
               <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Coating)}</span>
+            </div>
+          )}
+
+          {shouldShowSpec(Material) && (
+            <div>
+              <span className="text-gray-500">Material:</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Material)}</span>
+            </div>
+          )}
+
+          {shouldShowSpec(hsnSac) && (
+            <div>
+              <span className="text-gray-500">HSN/SAC:</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(hsnSac)}</span>
             </div>
           )}
         </div>
@@ -307,8 +316,8 @@ export default function ShortProductDetail({
         <div className="flex flex-col gap-3 mt-4">
           {/* Cart Status - Show at top if in cart */}
           {isInCart(productId) && (
-            <div className="flex items-center gap-2 text-green-600 font-semibold text-sm">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center gap-2 text-green-600 font-semibold text-xs sm:text-sm">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -320,37 +329,41 @@ export default function ShortProductDetail({
           )}
 
           {/* Quantity Selector & Add to Cart Button */}
-          <div className="flex items-center gap-3">
-            {/* Quantity Label */}
-            <span className="text-sm text-gray-600 font-medium">Quantity:</span>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* Quantity Row */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Quantity Label */}
+              <span className="text-xs sm:text-sm text-gray-600 font-medium">Quantity:</span>
 
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleQuantityChange(cartQuantity - 1)}
-                disabled={cartQuantity <= 1}
-                className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-md hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg"
-              >
-                -
-              </button>
-              <input
-                type="number"
-                value={cartQuantity}
-                onChange={(e) =>
-                  handleQuantityChange(parseInt(e.target.value) || 1)
-                }
-                className="w-20 text-center border-2 border-gray-300 rounded-md py-2 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                min="1"
-                max={quantity - getItemQuantity(productId)}
-              />
-              <button
-                onClick={() => handleQuantityChange(cartQuantity + 1)}
-                disabled={cartQuantity >= quantity - getItemQuantity(productId)}
-                className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-md hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg"
-              >
-                +
-              </button>
+              {/* Quantity Selector */}
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button
+                  onClick={() => handleQuantityChange(cartQuantity - 1)}
+                  disabled={cartQuantity <= 1}
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border-2 border-gray-300 rounded-md hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base sm:text-lg active:bg-gray-200"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={cartQuantity}
+                  onChange={(e) =>
+                    handleQuantityChange(parseInt(e.target.value) || 1)
+                  }
+                  className="w-16 sm:w-20 text-center border-2 border-gray-300 rounded-md py-2 text-base sm:text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                  min="1"
+                  max={quantity - getItemQuantity(productId)}
+                />
+                <button
+                  onClick={() => handleQuantityChange(cartQuantity + 1)}
+                  disabled={cartQuantity >= quantity - getItemQuantity(productId)}
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border-2 border-gray-300 rounded-md hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base sm:text-lg active:bg-gray-200"
+                >
+                  +
+                </button>
+              </div>
             </div>
+
             {/* Add to Cart Button - LARGE & PROMINENT */}
             <button
               onClick={handleAddToCart}
@@ -359,11 +372,11 @@ export default function ShortProductDetail({
                 quantity === 0 ||
                 quantity - getItemQuantity(productId) === 0
               }
-              className="flex-1 bg-primary text-white px-8 py-3 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base font-bold shadow-md hover:shadow-lg"
+              className="w-full sm:w-auto sm:flex-1 bg-primary text-white px-6 sm:px-8 py-3 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-bold shadow-md hover:shadow-lg active:shadow-sm"
             >
-              {addingToCart ? (
+                {addingToCart ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -386,7 +399,7 @@ export default function ShortProductDetail({
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >

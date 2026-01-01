@@ -315,14 +315,68 @@ export const OrderDetailsPage = () => {
                   <span className="text-text-secondary">Phone: </span>
                   <span className="text-text-primary">+91 {order.shipping_address.phone}</span>
                 </p>
-                {order.gst_number && (
-                  <p className="mt-2">
-                    <span className="text-text-secondary">GST Number: </span>
-                    <span className="text-text-primary font-mono">{order.gst_number}</span>
-                  </p>
+              </div>
+            </div>
+
+            {/* Billing Address */}
+            <div className="bg-white rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-text-primary mb-4">
+                Billing Address
+              </h2>
+              <div className="text-text-secondary">
+                {order.billing_address ? (
+                  <>
+                    <p className="font-medium text-text-primary">
+                      {order.billing_address.full_name}
+                    </p>
+                    <p className="mt-1">{order.billing_address.address_line1}</p>
+                    {order.billing_address.address_line2 && (
+                      <p>{order.billing_address.address_line2}</p>
+                    )}
+                    <p>
+                      {order.billing_address.city}, {order.billing_address.state} - {order.billing_address.postal_code}
+                    </p>
+                    <p className="mt-2">
+                      <span className="text-text-secondary">Phone: </span>
+                      <span className="text-text-primary">+91 {order.billing_address.phone}</span>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-text-primary">
+                      {order.shipping_address.full_name}
+                    </p>
+                    <p className="mt-1">{order.shipping_address.address_line1}</p>
+                    {order.shipping_address.address_line2 && (
+                      <p>{order.shipping_address.address_line2}</p>
+                    )}
+                    <p>
+                      {order.shipping_address.city}, {order.shipping_address.state} - {order.shipping_address.postal_code}
+                    </p>
+                    <p className="mt-2">
+                      <span className="text-text-secondary">Phone: </span>
+                      <span className="text-text-primary">+91 {order.shipping_address.phone}</span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">(Same as shipping address)</p>
+                  </>
                 )}
               </div>
             </div>
+
+            {/* Business Details (GST) */}
+            {order.gst_number && (
+              <div className="bg-white rounded-xl border border-border p-6">
+                <h2 className="text-lg font-semibold text-text-primary mb-4">
+                  Business Details
+                </h2>
+                <div className="text-text-secondary">
+                  <p>
+                    <span className="text-text-secondary">GST Number: </span>
+                    <span className="text-text-primary font-mono">{order.gst_number}</span>
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Invoice Actions */}
             <div className="bg-white rounded-xl border border-border p-6">

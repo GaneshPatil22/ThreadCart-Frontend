@@ -36,6 +36,8 @@ interface Product {
   Grade: string | null;
   Coating: string | null;
   part_number: string | null;
+  Material: string | null;
+  "HSN/SAC": string | null;
 }
 
 interface SearchResults {
@@ -392,9 +394,10 @@ export default function SearchResultsPage() {
                                   thread_size_pitch={p.thread_size_pitch}
                                   fastener_length={p.fastener_length}
                                   head_height={p.head_height}
-                                  Grade={p.Grade}
                                   Coating={p.Coating}
                                   part_number={p.part_number}
+                                  Material={p.Material}
+                                  hsnSac={p["HSN/SAC"]}
                                 />
                               </div>
                             </td>

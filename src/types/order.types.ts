@@ -25,6 +25,7 @@ export interface OrderWithItems extends Order {
 export interface CreateOrderParams {
   user_id: string;
   shipping_address: ShippingAddress;
+  billing_address?: ShippingAddress | null; // Billing address (null if same as shipping)
   payment_method: PaymentMethod;
   shipping_charge: number; // Shipping charge based on pincode
   gst_number?: string | null; // Customer GST number (optional)

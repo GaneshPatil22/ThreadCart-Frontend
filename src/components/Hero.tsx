@@ -27,11 +27,13 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 text-center">
-        <h1 className="text-4xl font-bold text-white mb-4">
-          Everything You Need for Your Business
+        <h1 className="text-5xl font-bold text-white mb-4">
+          Perfection In Every Turn
         </h1>
-        <p className="text-white max-w-2xl mx-auto mb-8">
-          From industrial supplies to safety equipment — get quality products at unbeatable prices.
+        <p className="text-white max-w-6xl mx-auto mb-8">
+          <h1 className="text-2xl font-normal text-white mb-4">
+            For every industry - delivering reliability, certification, and speed in every order
+          </h1>
         </p>
 
         <form onSubmit={handleSearch} className="flex justify-center max-w-xl mx-auto">

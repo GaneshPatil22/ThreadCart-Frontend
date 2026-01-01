@@ -22,6 +22,8 @@ export default function AddProductForm() {
   const [threadSize, setThreadSize] = useState<string | null>(null);
   const [coating, setCoating] = useState<string | null>(null);
   const [partNumber, setPartNumber] = useState<string | null>(null);
+  const [material, setMaterial] = useState<string | null>(null);
+  const [hsnSac, setHsnSac] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -71,6 +73,8 @@ export default function AddProductForm() {
         Coating: coating,
         part_number: partNumber,
         sort_number: sortNumber,
+        Material: material,
+        "HSN/SAC": hsnSac,
       },
     ]);
 
@@ -91,6 +95,8 @@ export default function AddProductForm() {
       setCoating(null);
       setPartNumber(null);
       setSortNumber(0);
+      setMaterial(null);
+      setHsnSac(null);
     }
 
     setLoading(false);
@@ -255,6 +261,22 @@ export default function AddProductForm() {
         onChange={(e) => setPartNumber(e.target.value)}
         className="w-full border rounded-lg p-2"
         required
+      />
+
+      <input
+        type="text"
+        placeholder="Material"
+        value={material ?? ""}
+        onChange={(e) => setMaterial(e.target.value)}
+        className="w-full border rounded-lg p-2"
+      />
+
+      <input
+        type="text"
+        placeholder="HSN/SAC"
+        value={hsnSac ?? ""}
+        onChange={(e) => setHsnSac(e.target.value)}
+        className="w-full border rounded-lg p-2"
       />
 
       <input

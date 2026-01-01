@@ -326,8 +326,8 @@ export default function ManageOrders() {
               {/* Expanded Details */}
               {expandedId === order.id && (
                 <div className="px-4 pb-4 border-t pt-3 space-y-4">
-                  {/* Customer Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Customer & Address Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Customer</label>
                       <p className="text-sm font-medium">{order.shipping_address.full_name}</p>
@@ -346,6 +346,23 @@ export default function ManageOrders() {
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Shipping Address</label>
                       <p className="text-sm">{formatAddress(order.shipping_address)}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Billing Address</label>
+                      {order.billing_address ? (
+                        <>
+                          <p className="text-sm font-medium">{order.billing_address.full_name}</p>
+                          <p className="text-sm">{formatAddress(order.billing_address)}</p>
+                          <p className="text-sm text-gray-500">Phone: {order.billing_address.phone}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium">{order.shipping_address.full_name}</p>
+                          <p className="text-sm">{formatAddress(order.shipping_address)}</p>
+                          <p className="text-sm text-gray-500">Phone: {order.shipping_address.phone}</p>
+                          <p className="text-xs text-gray-400 mt-1">(Same as shipping address)</p>
+                        </>
+                      )}
                     </div>
                   </div>
 
