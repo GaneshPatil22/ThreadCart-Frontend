@@ -27,6 +27,8 @@ interface ProductModel {
   Grade: string | null;
   Coating: string | null;
   part_number: string | null;
+  Material: string | null;
+  "HSN/SAC": string | null;
 }
 
 async function fetchProducts(subCategoryId?: string) {
@@ -55,6 +57,8 @@ async function fetchProducts(subCategoryId?: string) {
     Grade: product.Grade,
     Coating: product.Coating,
     part_number: product.part_number,
+    Material: product.Material,
+    hsnSac: product["HSN/SAC"],
   }));
 }
 
@@ -75,6 +79,8 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
       Grade: string | null;
       Coating: string | null;
       part_number: string | null;
+      Material: string | null;
+      hsnSac: string | null;
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
@@ -214,9 +220,10 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                           thread_size_pitch={p.thread_size_pitch}
                           fastener_length={p.fastener_length}
                           head_height={p.head_height}
-                          Grade={p.Grade}
                           Coating={p.Coating}
                           part_number={p.part_number}
+                          Material={p.Material}
+                          hsnSac={p.hsnSac}
                         />
                       </div>
                     </td>

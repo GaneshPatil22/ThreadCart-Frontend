@@ -17,6 +17,8 @@ interface Product {
   part_number: number | null;
   sub_cat_id: number;
   sort_number: number;
+  Material: string | null;
+  "HSN/SAC": string | null;
 }
 
 interface SubCategory {
@@ -96,6 +98,8 @@ export default function ManageProducts() {
         part_number: editForm.part_number,
         sub_cat_id: editForm.sub_cat_id,
         sort_number: editForm.sort_number,
+        Material: editForm.Material,
+        "HSN/SAC": editForm["HSN/SAC"],
       })
       .eq("id", editForm.id);
 
@@ -159,7 +163,9 @@ export default function ManageProducts() {
       (p.thread_style && p.thread_style.toLowerCase().includes(term)) ||
       (p.thread_size_pitch && p.thread_size_pitch.toLowerCase().includes(term)) ||
       (p.Coating && p.Coating.toLowerCase().includes(term)) ||
-      (p.part_number && p.part_number.toString().includes(term))
+      (p.part_number && p.part_number.toString().includes(term)) ||
+      (p.Material && p.Material.toLowerCase().includes(term)) ||
+      (p["HSN/SAC"] && p["HSN/SAC"].toLowerCase().includes(term))
     );
   });
 
@@ -176,7 +182,7 @@ export default function ManageProducts() {
 
       <input
         type="text"
-        placeholder="Search by name, subcategory, thread style, finish, or part number..."
+        placeholder="Search by name, subcategory, material, HSN/SAC..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full border rounded-lg p-2 mb-4"
@@ -366,6 +372,24 @@ export default function ManageProducts() {
                     min={0}
                   />
                   <input
+                    type="text"
+                    value={editForm.Material || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, Material: e.target.value })
+                    }
+                    className="w-full border rounded-lg p-2"
+                    placeholder="Material"
+                  />
+                  <input
+                    type="text"
+                    value={editForm["HSN/SAC"] || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, "HSN/SAC": e.target.value })
+                    }
+                    className="w-full border rounded-lg p-2"
+                    placeholder="HSN/SAC"
+                  />
+                  <input
                     type="number"
                     value={editForm.sort_number}
                     onChange={(e) =>
@@ -418,6 +442,12 @@ export default function ManageProducts() {
                         )}
                         {product.thread_size_pitch && (
                           <p>Thread Size: {product.thread_size_pitch}</p>
+                        )}
+                        {product.Material && (
+                          <p>Material: {product.Material}</p>
+                        )}
+                        {product["HSN/SAC"] && (
+                          <p>HSN/SAC: {product["HSN/SAC"]}</p>
                         )}
                         <p className="text-xs text-gray-500">
                           Sort Order: {product.sort_number}

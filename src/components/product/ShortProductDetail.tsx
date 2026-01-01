@@ -80,9 +80,10 @@ interface ProductDetailProps {
   thread_size_pitch?: string | null;
   fastener_length?: string | null;
   head_height?: string | null;
-  Grade?: string | null;
   Coating?: string | null;
   part_number?: string | null;
+  Material?: string | null;
+  hsnSac?: string | null;
 }
 
 export default function ShortProductDetail({
@@ -96,9 +97,10 @@ export default function ShortProductDetail({
   thread_size_pitch,
   fastener_length,
   head_height,
-  Grade,
   Coating,
   part_number,
+  Material,
+  hsnSac,
 }: ProductDetailProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -288,17 +290,24 @@ export default function ShortProductDetail({
             </div>
           )}
 
-          {shouldShowSpec(Grade) && (
-            <div>
-              <span className="text-gray-500">Grade:</span>
-              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Grade)}</span>
-            </div>
-          )}
-
           {shouldShowSpec(Coating) && (
             <div>
               <span className="text-gray-500">Finish:</span>
               <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Coating)}</span>
+            </div>
+          )}
+
+          {shouldShowSpec(Material) && (
+            <div>
+              <span className="text-gray-500">Material:</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(Material)}</span>
+            </div>
+          )}
+
+          {shouldShowSpec(hsnSac) && (
+            <div>
+              <span className="text-gray-500">HSN/SAC:</span>
+              <span className="ml-2 font-medium text-gray-800">{formatSpecValue(hsnSac)}</span>
             </div>
           )}
         </div>
