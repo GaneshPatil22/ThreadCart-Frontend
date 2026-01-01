@@ -21,6 +21,7 @@ import type { OrderWithItems, RazorpayPaymentResponse } from '../types/order.typ
 export interface CheckoutData {
   cart: CartSummary;
   address: UserAddress;
+  billingAddress?: ShippingAddress | null; // null = same as shipping
   paymentMethod: PaymentMethod;
   shippingCharge: number;
   gstNumber?: string | null;
@@ -35,6 +36,7 @@ export interface CheckoutResult {
 export interface RazorpayCheckoutParams {
   cart: CartSummary;
   address: UserAddress;
+  billingAddress?: ShippingAddress | null; // null = same as shipping
   userEmail: string;
   shippingCharge: number;
   gstNumber?: string | null;
@@ -92,6 +94,7 @@ export const createOrder = async (
     const result = await createOrderFromCart({
       user_id: userId,
       shipping_address: toShippingAddress(data.address),
+      billing_address: data.billingAddress || null,
       payment_method: data.paymentMethod,
       shipping_charge: data.shippingCharge || 0,
       gst_number: data.gstNumber || null,
@@ -150,11 +153,13 @@ export const placeCodOrder = async (
   cart: CartSummary,
   address: UserAddress,
   shippingCharge: number,
-  gstNumber?: string | null
+  gstNumber?: string | null,
+  billingAddress?: ShippingAddress | null
 ): Promise<CheckoutResult> => {
   return createOrder({
     cart,
     address,
+    billingAddress,
     paymentMethod: 'cod',
     shippingCharge,
     gstNumber,
@@ -168,7 +173,7 @@ export const placeCodOrder = async (
 export const initiateRazorpayPayment = async (
   params: RazorpayCheckoutParams
 ): Promise<void> => {
-  const { cart, address, userEmail, shippingCharge, gstNumber, onSuccess, onFailure, onCancel } = params;
+  const { cart, address, billingAddress, userEmail, shippingCharge, gstNumber, onSuccess, onFailure, onCancel } = params;
 
   try {
     // Check if Razorpay key is configured
@@ -220,7 +225,7 @@ export const initiateRazorpayPayment = async (
       handler: async (response: RazorpayPaymentResponse) => {
         // Payment successful - create order
         const result = await createOrder(
-          { cart, address, paymentMethod: 'razorpay', shippingCharge: shippingCharge || 0, gstNumber },
+          { cart, address, billingAddress, paymentMethod: 'razorpay', shippingCharge: shippingCharge || 0, gstNumber },
           response.razorpay_payment_id
         );
 

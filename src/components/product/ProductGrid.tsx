@@ -137,13 +137,78 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
   if (products.length === 0) return <EmptyState />;
 
   return (
-    <section className="py-14 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
-        <h2 className="text-2xl font-semibold text-text-primary mb-6">
+    <section className="py-8 sm:py-14 bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-text-primary mb-4 sm:mb-6">
           Products
         </h2>
 
-        <div className="overflow-hidden border-t border-gray-200">
+        {/* Mobile Card Layout */}
+        <div className="md:hidden space-y-3">
+          {products.map((p) => (
+            <div key={p.id} className="border border-gray-200 rounded-lg overflow-hidden">
+              {/* Card Header - Clickable */}
+              <div
+                className="p-3 bg-white cursor-pointer active:bg-gray-50"
+                onClick={() => toggleExpand(p.id)}
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-800 text-sm truncate">{p.name}</h3>
+                    <p className="text-primary font-semibold mt-1">₹{p.price}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    {p.quantity === 0 && (
+                      <span className="text-red-600 text-xs font-semibold">Out of Stock</span>
+                    )}
+                    <svg
+                      className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                        expandedRow === p.id ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                {/* Quick Info */}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+                  {p.part_number && <span>Part: {p.part_number}</span>}
+                  {p.thread_style && <span>Style: {p.thread_style}</span>}
+                </div>
+              </div>
+
+              {/* Expandable Content */}
+              <div
+                className={`overflow-hidden transition-[max-height] duration-300 ${
+                  expandedRow === p.id ? "max-h-[800px]" : "max-h-0"
+                }`}
+              >
+                <ShortProductDetail
+                  name={p.name}
+                  image={p.image}
+                  desc={p.desc}
+                  quantity={p.quantity}
+                  productId={Number(p.id)}
+                  price={p.price}
+                  thread_style={p.thread_style}
+                  thread_size_pitch={p.thread_size_pitch}
+                  fastener_length={p.fastener_length}
+                  head_height={p.head_height}
+                  Coating={p.Coating}
+                  part_number={p.part_number}
+                  Material={p.Material}
+                  hsnSac={p.hsnSac}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table Layout */}
+        <div className="hidden md:block overflow-hidden border-t border-gray-200">
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-left border-b border-gray-200 bg-gray-50">
@@ -206,7 +271,7 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                     <td colSpan={6} className="p-0 border-b border-gray-200">
                       <div
                         className={`overflow-hidden transition-[max-height] duration-300 ${
-                          expandedRow === p.id ? "max-h-[500px]" : "max-h-0"
+                          expandedRow === p.id ? "max-h-[600px]" : "max-h-0"
                         }`}
                       >
                         <ShortProductDetail

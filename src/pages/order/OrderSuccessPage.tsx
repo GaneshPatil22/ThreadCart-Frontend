@@ -170,13 +170,53 @@ export const OrderSuccessPage = () => {
                   {order.shipping_address.postal_code}
                 </p>
                 <p className="mt-1">Phone: +91 {order.shipping_address.phone}</p>
-                {order.gst_number && (
-                  <p className="mt-1">
-                    GST: <span className="font-mono">{order.gst_number}</span>
-                  </p>
+              </div>
+            </div>
+
+            {/* Billing Address */}
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="font-semibold text-text-primary mb-3">Billing Address</h3>
+              <div className="text-sm text-text-secondary">
+                {order.billing_address ? (
+                  <>
+                    <p className="font-medium text-text-primary">{order.billing_address.full_name}</p>
+                    <p>{order.billing_address.address_line1}</p>
+                    {order.billing_address.address_line2 && (
+                      <p>{order.billing_address.address_line2}</p>
+                    )}
+                    <p>
+                      {order.billing_address.city}, {order.billing_address.state} -{' '}
+                      {order.billing_address.postal_code}
+                    </p>
+                    <p className="mt-1">Phone: +91 {order.billing_address.phone}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-text-primary">{order.shipping_address.full_name}</p>
+                    <p>{order.shipping_address.address_line1}</p>
+                    {order.shipping_address.address_line2 && (
+                      <p>{order.shipping_address.address_line2}</p>
+                    )}
+                    <p>
+                      {order.shipping_address.city}, {order.shipping_address.state} -{' '}
+                      {order.shipping_address.postal_code}
+                    </p>
+                    <p className="mt-1">Phone: +91 {order.shipping_address.phone}</p>
+                    <p className="text-xs text-gray-400 mt-1">(Same as delivery address)</p>
+                  </>
                 )}
               </div>
             </div>
+
+            {/* GST Number (separate section) */}
+            {order.gst_number && (
+              <div className="px-6 py-4 border-b border-border">
+                <h3 className="font-semibold text-text-primary mb-3">Business Details</h3>
+                <div className="text-sm text-text-secondary">
+                  <p>GST Number: <span className="font-mono font-medium text-text-primary">{order.gst_number}</span></p>
+                </div>
+              </div>
+            )}
 
             {/* Order Items */}
             <div className="px-6 py-4 border-b border-border">

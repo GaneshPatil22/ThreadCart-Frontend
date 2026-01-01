@@ -16,8 +16,9 @@ import { AddressForm } from '../../components/checkout/AddressForm';
 import { AddressCard } from '../../components/checkout/AddressCard';
 import { CheckoutItemRow } from '../../components/checkout/CheckoutItemRow';
 import { PaymentMethodSelector } from '../../components/checkout/PaymentMethodSelector';
+import { BillingAddressSection } from '../../components/checkout/BillingAddressSection';
 import type { UserAddress, AddressFormData } from '../../types/address.types';
-import type { PaymentMethod } from '../../types/database.types';
+import type { PaymentMethod, ShippingAddress } from '../../types/database.types';
 
 // ============================================================================
 // CHECKOUT STEPS
@@ -57,6 +58,14 @@ export const CheckoutPage = () => {
   // GST Number (optional)
   const [gstNumber, setGstNumber] = useState<string>('');
   const [gstError, setGstError] = useState<string>('');
+
+  // Billing address (always stored)
+  const [billingAddress, setBillingAddress] = useState<ShippingAddress | null>(null);
+
+  // Handler for billing address changes (now always receives an address)
+  const handleBillingAddressChange = (address: ShippingAddress, _isSameAsShipping: boolean) => {
+    setBillingAddress(address);
+  };
 
   // Current step
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('address');
@@ -168,7 +177,7 @@ export const CheckoutPage = () => {
 
     if (paymentMethod === 'cod') {
       // Place COD order directly
-      const result = await placeCodOrder(cart, savedAddress, shippingCharge, formattedGst);
+      const result = await placeCodOrder(cart, savedAddress, shippingCharge, formattedGst, billingAddress);
 
       if (result.success && result.order) {
         await refreshCart();
@@ -186,6 +195,7 @@ export const CheckoutPage = () => {
       await initiateRazorpayPayment({
         cart,
         address: savedAddress,
+        billingAddress,
         userEmail: userEmail || '',
         shippingCharge,
         gstNumber: formattedGst,
@@ -413,28 +423,6 @@ export const CheckoutPage = () => {
               ) : null}
             </div>
 
-            {/* Payment Method Section */}
-            {savedAddress && !isEditingAddress && (
-              <div className="bg-white rounded-xl border border-border p-6">
-                <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  Payment Method
-                </h2>
-                <PaymentMethodSelector
-                  selected={paymentMethod}
-                  onChange={setPaymentMethod}
-                  disabled={isProcessing}
-                />
-              </div>
-            )}
-
             {/* Business Details Section (GST) */}
             {savedAddress && !isEditingAddress && (
               <div className="bg-white rounded-xl border border-border p-6">
@@ -471,6 +459,46 @@ export const CheckoutPage = () => {
                     Enter your company's GST number for tax invoice. Leave empty if not applicable.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* Billing Address Section */}
+            {savedAddress && !isEditingAddress && (
+              <BillingAddressSection
+                shippingAddress={{
+                  full_name: savedAddress.full_name,
+                  phone: savedAddress.phone,
+                  address_line1: savedAddress.address_line1,
+                  address_line2: savedAddress.address_line2,
+                  city: savedAddress.city,
+                  state: savedAddress.state,
+                  postal_code: savedAddress.pincode,
+                  country: savedAddress.country || 'India',
+                }}
+                onBillingAddressChange={handleBillingAddressChange}
+                disabled={isProcessing}
+              />
+            )}
+
+            {/* Payment Method Section */}
+            {savedAddress && !isEditingAddress && (
+              <div className="bg-white rounded-xl border border-border p-6">
+                <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                  Payment Method
+                </h2>
+                <PaymentMethodSelector
+                  selected={paymentMethod}
+                  onChange={setPaymentMethod}
+                  disabled={isProcessing}
+                />
               </div>
             )}
 
