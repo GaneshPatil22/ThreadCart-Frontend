@@ -31,7 +31,7 @@ export const createOrderFromCart = async (
   params: CreateOrderParams
 ): Promise<CreateOrderResult> => {
   try {
-    const { user_id, shipping_address, payment_method, shipping_charge, gst_number, cart_items } = params;
+    const { user_id, shipping_address, billing_address, payment_method, shipping_charge, gst_number, cart_items } = params;
 
     // Calculate total amount (subtotal without GST)
     const total_amount = cart_items.reduce(
@@ -70,6 +70,7 @@ export const createOrderFromCart = async (
       payment_method,
       payment_status: 'pending',
       shipping_address,
+      billing_address: billing_address || null,
     };
 
     const { data: order, error: orderError } = await supabase
@@ -175,7 +176,9 @@ export const getOrderById = async (
           Coating,
           part_number,
           sub_cat_id,
-          sort_number
+          sort_number,
+          Material,
+          "HSN/SAC"
         )
       `
       )
@@ -258,7 +261,9 @@ export const getUserOrders = async (
           Coating,
           part_number,
           sub_cat_id,
-          sort_number
+          sort_number,
+          Material,
+          "HSN/SAC"
         )
       `
       )

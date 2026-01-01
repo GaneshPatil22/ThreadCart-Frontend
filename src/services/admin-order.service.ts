@@ -56,7 +56,9 @@ export const getAllOrders = async (): Promise<OrderWithItems[]> => {
           Coating,
           part_number,
           sub_cat_id,
-          sort_number
+          sort_number,
+          Material,
+          "HSN/SAC"
         )
       `
       )
