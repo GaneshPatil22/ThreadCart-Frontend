@@ -3,6 +3,18 @@ import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from "web-vitals";
 
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
+// Disable analytics in development mode (localhost)
+const IS_DEVELOPMENT = import.meta.env.DEV || window.location.hostname === "localhost";
+
+// Check if analytics should be enabled
+const isAnalyticsEnabled = (): boolean => {
+  // Disable in development unless explicitly enabled
+  // if (IS_DEVELOPMENT && !import.meta.env.VITE_ENABLE_ANALYTICS_DEV) {
+  //   return false;
+  // }
+  return Boolean(GA_MEASUREMENT_ID);
+};
+
 // ============================================================================
 // WEB VITALS TRACKING
 // ============================================================================
@@ -11,7 +23,7 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
  * Send Web Vitals metrics to GA4
  */
 const sendWebVitalToGA = (metric: Metric) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event({
     category: "Web Vitals",
@@ -27,7 +39,7 @@ const sendWebVitalToGA = (metric: Metric) => {
  * Call this after GA is initialized
  */
 export const initWebVitals = () => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   onCLS(sendWebVitalToGA);
   onINP(sendWebVitalToGA);
@@ -42,24 +54,33 @@ export const initWebVitals = () => {
  * Initialize Google Analytics 4
  */
 export const initGA = () => {
-  if (GA_MEASUREMENT_ID) {
-    ReactGA.initialize(GA_MEASUREMENT_ID);
-    console.log("[Analytics] GA4 initialized with ID:", GA_MEASUREMENT_ID);
-  } else {
+  if (!GA_MEASUREMENT_ID) {
     console.warn("[Analytics] GA4 Measurement ID not found. Analytics disabled.");
+    return;
   }
+
+  if (IS_DEVELOPMENT && !import.meta.env.VITE_ENABLE_ANALYTICS_DEV) {
+    console.log("[Analytics] Analytics disabled in development mode. Set VITE_ENABLE_ANALYTICS_DEV=true to enable.");
+    return;
+  }
+
+  ReactGA.initialize(GA_MEASUREMENT_ID);
+  console.log("[Analytics] GA4 initialized with ID:", GA_MEASUREMENT_ID);
 };
 
 /**
  * Track page views
  */
 export const trackPageView = (path: string, title?: string) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
+  // Use GA4 standard parameters for better reporting
   ReactGA.send({
     hitType: "pageview",
     page: path,
-    title: title || document.title,
+    page_path: path,
+    page_location: window.location.href,
+    page_title: title || document.title,
   });
 };
 
@@ -72,7 +93,7 @@ export const trackEvent = (
   label?: string,
   value?: number
 ) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event({
     category,
@@ -98,7 +119,7 @@ interface ProductItem {
  * Track when user views a product
  */
 export const trackViewItem = (product: ProductItem) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("view_item", {
     currency: "INR",
@@ -118,7 +139,7 @@ export const trackViewItem = (product: ProductItem) => {
  * Track when user adds item to cart
  */
 export const trackAddToCart = (product: ProductItem, quantity: number) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("add_to_cart", {
     currency: "INR",
@@ -138,7 +159,7 @@ export const trackAddToCart = (product: ProductItem, quantity: number) => {
  * Track when user removes item from cart
  */
 export const trackRemoveFromCart = (product: ProductItem, quantity: number) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("remove_from_cart", {
     currency: "INR",
@@ -158,7 +179,7 @@ export const trackRemoveFromCart = (product: ProductItem, quantity: number) => {
  * Track when user views cart
  */
 export const trackViewCart = (items: ProductItem[], totalValue: number) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("view_cart", {
     currency: "INR",
@@ -176,7 +197,7 @@ export const trackViewCart = (items: ProductItem[], totalValue: number) => {
  * Track when user begins checkout
  */
 export const trackBeginCheckout = (items: ProductItem[], totalValue: number) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("begin_checkout", {
     currency: "INR",
@@ -198,7 +219,7 @@ export const trackPurchase = (
   items: ProductItem[],
   totalValue: number
 ) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("purchase", {
     transaction_id: orderId,
@@ -217,7 +238,7 @@ export const trackPurchase = (
  * Track search
  */
 export const trackSearch = (searchTerm: string) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("search", {
     search_term: searchTerm,
@@ -228,7 +249,7 @@ export const trackSearch = (searchTerm: string) => {
  * Track user login
  */
 export const trackLogin = (method: string) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("login", {
     method: method,
@@ -239,7 +260,7 @@ export const trackLogin = (method: string) => {
  * Track user registration
  */
 export const trackSignUp = (method: string) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("sign_up", {
     method: method,
@@ -258,7 +279,7 @@ export const trackError = (
   errorSource?: string,
   isFatal: boolean = false
 ) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("exception", {
     description: errorMessage,
@@ -271,7 +292,7 @@ export const trackError = (
  * Setup global error handler
  */
 export const initErrorTracking = () => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   // Track unhandled errors
   window.addEventListener("error", (event) => {
@@ -302,7 +323,7 @@ export const initErrorTracking = () => {
  * Track scroll depth (25%, 50%, 75%, 100%)
  */
 export const initScrollTracking = () => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   const scrollThresholds = [25, 50, 75, 100];
   const trackedThresholds = new Set<number>();
@@ -365,7 +386,7 @@ export const trackTimeOnPage = (pagePath: string) => {
  * Track outbound link clicks
  */
 export const trackOutboundLink = (url: string) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event({
     category: "Outbound Link",
@@ -385,7 +406,7 @@ export const trackCheckoutStep = (
   step: "address" | "payment" | "review",
   stepNumber: number
 ) => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("checkout_progress", {
     checkout_step: stepNumber,
@@ -397,7 +418,7 @@ export const trackCheckoutStep = (
  * Track payment method selection
  */
 export const trackPaymentMethod = (method: "razorpay" | "cod") => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("add_payment_info", {
     payment_type: method === "razorpay" ? "Online Payment" : "Cash on Delivery",
@@ -408,7 +429,7 @@ export const trackPaymentMethod = (method: "razorpay" | "cod") => {
  * Track shipping info added
  */
 export const trackShippingInfo = () => {
-  if (!GA_MEASUREMENT_ID) return;
+  if (!isAnalyticsEnabled()) return;
 
   ReactGA.event("add_shipping_info", {
     shipping_tier: "Standard",
