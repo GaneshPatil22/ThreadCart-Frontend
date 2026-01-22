@@ -212,22 +212,28 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-left border-b border-gray-200 bg-gray-50">
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/4">
+                <th className="py-3 px-4 font-semibold text-gray-700">
                   Name
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                <th className="py-3 px-4 font-semibold text-gray-700">
                   Price
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                <th className="py-3 px-4 font-semibold text-gray-700">
                   Part Number
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                <th className="py-3 px-4 font-semibold text-gray-700">
                   Thread Style
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                <th className="py-3 px-4 font-semibold text-gray-700">
                   Grade
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-700 w-1/6">
+                <th className="py-3 px-4 font-semibold text-gray-700">
+                  Finish
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700">
+                  Material
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-700">
                 </th>
               </tr>
             </thead>
@@ -256,6 +262,12 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                       {p.Grade || "-"}
                     </td>
                     <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.Coating || "-"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
+                      {p.Material || "-"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-800 align-top">
                       {p.quantity == 0 && <span className="text-red-600 font-semibold">Out of Stock</span>}
                     </td>
                   </tr>
@@ -268,7 +280,7 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
                         : "opacity-0 pointer-events-none"
                     }`}
                   >
-                    <td colSpan={6} className="p-0 border-b border-gray-200">
+                    <td colSpan={8} className="p-0 border-b border-gray-200">
                       <div
                         className={`overflow-hidden transition-[max-height] duration-300 ${
                           expandedRow === p.id ? "max-h-[600px]" : "max-h-0"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCart } from "../../hooks/useCart";
 import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
@@ -216,9 +216,9 @@ export default function ShortProductDetail({
       {/* Product Info */}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">{name}</h3>
-        <p className="text-gray-600 text-xs sm:text-sm mb-3">
-          {desc || "No description available"}
-        </p>
+        {desc && desc.trim() && (
+          <p className="text-gray-600 text-xs sm:text-sm mb-3">{desc}</p>
+        )}
 
         {/* Product Details Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-3 text-xs sm:text-sm">
@@ -413,26 +413,294 @@ export default function ShortProductDetail({
         </div>
       </div>
 
-      {/* Fullscreen Image Modal */}
+      {/* Fullscreen Image Modal - Amazon Style */}
       {showModal && (
-        <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="relative max-w-full max-h-full"
-            onClick={(e) => e.stopPropagation()} // prevent closing on image click
+        <FullscreenImageViewer
+          images={image}
+          currentIndex={currentIndex}
+          onClose={() => setShowModal(false)}
+          onIndexChange={setCurrentIndex}
+          productName={name}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Amazon-style Fullscreen Image Viewer Component
+ */
+interface FullscreenImageViewerProps {
+  images: string[];
+  currentIndex: number;
+  onClose: () => void;
+  onIndexChange: (index: number) => void;
+  productName: string;
+}
+
+function FullscreenImageViewer({
+  images,
+  currentIndex,
+  onClose,
+  onIndexChange,
+  productName,
+}: FullscreenImageViewerProps) {
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [mainImageLoaded, setMainImageLoaded] = useState(false);
+  const [loadedThumbnails, setLoadedThumbnails] = useState<Set<number>>(new Set());
+
+  // Reset loading state when image changes
+  useEffect(() => {
+    setMainImageLoaded(false);
+    setIsZoomed(false);
+  }, [currentIndex]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onIndexChange(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onIndexChange(currentIndex === images.length - 1 ? 0 : currentIndex + 1);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    },
+    [currentIndex, images.length, onIndexChange, onClose]
+  );
+
+  // Add keyboard event listener
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [handleKeyDown]);
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIndexChange(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIndexChange(currentIndex === images.length - 1 ? 0 : currentIndex + 1);
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    onIndexChange(index);
+  };
+
+  const handleThumbnailLoad = (index: number) => {
+    setLoadedThumbnails((prev) => new Set(prev).add(index));
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/95 flex flex-col z-50"
+      onClick={onClose}
+    >
+      {/* Header with close button and image counter */}
+      <div className="flex items-center justify-between p-3 sm:p-4 text-white">
+        <div className="text-sm sm:text-base font-medium truncate max-w-[60%]">
+          {productName}
+        </div>
+        <div className="flex items-center gap-4">
+          {images.length > 1 && (
+            <span className="text-sm text-gray-300">
+              {currentIndex + 1} / {images.length}
+            </span>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            title="Close (Esc)"
           >
-            <img
-              src={convertGoogleDriveUrl(image[currentIndex])}
-              alt={name}
-              className="max-w-[90vw] max-h-[80vh] object-contain cursor-zoom-in"
-              onClick={(e) => {
-                e.currentTarget.classList.toggle("scale-150");
-                e.currentTarget.classList.toggle("cursor-zoom-out");
-              }}
-              onError={handleImageError}
-            />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Image Area */}
+      <div
+        className="flex-1 flex items-center justify-center relative px-4 sm:px-16"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Left Arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={handlePrev}
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all text-white z-10"
+            title="Previous (←)"
+          >
+            <svg
+              className="w-6 h-6 sm:w-8 sm:h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+        )}
+
+        {/* Main Image with Loading State */}
+        <div className="relative flex items-center justify-center">
+          {/* Loading Skeleton */}
+          {!mainImageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-64 h-64 sm:w-80 sm:h-80 bg-gray-800 rounded-lg animate-pulse flex flex-col items-center justify-center gap-3">
+                <svg
+                  className="w-12 h-12 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="text-gray-500 text-sm">Loading image...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Actual Image */}
+          <img
+            src={convertGoogleDriveUrl(images[currentIndex])}
+            alt={`${productName} - Image ${currentIndex + 1}`}
+            className={`max-w-full max-h-[60vh] sm:max-h-[70vh] object-contain transition-all duration-200 ${
+              isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
+            } ${mainImageLoaded ? "opacity-100" : "opacity-0"}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsZoomed(!isZoomed);
+            }}
+            onLoad={() => setMainImageLoaded(true)}
+            onError={(e) => {
+              handleImageError(e);
+              setMainImageLoaded(true);
+            }}
+            draggable={false}
+          />
+        </div>
+
+        {/* Right Arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={handleNext}
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all text-white z-10"
+            title="Next (→)"
+          >
+            <svg
+              className="w-6 h-6 sm:w-8 sm:h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Thumbnail Strip - Always shows placeholders for total image count */}
+      {images.length > 1 && (
+        <div
+          className="p-3 sm:p-4 bg-black/50"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto pb-1">
+            {images.map((img, index) => (
+              <button
+                key={index}
+                onClick={() => handleThumbnailClick(index)}
+                className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-md overflow-hidden border-2 transition-all relative ${
+                  index === currentIndex
+                    ? "border-white ring-2 ring-white/50"
+                    : "border-gray-600 opacity-70 hover:opacity-100 hover:border-gray-400"
+                }`}
+              >
+                {/* Loading Skeleton - Shows image icon placeholder */}
+                {!loadedThumbnails.has(index) && (
+                  <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
+                    <svg
+                      className="w-6 h-6 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Actual Thumbnail */}
+                <img
+                  src={convertGoogleDriveUrl(img)}
+                  alt={`Thumbnail ${index + 1}`}
+                  className={`w-full h-full object-cover transition-opacity ${
+                    loadedThumbnails.has(index) ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => handleThumbnailLoad(index)}
+                  onError={(e) => {
+                    handleImageError(e);
+                    handleThumbnailLoad(index);
+                  }}
+                  draggable={false}
+                />
+
+                {/* Image number indicator */}
+                <div className="absolute bottom-0.5 right-0.5 bg-black/60 text-white text-[10px] px-1 rounded">
+                  {index + 1}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Keyboard hint */}
+          <div className="hidden sm:flex justify-center mt-2 text-xs text-gray-400">
+            Use ← → arrow keys to navigate • Esc to close • Click outside to dismiss
           </div>
         </div>
       )}

@@ -17,6 +17,7 @@ export default function AddProductForm() {
   const [sortNumber, setSortNumber] = useState<number>(0);
 
   const [productName, setProductName] = useState("");
+  const [description, setDescription] = useState<string | null>(null);
   const [images, setImages] = useState<string[] | null>(null);
   const [threadStyle, setThreadStyle] = useState<string | null>(null);
   const [threadSize, setThreadSize] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export default function AddProductForm() {
     const { error } = await supabase.from("product").insert([
       {
         name: productName,
+        description: description,
         image_url: images,
         price,
         quantity,
@@ -82,6 +84,7 @@ export default function AddProductForm() {
     else {
       alert("Product added!");
       setProductName("");
+      setDescription(null);
       setSelectedSub(null);
       setImages(null);
       setPrice(null);
@@ -125,6 +128,13 @@ export default function AddProductForm() {
         onChange={(e) => setProductName(e.target.value)}
         className="w-full border rounded-lg p-2"
         required
+      />
+      <textarea
+        placeholder="Product Description (optional)"
+        value={description ?? ""}
+        onChange={(e) => setDescription(e.target.value || null)}
+        className="w-full border rounded-lg p-2 min-h-[80px] resize-y"
+        rows={3}
       />
       <div className="space-y-2">
         <label className="font-medium text-gray-700">Image URLs</label>

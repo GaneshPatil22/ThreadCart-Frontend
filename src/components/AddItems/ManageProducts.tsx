@@ -5,6 +5,7 @@ import { handleImageError } from "../../utils/imageUtils";
 interface Product {
   id: number;
   name: string;
+  description: string | null;
   image_url: string[];
   price: number;
   quantity: number;
@@ -111,6 +112,7 @@ export default function ManageProducts() {
       .from("product")
       .update({
         name: editForm.name,
+        description: editForm.description,
         image_url: editForm.image_url,
         price: editForm.price,
         quantity: editForm.quantity,
@@ -237,6 +239,9 @@ export default function ManageProducts() {
                   )}
                   <div className="flex-1">
                     <h4 className="font-semibold text-lg">{product.name}</h4>
+                    {product.description && (
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{product.description}</p>
+                    )}
                     <div className="text-sm text-gray-600 space-y-1 mt-1">
                       <p>
                         SubCategory: {getSubCategoryName(product.sub_cat_id)}
@@ -335,6 +340,18 @@ export default function ManageProducts() {
                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Enter product name"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        value={editForm.description || ""}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value || null })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[80px] resize-y"
+                        placeholder="Enter product description (optional)"
+                        rows={3}
                       />
                     </div>
                     <div>
