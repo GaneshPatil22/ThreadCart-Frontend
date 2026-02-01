@@ -286,3 +286,75 @@ export const getPaymentStatusCounts = (orders: OrderWithItems[]): PaymentStatusC
 
   return counts;
 };
+
+// ============================================================================
+// DELETE ORDER (Admin Only)
+// ============================================================================
+
+export interface DeleteOrderResult {
+  success: boolean;
+  error?: string;
+}
+
+export const adminDeleteOrder = async (
+  orderId: string,
+  userId?: string
+): Promise<DeleteOrderResult> => {
+  try {
+    // Step 1: Delete order items first
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', orderId);
+
+    if (itemsError) {
+      console.error('Error deleting order items:', itemsError);
+      return { success: false, error: 'Failed to delete order items: ' + itemsError.message };
+    }
+
+    // Step 2: Delete the order
+    const { error: orderError } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (orderError) {
+      console.error('Error deleting order:', orderError);
+      return { success: false, error: 'Failed to delete order: ' + orderError.message };
+    }
+
+    // Step 3: Try to clean up invoice from storage (optional, don't fail if this errors)
+    if (userId) {
+      try {
+        const { data: files } = await supabase.storage
+          .from('invoices')
+          .list(userId);
+
+        if (files && files.length > 0) {
+          // Find and delete invoice files for this order
+          const filesToDelete = files
+            .filter(file => file.name.includes(orderId))
+            .map(file => `${userId}/${file.name}`);
+
+          if (filesToDelete.length > 0) {
+            await supabase.storage
+              .from('invoices')
+              .remove(filesToDelete);
+          }
+        }
+      } catch (storageError) {
+        // Log but don't fail - invoice cleanup is optional
+        console.warn('Could not clean up invoice files:', storageError);
+      }
+    }
+
+    console.log(`Order ${orderId} deleted successfully`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error in adminDeleteOrder:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+};
