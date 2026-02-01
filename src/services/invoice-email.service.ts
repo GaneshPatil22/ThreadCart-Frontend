@@ -1,22 +1,24 @@
 // ============================================================================
 // INVOICE EMAIL SERVICE
 // ============================================================================
-// Sends invoice emails to customers using EmailJS
+// Sends invoice emails to customers using Web3Forms (free, unlimited)
+// Includes invoice PDF download link via Supabase Storage
 // ============================================================================
 
-import emailjs from '@emailjs/browser';
 import type { OrderWithItems } from '../types/order.types';
 import { TAX, COMPANY, CONTACT } from '../utils/constants';
+import { supabase } from '../utils/supabase';
+import { generateInvoicePDF } from './invoice.service';
 
 // ============================================================================
-// EMAILJS CONFIGURATION
+// WEB3FORMS CONFIGURATION
 // ============================================================================
 
-const EMAILJS_CONFIG = {
-  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
-  invoiceTemplateId: import.meta.env.VITE_EMAILJS_INVOICE_TEMPLATE_ID || '',
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '',
-};
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '';
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
+
+// Signed URL expiry (30 days in seconds)
+const SIGNED_URL_EXPIRY = 30 * 24 * 60 * 60;
 
 // ============================================================================
 // FORMAT HELPERS
@@ -66,7 +68,52 @@ const formatItemsList = (order: OrderWithItems): string => {
 };
 
 // ============================================================================
-// SEND INVOICE EMAIL
+// UPLOAD INVOICE PDF TO STORAGE
+// ============================================================================
+
+const uploadInvoicePDF = async (
+  order: OrderWithItems
+): Promise<string | null> => {
+  try {
+    // Generate the PDF
+    const pdfDoc = await generateInvoicePDF(order);
+    const pdfBlob = pdfDoc.output('blob');
+
+    // Create file path: invoices/{user_id}/{order_number}.pdf
+    const filePath = `${order.user_id}/${order.order_number}.pdf`;
+
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('invoices')
+      .upload(filePath, pdfBlob, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading invoice to storage:', uploadError);
+      return null;
+    }
+
+    // Get signed URL (valid for 30 days)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('invoices')
+      .createSignedUrl(filePath, SIGNED_URL_EXPIRY);
+
+    if (signedUrlError || !signedUrlData?.signedUrl) {
+      console.error('Error creating signed URL:', signedUrlError);
+      return null;
+    }
+
+    return signedUrlData.signedUrl;
+  } catch (error) {
+    console.error('Error in uploadInvoicePDF:', error);
+    return null;
+  }
+};
+
+// ============================================================================
+// SEND INVOICE EMAIL (Using Web3Forms)
 // ============================================================================
 
 export interface InvoiceEmailResult {
@@ -78,57 +125,105 @@ export const sendInvoiceEmail = async (
   order: OrderWithItems,
   recipientEmail: string
 ): Promise<InvoiceEmailResult> => {
-  // Check if EmailJS is configured
-  if (!EMAILJS_CONFIG.serviceId || !EMAILJS_CONFIG.invoiceTemplateId || !EMAILJS_CONFIG.publicKey) {
-    console.warn('EmailJS invoice template not configured.');
+  // Check if Web3Forms is configured
+  if (!WEB3FORMS_ACCESS_KEY) {
+    console.warn('Web3Forms not configured.');
     return { success: false, error: 'Email service not configured. Please try downloading the invoice instead.' };
   }
 
-  // Calculate amounts
-  const subtotal = order.total_amount;
-  const gstAmount = subtotal * TAX.GST_RATE;
-  const shippingCharge = order.shipping_charge || 0;
-
-  // Prepare email template data
-  const templateParams = {
-    to_email: recipientEmail,
-    order_number: order.order_number,
-    customer_name: order.shipping_address.full_name,
-    customer_phone: order.shipping_address.phone,
-    customer_gst: order.gst_number || 'Not provided',
-    shipping_address: formatAddress(order.shipping_address),
-    items_list: formatItemsList(order),
-    items_count: order.items.length,
-    subtotal: formatCurrency(subtotal),
-    gst: formatCurrency(gstAmount),
-    gst_percentage: TAX.GST_PERCENTAGE,
-    shipping: shippingCharge === 0 ? 'FREE' : formatCurrency(shippingCharge),
-    grand_total: formatCurrency(order.grand_total),
-    payment_method: order.payment_method === 'razorpay' ? 'Online Payment' : 'Cash on Delivery',
-    payment_status: order.payment_status === 'completed' ? 'Paid' : 'Pending',
-    order_status: order.status.charAt(0).toUpperCase() + order.status.slice(1).replace(/_/g, ' '),
-    order_date: formatDate(order.created_at),
-    company_name: COMPANY.NAME,
-    company_gstin: COMPANY.GSTIN,
-    company_email: CONTACT.EMAIL,
-    company_phone: CONTACT.PHONE,
-  };
-
   try {
-    await emailjs.send(
-      EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.invoiceTemplateId,
-      templateParams,
-      EMAILJS_CONFIG.publicKey
-    );
+    // Upload invoice PDF and get download link
+    const invoiceUrl = await uploadInvoicePDF(order);
 
-    console.log(`Invoice email sent to: ${recipientEmail}`);
-    return { success: true };
+    // Calculate amounts
+    const subtotal = order.total_amount;
+    const gstAmount = subtotal * TAX.GST_RATE;
+    const shippingCharge = order.shipping_charge || 0;
+
+    // Build email body
+    const emailBody = `
+INVOICE - ${COMPANY.NAME}
+================================
+
+Order Number: ${order.order_number}
+Order Date: ${formatDate(order.created_at)}
+
+${invoiceUrl ? `DOWNLOAD INVOICE PDF: ${invoiceUrl}` : ''}
+
+CUSTOMER DETAILS:
+-----------------
+Name: ${order.shipping_address.full_name}
+Phone: +91 ${order.shipping_address.phone}
+${order.gst_number ? `GST Number: ${order.gst_number}` : ''}
+
+SHIPPING ADDRESS:
+-----------------
+${formatAddress(order.shipping_address)}
+
+ORDER ITEMS:
+------------
+${formatItemsList(order)}
+
+ORDER SUMMARY:
+--------------
+Subtotal: ${formatCurrency(subtotal)}
+GST (${TAX.GST_PERCENTAGE}%): ${formatCurrency(gstAmount)}
+Shipping: ${shippingCharge === 0 ? 'FREE' : formatCurrency(shippingCharge)}
+--------------
+GRAND TOTAL: ${formatCurrency(order.grand_total)}
+
+PAYMENT:
+--------
+Method: ${order.payment_method === 'razorpay' ? 'Online Payment' : 'Cash on Delivery'}
+Status: ${order.payment_status === 'completed' ? 'Paid' : 'Pending'}
+${order.payment_id ? `Transaction ID: ${order.payment_id}` : ''}
+
+---
+${COMPANY.NAME}
+GSTIN: ${COMPANY.GSTIN}
+Email: ${CONTACT.EMAIL}
+Phone: ${CONTACT.PHONE}
+
+Thank you for your business!
+    `.trim();
+
+    // Prepare form data for Web3Forms
+    const formData = new FormData();
+    formData.append('access_key', WEB3FORMS_ACCESS_KEY);
+    formData.append('subject', `Your Invoice from ${COMPANY.NAME} - Order #${order.order_number}`);
+    formData.append('from_name', COMPANY.NAME);
+    formData.append('to_email', recipientEmail);
+    formData.append('message', emailBody);
+    formData.append('Order Number', order.order_number);
+    formData.append('Grand Total', formatCurrency(order.grand_total));
+
+    if (invoiceUrl) {
+      formData.append('Invoice PDF Link', invoiceUrl);
+    }
+
+    // Send via Web3Forms
+    const response = await fetch(WEB3FORMS_ENDPOINT, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log(`Invoice email sent to: ${recipientEmail}`);
+      return { success: true };
+    } else {
+      console.error('Web3Forms error:', result);
+      return {
+        success: false,
+        error: result.message || 'Failed to send email. Please try downloading the invoice instead.',
+      };
+    }
   } catch (error) {
     console.error('Failed to send invoice email:', error);
     return {
       success: false,
-      error: 'Failed to send email. Please try downloading the invoice instead.'
+      error: 'Failed to send email. Please try downloading the invoice instead.',
     };
   }
 };
@@ -138,9 +233,5 @@ export const sendInvoiceEmail = async (
 // ============================================================================
 
 export const isInvoiceEmailConfigured = (): boolean => {
-  return Boolean(
-    EMAILJS_CONFIG.serviceId &&
-    EMAILJS_CONFIG.invoiceTemplateId &&
-    EMAILJS_CONFIG.publicKey
-  );
+  return Boolean(WEB3FORMS_ACCESS_KEY);
 };

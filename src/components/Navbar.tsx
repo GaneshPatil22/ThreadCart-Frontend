@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthModal from "./auth/AuthModal";
+import QuoteRequestModal from "./common/QuoteRequestModal";
 import supabase from "../utils/supabase";
 import { isAdmin } from "../utils/adminCheck";
 import { CartIcon } from "./cart/CartIcon";
+import { FileText } from "lucide-react";
 
 export default function Navbar() {
   const [authMode, setAuthMode] = useState<"signin" | "register" | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
 
   // ✅ Check login state and admin status on mount
   useEffect(() => {
@@ -101,6 +104,13 @@ export default function Navbar() {
                     </Link>
                     <span className="text-white text-sm max-w-[150px] truncate">{userEmail}</span>
                     <button
+                      onClick={() => setQuoteModalOpen(true)}
+                      className="flex items-center gap-1.5 bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary-hover transition text-sm font-medium"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Get Quote
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="bg-gray-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-800 text-sm"
                     >
@@ -109,6 +119,13 @@ export default function Navbar() {
                   </>
                 ) : (
                   <>
+                    <button
+                      onClick={() => setQuoteModalOpen(true)}
+                      className="flex items-center gap-1.5 bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary-hover transition text-sm font-medium"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Get Quote
+                    </button>
                     <button
                       className="text-white hover:text-blue-50"
                       onClick={() => setAuthMode("register")}
@@ -172,6 +189,16 @@ export default function Navbar() {
                 >
                   Help
                 </Link>
+                <button
+                  onClick={() => {
+                    setQuoteModalOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition font-medium w-full justify-center"
+                >
+                  <FileText className="w-4 h-4" />
+                  Get Quote
+                </button>
 
                 {/* Divider */}
                 <div className="border-t border-gray-700 my-2"></div>
@@ -240,6 +267,12 @@ export default function Navbar() {
           }
         />
       )}
+
+      {/* Quote Request Modal */}
+      <QuoteRequestModal
+        isOpen={quoteModalOpen}
+        onClose={() => setQuoteModalOpen(false)}
+      />
     </>
   );
 }
