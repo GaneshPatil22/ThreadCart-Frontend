@@ -29,7 +29,7 @@ const loadLogoAsBase64 = (): Promise<string> => {
       }
     };
     img.onerror = () => reject(new Error('Failed to load logo'));
-    img.src = '/logo.jpeg';
+    img.src = '/invoice_logo.jpeg';
   });
 };
 
