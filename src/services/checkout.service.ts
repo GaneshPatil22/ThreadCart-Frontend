@@ -222,9 +222,6 @@ export const initiateRazorpayPayment = async (
       theme: {
         color: '#e11d48',
       },
-      method: {
-        upi: false,
-      },
       handler: async (response: RazorpayPaymentResponse) => {
         // Payment successful - create order
         const result = await createOrder(
