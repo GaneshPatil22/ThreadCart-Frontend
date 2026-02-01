@@ -3,11 +3,14 @@
 // ============================================================================
 // Sends email notifications to admin when new orders are placed
 // Uses EmailJS (already configured in project)
+// Includes invoice PDF download link via Supabase Storage
 // ============================================================================
 
 import emailjs from '@emailjs/browser';
 import type { OrderWithItems } from '../types/order.types';
 import { TAX } from '../utils/constants';
+import { supabase } from '../utils/supabase';
+import { generateInvoicePDF } from './invoice.service';
 
 // ============================================================================
 // EMAILJS CONFIGURATION
@@ -21,6 +24,9 @@ const EMAILJS_CONFIG = {
 
 // Admin emails (comma-separated in env variable)
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_NOTIFICATION_EMAILS || '').split(',').filter(Boolean);
+
+// Signed URL expiry (7 days in seconds)
+const SIGNED_URL_EXPIRY = 7 * 24 * 60 * 60;
 
 // ============================================================================
 // FORMAT HELPERS
@@ -70,6 +76,52 @@ const formatItemsList = (order: OrderWithItems): string => {
 };
 
 // ============================================================================
+// INVOICE UPLOAD TO SUPABASE STORAGE
+// ============================================================================
+
+const uploadInvoiceToStorage = async (
+  order: OrderWithItems
+): Promise<string | null> => {
+  try {
+    // Generate the PDF
+    const pdfDoc = await generateInvoicePDF(order);
+    const pdfBlob = pdfDoc.output('blob');
+
+    // Create file path: invoices/{user_id}/{order_number}.pdf
+    const filePath = `${order.user_id}/${order.order_number}.pdf`;
+
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('invoices')
+      .upload(filePath, pdfBlob, {
+        contentType: 'application/pdf',
+        upsert: true, // Overwrite if exists
+      });
+
+    if (uploadError) {
+      console.error('Error uploading invoice to storage:', uploadError);
+      return null;
+    }
+
+    // Get signed URL (valid for 7 days)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('invoices')
+      .createSignedUrl(filePath, SIGNED_URL_EXPIRY);
+
+    if (signedUrlError || !signedUrlData?.signedUrl) {
+      console.error('Error creating signed URL:', signedUrlError);
+      return null;
+    }
+
+    console.log(`Invoice uploaded successfully: ${filePath}`);
+    return signedUrlData.signedUrl;
+  } catch (error) {
+    console.error('Error in uploadInvoiceToStorage:', error);
+    return null;
+  }
+};
+
+// ============================================================================
 // SEND ORDER NOTIFICATION TO ADMINS
 // ============================================================================
 
@@ -103,6 +155,17 @@ export const sendOrderNotificationToAdmins = async (
     return result;
   }
 
+  // Upload invoice to storage and get download URL
+  let invoiceUrl: string | null = null;
+  try {
+    invoiceUrl = await uploadInvoiceToStorage(order);
+    if (invoiceUrl) {
+      console.log('Invoice PDF uploaded, URL generated for admin email');
+    }
+  } catch (error) {
+    console.warn('Could not generate invoice URL, email will be sent without it:', error);
+  }
+
   // Calculate GST (grand_total = subtotal + gst + shipping)
   const shippingCharge = order.shipping_charge || 0;
   const gstAmount = order.total_amount * TAX.GST_RATE;
@@ -126,6 +189,9 @@ export const sendOrderNotificationToAdmins = async (
     payment_status: order.payment_status,
     order_status: order.status,
     order_date: formatDate(order.created_at),
+    // Invoice download link (valid for 7 days)
+    invoice_url: invoiceUrl || '',
+    has_invoice: invoiceUrl ? 'true' : 'false',
     // Will be set per recipient
     to_email: '',
   };

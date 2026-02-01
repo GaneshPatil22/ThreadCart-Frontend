@@ -7,9 +7,11 @@ import {
   getOrderStatusCounts,
   getPaymentStatusCounts,
 } from "../../services/admin-order.service";
+import { downloadInvoice } from "../../services/invoice.service";
 import type { OrderWithItems } from "../../types/order.types";
 import type { OrderStatus, PaymentStatus } from "../../types/database.types";
 import { TAX } from "../../utils/constants";
+import { Download } from "lucide-react";
 
 // ============================================================================
 // STATUS OPTIONS
@@ -46,6 +48,7 @@ export default function ManageOrders() {
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
+  const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -135,6 +138,17 @@ export default function ManageOrders() {
   const startEditingNotes = (order: OrderWithItems) => {
     setEditingNotes(order.id);
     setNotesValue(order.notes || "");
+  };
+
+  const handleDownloadInvoice = async (order: OrderWithItems) => {
+    setDownloadingInvoice(order.id);
+    try {
+      await downloadInvoice(order);
+    } catch (error) {
+      console.error("Error downloading invoice:", error);
+      alert("Failed to download invoice. Please try again.");
+    }
+    setDownloadingInvoice(null);
   };
 
   // ============================================================================
@@ -543,6 +557,27 @@ export default function ManageOrders() {
                         )}
                       </div>
                     )}
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="flex items-center gap-3 pt-2 border-t">
+                    <button
+                      onClick={() => handleDownloadInvoice(order)}
+                      disabled={downloadingInvoice === order.id}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover disabled:opacity-50 transition"
+                    >
+                      {downloadingInvoice === order.id ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4" />
+                          Download Invoice
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   {/* Payment Info */}
