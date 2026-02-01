@@ -10,7 +10,6 @@ import { supabase } from '../../utils/supabase';
 import { getOrderById } from '../../services/order.service';
 import { downloadInvoice } from '../../services/invoice.service';
 import { OrderStatusTimeline } from '../../components/order/OrderStatusTimeline';
-import { EmailInvoiceModal } from '../../components/order/EmailInvoiceModal';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
 import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
@@ -22,8 +21,6 @@ export const OrderDetailsPage = () => {
   const [order, setOrder] = useState<OrderWithItems | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState('');
-  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -33,8 +30,6 @@ export const OrderDetailsPage = () => {
         navigate('/');
         return;
       }
-
-      setUserEmail(session.user.email || '');
 
       if (!orderId) {
         setError('Order ID not found');
@@ -383,36 +378,25 @@ export const OrderDetailsPage = () => {
               <h2 className="text-lg font-semibold text-text-primary mb-4">
                 Invoice
               </h2>
-              <div className="space-y-3">
-                <button
-                  onClick={handleDownloadInvoice}
-                  disabled={downloading}
-                  className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {downloading ? (
-                    <>
-                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      <span>Download Invoice</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowEmailModal(true)}
-                  className="w-full flex items-center justify-center gap-2 border border-border text-text-primary px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>Email Invoice</span>
-                </button>
-              </div>
+              <button
+                onClick={handleDownloadInvoice}
+                disabled={downloading}
+                className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {downloading ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>Download Invoice</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Need Help */}
@@ -433,14 +417,6 @@ export const OrderDetailsPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Email Invoice Modal */}
-      <EmailInvoiceModal
-        order={order}
-        defaultEmail={userEmail}
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-      />
     </div>
   );
 };
