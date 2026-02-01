@@ -4,6 +4,7 @@ import {
   adminUpdateOrderStatus,
   adminUpdatePaymentStatus,
   adminUpdateOrderNotes,
+  adminDeleteOrder,
   getOrderStatusCounts,
   getPaymentStatusCounts,
 } from "../../services/admin-order.service";
@@ -11,7 +12,7 @@ import { downloadInvoice } from "../../services/invoice.service";
 import type { OrderWithItems } from "../../types/order.types";
 import type { OrderStatus, PaymentStatus } from "../../types/database.types";
 import { TAX } from "../../utils/constants";
-import { Download } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 
 // ============================================================================
 // STATUS OPTIONS
@@ -49,6 +50,8 @@ export default function ManageOrders() {
   const [notesValue, setNotesValue] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
   const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -149,6 +152,19 @@ export default function ManageOrders() {
       alert("Failed to download invoice. Please try again.");
     }
     setDownloadingInvoice(null);
+  };
+
+  const handleDeleteOrder = async (order: OrderWithItems) => {
+    setDeleting(order.id);
+    const result = await adminDeleteOrder(order.id, order.user_id);
+    if (result.success) {
+      setOrders((prev) => prev.filter((o) => o.id !== order.id));
+      setExpandedId(null);
+      setDeleteConfirm(null);
+    } else {
+      alert("Error deleting order: " + result.error);
+    }
+    setDeleting(null);
   };
 
   // ============================================================================
@@ -560,7 +576,7 @@ export default function ManageOrders() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="flex items-center gap-3 pt-2 border-t">
+                  <div className="flex items-center justify-between gap-3 pt-2 border-t">
                     <button
                       onClick={() => handleDownloadInvoice(order)}
                       disabled={downloadingInvoice === order.id}
@@ -578,6 +594,35 @@ export default function ManageOrders() {
                         </>
                       )}
                     </button>
+
+                    {/* Delete Order */}
+                    {deleteConfirm === order.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-red-600 font-medium">Delete this order?</span>
+                        <button
+                          onClick={() => handleDeleteOrder(order)}
+                          disabled={deleting === order.id}
+                          className="px-3 py-1.5 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition"
+                        >
+                          {deleting === order.id ? "Deleting..." : "Yes, Delete"}
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(null)}
+                          disabled={deleting === order.id}
+                          className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300 disabled:opacity-50 transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirm(order.id)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete Order
+                      </button>
+                    )}
                   </div>
 
                   {/* Payment Info */}
