@@ -105,6 +105,11 @@ export default function ProductGrid({ subCategoryData }: SubCategoryGridProps) {
         if (!isMounted) return;
 
         setProducts(data);
+
+        // Auto-expand the first product if there are products
+        if (data.length > 0) {
+          setExpandedRow(data[0].id);
+        }
       } catch (e) {
         if (!isMounted) return;
         console.error("Error fetching products:", e);
