@@ -6,9 +6,9 @@ interface Service {
 
 const services: Service[] = [
   {
-    title: "Fast Delivery in 24 Hours",
+    title: "Dispatch in 24 Hours",
     description:
-      "Get your required fasteners delivered to your doorstep within just 24 hours, ensuring zero project delays.",
+      "Get your required fasteners dispatched within just 24 hours, ensuring zero project delays.",
     image: "/OurServices/24 hr delivery.png",
   },
   {
