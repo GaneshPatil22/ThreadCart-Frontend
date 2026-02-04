@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
-import { handleImageError } from "../../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
+import { ImageUpload } from "../common/ImageUpload";
+import { IMAGEKIT } from "../../utils/constants";
 
 interface Category {
   id: number;
@@ -153,14 +155,14 @@ export default function ManageCategories() {
                     className="w-full border rounded-lg p-2"
                     placeholder="Description"
                   />
-                  <input
-                    type="text"
+                  <ImageUpload
                     value={editForm.image_url}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, image_url: e.target.value })
+                    onChange={(url) =>
+                      setEditForm({ ...editForm, image_url: url })
                     }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Image URL"
+                    folder={IMAGEKIT.FOLDERS.CATEGORIES}
+                    label="Category Image"
+                    required
                   />
                   <input
                     type="number"
@@ -178,7 +180,8 @@ export default function ManageCategories() {
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveEdit}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                      disabled={!editForm.image_url}
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Save
                     </button>
@@ -194,7 +197,7 @@ export default function ManageCategories() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <img
-                      src={category.image_url}
+                      src={getDisplayUrl(category.image_url)}
                       alt={category.name}
                       className="w-16 h-16 object-cover rounded"
                       onError={handleImageError}

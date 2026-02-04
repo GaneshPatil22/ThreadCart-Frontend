@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { OrderWithItems } from '../../types/order.types';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
-import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
+import { getDisplayUrl, handleImageError } from '../../utils/imageUtils';
 import { trackPurchase } from '../../utils/analytics';
 import { CONTACT, TAX } from '../../utils/constants';
 
@@ -229,7 +229,7 @@ export const OrderSuccessPage = () => {
                     <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       {item.product?.image_url?.[0] && (
                         <img
-                          src={convertGoogleDriveUrl(item.product.image_url[0])}
+                          src={getDisplayUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                           onError={handleImageError}

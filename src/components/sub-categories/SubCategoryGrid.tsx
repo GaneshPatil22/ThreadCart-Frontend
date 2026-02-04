@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import { useState, useEffect } from "react";
 import { CategorySkeleton, EmptyState, ErrorState } from "../CategoryGrid";
-import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 
 interface CategoryData {
   categoryId?: string;
@@ -105,6 +105,9 @@ export default function SubCategoryGrid({
         subCategoryId: cat.id,
         subCategoryName: cat.name,
         description: cat.desc,
+        // Pass parent category info for back navigation
+        categoryId: categoryData?.categoryId,
+        categoryName: categoryData?.categoryName,
       },
     });
   };
@@ -133,7 +136,7 @@ export default function SubCategoryGrid({
                 className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
               >
                 <img
-                  src={convertGoogleDriveUrl(cat.image)}
+                  src={getDisplayUrl(cat.image)}
                   alt={cat.name}
                   className="w-full h-32 object-contain"
                   onError={handleImageError}

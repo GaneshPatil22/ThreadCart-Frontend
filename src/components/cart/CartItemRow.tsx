@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import type { CartItemWithProduct } from '../../types/cart.types';
 import { useCart } from '../../hooks/useCart';
-import { convertGoogleDriveUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
+import { getDisplayUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
 
 interface CartItemRowProps {
   item: CartItemWithProduct;
@@ -78,7 +78,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       {/* Product Image Carousel */}
       <div className="flex-shrink-0 relative w-32 h-32">
         <img
-          src={convertGoogleDriveUrl(productImages[currentImageIndex])}
+          src={getDisplayUrl(productImages[currentImageIndex])}
           alt={product.name}
           className="w-full h-full object-contain rounded-md border cursor-pointer"
           onClick={() => setShowModal(true)}
@@ -212,7 +212,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={convertGoogleDriveUrl(productImages[currentImageIndex])}
+              src={getDisplayUrl(productImages[currentImageIndex])}
               alt={product.name}
               className="max-w-[90vw] max-h-[80vh] object-contain cursor-zoom-in"
               onClick={(e) => {
