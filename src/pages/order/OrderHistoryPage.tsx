@@ -10,7 +10,7 @@ import { supabase } from '../../utils/supabase';
 import { getUserOrders } from '../../services/order.service';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
-import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
+import { getDisplayUrl, handleImageError } from '../../utils/imageUtils';
 
 export const OrderHistoryPage = () => {
   const navigate = useNavigate();
@@ -151,7 +151,7 @@ export const OrderHistoryPage = () => {
                           >
                             {item.product?.image_url?.[0] && (
                               <img
-                                src={convertGoogleDriveUrl(item.product.image_url[0])}
+                                src={getDisplayUrl(item.product.image_url[0])}
                                 alt={item.product.name}
                                 className="w-full h-full object-cover"
                                 onError={handleImageError}

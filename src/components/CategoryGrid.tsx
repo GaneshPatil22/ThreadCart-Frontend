@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../utils/supabase";
-import { convertGoogleDriveUrl, handleImageError } from "../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../utils/imageUtils";
 
 // Match the API response structure
 interface Category {
@@ -233,7 +233,7 @@ export default function CategoryGrid() {
                 className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
               >
                 <img
-                  src={convertGoogleDriveUrl(cat.image)}
+                  src={getDisplayUrl(cat.image)}
                   alt={cat.name}
                   className="w-full h-32 object-contain"
                   onError={handleImageError}

@@ -6,7 +6,7 @@
 // Billing address is NOT saved as user preference - entered fresh each checkout
 // ============================================================================
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ShippingAddress } from '../../types/database.types';
 import { validatePincode } from '../../services/address.service';
 import type { PincodeValidationResult } from '../../types/address.types';
@@ -56,6 +56,9 @@ export const BillingAddressSection = ({
   const [pincodeStatus, setPincodeStatus] = useState<PincodeValidationResult | null>(null);
   const [isValidatingPincode, setIsValidatingPincode] = useState(false);
 
+  // Track last sent address to prevent infinite loops
+  const lastSentAddressRef = useRef<string | null>(null);
+
   // Validate pincode when it changes (same logic as AddressForm)
   useEffect(() => {
     const checkPincode = async () => {
@@ -98,38 +101,30 @@ export const BillingAddressSection = ({
   // When toggle changes or shipping address changes, update parent
   useEffect(() => {
     if (sameAsShipping && shippingAddress) {
-      // Copy shipping address as billing address
-      onBillingAddressChange(shippingAddress, true);
+      // Create a key to check if we've already sent this address
+      const addressKey = `same:${shippingAddress.postal_code}:${shippingAddress.address_line1}`;
+      if (lastSentAddressRef.current !== addressKey) {
+        lastSentAddressRef.current = addressKey;
+        onBillingAddressChange(shippingAddress, true);
+      }
     } else if (!sameAsShipping && validateForm(false)) {
-      // Send custom billing address
-      onBillingAddressChange({
-        full_name: formData.full_name,
-        phone: formData.phone,
-        address_line1: formData.address_line1,
-        address_line2: formData.address_line2 || undefined,
-        city: formData.city,
-        state: formData.state,
-        postal_code: formData.postal_code,
-        country: formData.country,
-      }, false);
+      // Create a key for custom billing address
+      const addressKey = `custom:${formData.postal_code}:${formData.address_line1}:${formData.full_name}`;
+      if (lastSentAddressRef.current !== addressKey) {
+        lastSentAddressRef.current = addressKey;
+        onBillingAddressChange({
+          full_name: formData.full_name,
+          phone: formData.phone,
+          address_line1: formData.address_line1,
+          address_line2: formData.address_line2 || undefined,
+          city: formData.city,
+          state: formData.state,
+          postal_code: formData.postal_code,
+          country: formData.country,
+        }, false);
+      }
     }
-  }, [sameAsShipping, shippingAddress]);
-
-  // When form data changes and not same as shipping, update parent
-  useEffect(() => {
-    if (!sameAsShipping && validateForm(false)) {
-      onBillingAddressChange({
-        full_name: formData.full_name,
-        phone: formData.phone,
-        address_line1: formData.address_line1,
-        address_line2: formData.address_line2 || undefined,
-        city: formData.city,
-        state: formData.state,
-        postal_code: formData.postal_code,
-        country: formData.country,
-      }, false);
-    }
-  }, [formData]);
+  }, [sameAsShipping, shippingAddress, formData.postal_code, formData.address_line1, formData.full_name, formData.phone, formData.city, formData.state, formData.address_line2, formData.country, onBillingAddressChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

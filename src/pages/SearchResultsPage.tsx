@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import supabase from "../utils/supabase";
 import { CategorySkeleton, EmptyState, ErrorState } from "../components/CategoryGrid";
 import ShortProductDetail from "../components/product/ShortProductDetail";
-import { convertGoogleDriveUrl, handleImageError } from "../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../utils/imageUtils";
 import { trackSearch } from "../utils/analytics";
 
 interface Category {
@@ -261,7 +261,7 @@ export default function SearchResultsPage() {
                       className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
                     >
                       <img
-                        src={convertGoogleDriveUrl(cat.image_url)}
+                        src={getDisplayUrl(cat.image_url)}
                         alt={cat.name}
                         className="w-full h-32 object-contain"
                         onError={handleImageError}
@@ -291,7 +291,7 @@ export default function SearchResultsPage() {
                       className="rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50"
                     >
                       <img
-                        src={convertGoogleDriveUrl(subCat.image_url)}
+                        src={getDisplayUrl(subCat.image_url)}
                         alt={subCat.name}
                         className="w-full h-32 object-contain"
                         onError={handleImageError}

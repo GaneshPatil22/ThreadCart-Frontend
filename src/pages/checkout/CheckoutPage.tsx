@@ -9,8 +9,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase';
 import { getUserAddress, saveUserAddress, getDeliveryEstimate, type DeliveryEstimate } from '../../services/address.service';
-import { placeCodOrder, initiateRazorpayPayment, isRazorpayConfigured } from '../../services/checkout.service';
+import { initiateRazorpayPayment } from '../../services/checkout.service';
 import { TAX } from '../../utils/constants';
+import { calculateShippingCharge } from '../../utils/featureFlags';
 import { validateGSTNumber, formatGSTNumber } from '../../utils/gstValidation';
 import { AddressForm } from '../../components/checkout/AddressForm';
 import { AddressCard } from '../../components/checkout/AddressCard';
@@ -18,7 +19,7 @@ import { CheckoutItemRow } from '../../components/checkout/CheckoutItemRow';
 import { PaymentMethodSelector } from '../../components/checkout/PaymentMethodSelector';
 import { BillingAddressSection } from '../../components/checkout/BillingAddressSection';
 import type { UserAddress, AddressFormData } from '../../types/address.types';
-import type { PaymentMethod, ShippingAddress } from '../../types/database.types';
+import type { ShippingAddress } from '../../types/database.types';
 
 // ============================================================================
 // CHECKOUT STEPS
@@ -46,9 +47,6 @@ export const CheckoutPage = () => {
   const [addressSaving, setAddressSaving] = useState(false);
 
   // Payment state
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    isRazorpayConfigured() ? 'razorpay' : 'cod'
-  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Delivery estimate and shipping
@@ -110,7 +108,9 @@ export const CheckoutPage = () => {
       if (address?.pincode) {
         const estimate = await getDeliveryEstimate(address.pincode);
         setDeliveryEstimate(estimate);
-        setShippingCharge(estimate?.shipping_charge || 0);
+        // Calculate shipping charge using the greater of pincode-based or order-based
+        const pincodeCharge = estimate?.shipping_charge || 0;
+        setShippingCharge(calculateShippingCharge(pincodeCharge, cart?.subtotal || 0));
         if (address) {
           setCurrentStep('payment');
         }
@@ -121,6 +121,18 @@ export const CheckoutPage = () => {
       loadAddress();
     }
   }, [userId, authChecked]);
+
+  // ============================================================================
+  // RECALCULATE SHIPPING WHEN CART CHANGES
+  // ============================================================================
+
+  useEffect(() => {
+    // Recalculate shipping charge when cart subtotal changes
+    if (deliveryEstimate && cart) {
+      const pincodeCharge = deliveryEstimate.shipping_charge || 0;
+      setShippingCharge(calculateShippingCharge(pincodeCharge, cart.subtotal));
+    }
+  }, [cart?.subtotal, deliveryEstimate]);
 
   // ============================================================================
   // HANDLERS
@@ -139,7 +151,9 @@ export const CheckoutPage = () => {
 
       const estimate = await getDeliveryEstimate(data.pincode);
       setDeliveryEstimate(estimate);
-      setShippingCharge(estimate?.shipping_charge || 0);
+      // Calculate shipping charge using the greater of pincode-based or order-based
+      const pincodeCharge = estimate?.shipping_charge || 0;
+      setShippingCharge(calculateShippingCharge(pincodeCharge, cart?.subtotal || 0));
       setCurrentStep('payment');
     } else {
       alert(result.message);
@@ -175,48 +189,31 @@ export const CheckoutPage = () => {
 
     const formattedGst = gstNumber.trim() ? formatGSTNumber(gstNumber) : null;
 
-    if (paymentMethod === 'cod') {
-      // Place COD order directly
-      const result = await placeCodOrder(cart, savedAddress, shippingCharge, formattedGst, billingAddress);
-
-      if (result.success && result.order) {
+    // Initiate Razorpay payment
+    await initiateRazorpayPayment({
+      cart,
+      address: savedAddress,
+      billingAddress,
+      userEmail: userEmail || '',
+      shippingCharge,
+      gstNumber: formattedGst,
+      onSuccess: async (order) => {
         await refreshCart();
         navigate('/order/success', {
-          state: { order: result.order },
+          state: { order },
           replace: true
         });
-      } else {
+      },
+      onFailure: (error) => {
         setIsProcessing(false);
         setCurrentStep('payment');
-        alert(result.error || 'Failed to place order. Please try again.');
-      }
-    } else if (paymentMethod === 'razorpay') {
-      // Initiate Razorpay payment
-      await initiateRazorpayPayment({
-        cart,
-        address: savedAddress,
-        billingAddress,
-        userEmail: userEmail || '',
-        shippingCharge,
-        gstNumber: formattedGst,
-        onSuccess: async (order) => {
-          await refreshCart();
-          navigate('/order/success', {
-            state: { order },
-            replace: true
-          });
-        },
-        onFailure: (error) => {
-          setIsProcessing(false);
-          setCurrentStep('payment');
-          alert(error);
-        },
-        onCancel: () => {
-          setIsProcessing(false);
-          setCurrentStep('payment');
-        },
-      });
-    }
+        alert(error);
+      },
+      onCancel: () => {
+        setIsProcessing(false);
+        setCurrentStep('payment');
+      },
+    });
   };
 
   // ============================================================================
@@ -283,7 +280,7 @@ export const CheckoutPage = () => {
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-6"></div>
             <h2 className="text-xl font-semibold text-text-primary mb-2">
-              {paymentMethod === 'razorpay' ? 'Processing Payment...' : 'Placing Your Order...'}
+              Processing Payment...
             </h2>
             <p className="text-text-secondary">Please wait, do not close this page.</p>
           </div>
@@ -494,11 +491,7 @@ export const CheckoutPage = () => {
                   </svg>
                   Payment Method
                 </h2>
-                <PaymentMethodSelector
-                  selected={paymentMethod}
-                  onChange={setPaymentMethod}
-                  disabled={isProcessing}
-                />
+                <PaymentMethodSelector />
               </div>
             )}
 
@@ -557,13 +550,6 @@ export const CheckoutPage = () => {
                   )}
                 </div>
 
-                {paymentMethod === 'cod' && (
-                  <div className="flex justify-between text-text-secondary">
-                    <span>COD Charges</span>
-                    <span className="text-green-600 font-medium">FREE</span>
-                  </div>
-                )}
-
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-text-primary">Total</span>
@@ -584,7 +570,7 @@ export const CheckoutPage = () => {
                     <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
                     <span>Processing...</span>
                   </>
-                ) : paymentMethod === 'razorpay' ? (
+                ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
@@ -595,13 +581,6 @@ export const CheckoutPage = () => {
                       />
                     </svg>
                     <span>Pay ₹{(cart.subtotal + cart.tax + shippingCharge).toFixed(2)}</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Place Order (COD)</span>
                   </>
                 )}
               </button>
@@ -623,7 +602,7 @@ export const CheckoutPage = () => {
                       d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
                   </svg>
-                  <span>Secure checkout{paymentMethod === 'razorpay' ? ' powered by Razorpay' : ''}</span>
+                  <span>Secure checkout powered by Razorpay</span>
                 </div>
               </div>
 

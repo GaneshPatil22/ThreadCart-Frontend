@@ -68,6 +68,62 @@ export const TAX = {
 } as const;
 
 // ============================================================================
+// IMAGEKIT CONFIGURATION
+// ============================================================================
+// Image hosting and CDN service - replaces Google Drive for reliable image delivery
+// Private key is stored securely in Supabase Edge Function (never expose to frontend)
+// ============================================================================
+
+export const IMAGEKIT = {
+  // Public URL endpoint for displaying images
+  URL_ENDPOINT: import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/fq27eon0z',
+
+  // Public key for client-side SDK (safe to expose)
+  PUBLIC_KEY: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || '',
+
+  // Folder structure for organized storage
+  FOLDERS: {
+    CATEGORIES: 'threadcart/categories',
+    SUBCATEGORIES: 'threadcart/subcategories',
+    PRODUCTS: 'threadcart/products',
+    GALLERY: 'threadcart/Gallery',
+  },
+
+  // Allowed file types for upload
+  ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+
+  // Maximum file size in bytes (5MB)
+  MAX_FILE_SIZE: 5 * 1024 * 1024,
+
+  // Image transformation presets (can be appended to URLs)
+  TRANSFORMS: {
+    THUMBNAIL: 'tr=w-200,h-200,fo-auto',
+    CARD: 'tr=w-400,h-400,fo-auto',
+    FULL: 'tr=w-1000,fo-auto',
+  },
+} as const;
+
+/**
+ * Generates an ImageKit URL with optional transformations
+ * @param path - Image path in ImageKit
+ * @param transform - Optional transformation preset key
+ */
+export const getImageKitUrl = (
+  path: string,
+  transform?: keyof typeof IMAGEKIT.TRANSFORMS
+): string => {
+  if (!path) return '';
+
+  // If already a full URL, return as-is
+  if (path.startsWith('http')) return path;
+
+  const baseUrl = IMAGEKIT.URL_ENDPOINT;
+  const transformStr = transform ? `?${IMAGEKIT.TRANSFORMS[transform]}` : '';
+
+  return `${baseUrl}/${path}${transformStr}`;
+};
+
+// ============================================================================
 // WHATSAPP CONFIGURATION
 // ============================================================================
 

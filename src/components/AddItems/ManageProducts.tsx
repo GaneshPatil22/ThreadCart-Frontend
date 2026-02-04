@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
-import { handleImageError } from "../../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
+import { MultiImageUpload } from "../common/MultiImageUpload";
+import { IMAGEKIT } from "../../utils/constants";
 
 interface Product {
   id: number;
@@ -156,24 +158,6 @@ export default function ManageProducts() {
     }
   };
 
-  const handleImageChange = (index: number, value: string) => {
-    if (!editForm) return;
-    const newImages = [...editForm.image_url];
-    newImages[index] = value;
-    setEditForm({ ...editForm, image_url: newImages });
-  };
-
-  const addImageField = () => {
-    if (!editForm) return;
-    setEditForm({ ...editForm, image_url: [...editForm.image_url, ""] });
-  };
-
-  const removeImageField = (index: number) => {
-    if (!editForm) return;
-    const newImages = editForm.image_url.filter((_, i) => i !== index);
-    setEditForm({ ...editForm, image_url: newImages });
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -231,7 +215,7 @@ export default function ManageProducts() {
                 <div className="flex items-start gap-4 flex-1">
                   {product.image_url && product.image_url.length > 0 && (
                     <img
-                      src={product.image_url[0]}
+                      src={getDisplayUrl(product.image_url[0])}
                       alt={product.name}
                       className="w-20 h-20 object-cover rounded"
                       onError={handleImageError}
@@ -434,54 +418,13 @@ export default function ManageProducts() {
                     </svg>
                     Product Images
                   </h3>
-                  <div className="space-y-3">
-                    {editForm.image_url.map((url, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <div className="flex-1">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Image URL {index + 1}
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="https://example.com/image.jpg"
-                            value={url}
-                            onChange={(e) => handleImageChange(index, e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          />
-                        </div>
-                        {url && (
-                          <img
-                            src={url}
-                            alt={`Preview ${index + 1}`}
-                            className="w-12 h-12 object-cover rounded border mt-6"
-                            onError={handleImageError}
-                          />
-                        )}
-                        {editForm.image_url.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeImageField(index)}
-                            className="mt-6 p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                            aria-label="Remove image"
-                          >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={addImageField}
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Add another image
-                    </button>
-                  </div>
+                  <MultiImageUpload
+                    value={editForm.image_url}
+                    onChange={(urls) => setEditForm({ ...editForm, image_url: urls })}
+                    folder={IMAGEKIT.FOLDERS.PRODUCTS}
+                    minImages={1}
+                    maxImages={10}
+                  />
                 </div>
 
                 {/* Product Specifications Section */}
@@ -637,7 +580,7 @@ export default function ManageProducts() {
               </button>
               <button
                 onClick={handleSaveEdit}
-                disabled={saving}
+                disabled={saving || editForm.image_url.length === 0}
                 className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {saving ? (
