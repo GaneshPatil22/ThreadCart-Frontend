@@ -36,6 +36,7 @@ import BuyingGuidesPage from "./pages/static/BuyingGuidesPage";
 import CareersPage from "./pages/static/CareersPage";
 import AboutPage from "./pages/static/AboutPage";
 import ContactPage from "./pages/static/ContactPage";
+import GalleryPage from "./pages/GalleryPage";
 
 export default function App() {
   // Initialize all analytics tracking on app mount
@@ -83,6 +84,9 @@ export default function App() {
               {/* Static pages - Company */}
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+
+              {/* Gallery */}
+              <Route path="/gallery" element={<GalleryPage />} />
             </Routes>
           </div>
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import { ImageUpload } from "../common/ImageUpload";
+import { IMAGEKIT } from "../../utils/constants";
 
 export default function AddSubCategoryForm() {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [subName, setSubName] = useState("");
-  const [url, setUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const [sortNumber, setSortNumber] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -22,11 +24,12 @@ export default function AddSubCategoryForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCategory) return alert("Select a category first");
+    if (!imageUrl) return alert("Please upload an image");
     setLoading(true);
 
     const { error } = await supabase
       .from("sub-categories")
-      .insert([{ name: subName, category_id: selectedCategory, image_url: url, description, sort_number: sortNumber }]);
+      .insert([{ name: subName, category_id: selectedCategory, image_url: imageUrl, description, sort_number: sortNumber }]);
 
     if (error) alert(error.message);
     else {
@@ -34,7 +37,7 @@ export default function AddSubCategoryForm() {
       setSubName("");
       setSelectedCategory(null);
       setDescription("");
-      setUrl("");
+      setImageUrl("");
       setSortNumber(0);
     }
 
@@ -68,13 +71,13 @@ export default function AddSubCategoryForm() {
         required
       />
 
-      <input
-        type="text"
-        placeholder="Image Url"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        className="w-full border rounded-lg p-2"
+      <ImageUpload
+        value={imageUrl}
+        onChange={setImageUrl}
+        folder={IMAGEKIT.FOLDERS.SUBCATEGORIES}
+        label="SubCategory Image"
         required
+        placeholder="Click or drag image to upload"
       />
 
       <input
@@ -98,8 +101,8 @@ export default function AddSubCategoryForm() {
 
       <button
         type="submit"
-        disabled={loading}
-        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        disabled={loading || !imageUrl}
+        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Adding..." : "Add SubCategory"}
       </button>

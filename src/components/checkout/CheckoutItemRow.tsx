@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type { CartItemWithProduct } from '../../types/cart.types';
-import { convertGoogleDriveUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
+import { getDisplayUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
 
 interface CheckoutItemRowProps {
   item: CartItemWithProduct;
@@ -18,7 +18,7 @@ export const CheckoutItemRow = ({ item }: CheckoutItemRowProps) => {
   // Get the first image or use placeholder
   const imageUrl =
     product.image_url && product.image_url.length > 0
-      ? convertGoogleDriveUrl(product.image_url[0])
+      ? getDisplayUrl(product.image_url[0])
       : PLACEHOLDER_IMAGE;
 
   return (

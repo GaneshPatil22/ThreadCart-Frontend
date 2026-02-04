@@ -1,115 +1,58 @@
 // ============================================================================
 // PAYMENT METHOD SELECTOR
 // ============================================================================
-// Component to select payment method (Razorpay or COD)
+// Component to display payment method (Online Payment via Razorpay)
 // ============================================================================
 
-import type { ReactNode } from 'react';
 import { isRazorpayConfigured, isRazorpayTestMode } from '../../services/checkout.service';
-import type { PaymentMethod } from '../../types/database.types';
 
-interface PaymentMethodSelectorProps {
-  selected: PaymentMethod;
-  onChange: (method: PaymentMethod) => void;
-  disabled?: boolean;
-}
-
-export const PaymentMethodSelector = ({
-  selected,
-  onChange,
-  disabled = false,
-}: PaymentMethodSelectorProps) => {
+export const PaymentMethodSelector = () => {
   const razorpayAvailable = isRazorpayConfigured();
   const isTestMode = isRazorpayTestMode();
 
-  const methods: { value: PaymentMethod; label: string; description: string; icon: ReactNode }[] = [
-    {
-      value: 'razorpay',
-      label: 'Pay Online',
-      description: razorpayAvailable
-        ? 'Credit/Debit Card, UPI, Net Banking, Wallets'
-        : 'Not configured - Contact admin',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-          />
-        </svg>
-      ),
-    },
-    {
-      value: 'cod',
-      label: 'Cash on Delivery',
-      description: 'Pay when your order arrives',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-3">
-      {methods.map((method) => {
-        const isDisabled = disabled || (method.value === 'razorpay' && !razorpayAvailable);
-        const isSelected = selected === method.value;
-
-        return (
-          <label
-            key={method.value}
-            className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all ${
-              isSelected
-                ? 'border-accent bg-accent-light ring-1 ring-accent'
-                : 'border-border hover:border-gray-300'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <input
-              type="radio"
-              name="payment_method"
-              value={method.value}
-              checked={isSelected}
-              onChange={() => onChange(method.value)}
-              disabled={isDisabled}
-              className="mt-1 h-4 w-4 text-accent focus:ring-accent border-gray-300"
+      <div
+        className={`flex items-start gap-4 p-4 border rounded-lg transition-all border-accent bg-accent-light ring-1 ring-accent ${
+          !razorpayAvailable ? 'opacity-50' : ''
+        }`}
+      >
+        <div className="mt-1">
+          <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
             />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className={isSelected ? 'text-accent' : 'text-text-secondary'}>
-                  {method.icon}
+          </svg>
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-text-primary">Pay Online</span>
+            {razorpayAvailable && (
+              <>
+                <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
+                  Secure
                 </span>
-                <span className="font-medium text-text-primary">{method.label}</span>
-                {method.value === 'razorpay' && razorpayAvailable && (
-                  <>
-                    <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
-                      Recommended
-                    </span>
-                    {isTestMode && (
-                      <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded">
-                        Test Mode
-                      </span>
-                    )}
-                  </>
+                {isTestMode && (
+                  <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded">
+                    Test Mode
+                  </span>
                 )}
-              </div>
-              <p className="mt-1 text-sm text-text-secondary">{method.description}</p>
-            </div>
-            {method.value === 'razorpay' && (
-              <div className="flex items-center gap-1">
-                <img src="https://cdn.razorpay.com/logos/BUVwvgaqVByGp2_medium.png" alt="Razorpay" className="h-6" />
-              </div>
+              </>
             )}
-          </label>
-        );
-      })}
+          </div>
+          <p className="mt-1 text-sm text-text-secondary">
+            {razorpayAvailable
+              ? 'Credit/Debit Card, UPI, Net Banking, Wallets'
+              : 'Not configured - Contact admin'}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <img src="https://cdn.razorpay.com/logos/BUVwvgaqVByGp2_medium.png" alt="Razorpay" className="h-6" />
+        </div>
+      </div>
     </div>
   );
 };

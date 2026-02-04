@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useCart } from "../../hooks/useCart";
-import { convertGoogleDriveUrl, handleImageError } from "../../utils/imageUtils";
+import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 
 /**
@@ -173,7 +173,7 @@ export default function ShortProductDetail({
       {/* Image Carousel */}
       <div className="relative w-full sm:w-32 h-48 sm:h-32 flex-shrink-0 mx-auto sm:mx-0 max-w-[200px] sm:max-w-none">
         <img
-          src={convertGoogleDriveUrl(image[currentIndex])}
+          src={getDisplayUrl(image[currentIndex])}
           alt={name}
           className="w-full h-full object-contain rounded border cursor-pointer"
           onClick={() => setShowModal(true)}
@@ -597,7 +597,7 @@ function FullscreenImageViewer({
 
           {/* Actual Image */}
           <img
-            src={convertGoogleDriveUrl(images[currentIndex])}
+            src={getDisplayUrl(images[currentIndex])}
             alt={`${productName} - Image ${currentIndex + 1}`}
             className={`max-w-full max-h-[60vh] sm:max-h-[70vh] object-contain transition-all duration-200 ${
               isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
@@ -677,7 +677,7 @@ function FullscreenImageViewer({
 
                 {/* Actual Thumbnail */}
                 <img
-                  src={convertGoogleDriveUrl(img)}
+                  src={getDisplayUrl(img)}
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-full h-full object-cover transition-opacity ${
                     loadedThumbnails.has(index) ? "opacity-100" : "opacity-0"

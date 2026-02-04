@@ -12,7 +12,7 @@ import { downloadInvoice } from '../../services/invoice.service';
 import { OrderStatusTimeline } from '../../components/order/OrderStatusTimeline';
 import { ORDER_STATUS_CONFIG } from '../../types/order.types';
 import type { OrderWithItems } from '../../types/order.types';
-import { convertGoogleDriveUrl, handleImageError } from '../../utils/imageUtils';
+import { getDisplayUrl, handleImageError } from '../../utils/imageUtils';
 import { CONTACT, TAX } from '../../utils/constants';
 
 export const OrderDetailsPage = () => {
@@ -163,7 +163,7 @@ export const OrderDetailsPage = () => {
                     <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-border">
                       {item.product?.image_url?.[0] ? (
                         <img
-                          src={convertGoogleDriveUrl(item.product.image_url[0])}
+                          src={getDisplayUrl(item.product.image_url[0])}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                           onError={handleImageError}
