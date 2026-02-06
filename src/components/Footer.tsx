@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn, FaInstagram, FaCode } from "react-icons/fa";
 import { SOCIAL_MEDIA } from "../utils/constants";
 
 export default function Footer() {
@@ -155,6 +155,24 @@ export default function Footer() {
               Sitemap
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Developer Credit */}
+      <div className="bg-slate-900 text-slate-400">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-center gap-2 text-xs">
+          <FaCode className="w-3 h-3" />
+          <span>Crafted with passion by</span>
+          <a
+            href="https://ganeshpatil22.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-white hover:text-primary transition-colors duration-200"
+          >
+            Ganesh Patil
+          </a>
+          <span className="text-slate-500">|</span>
+          <span className="italic text-slate-500">Turning ideas into reality</span>
         </div>
       </div>
     </footer>

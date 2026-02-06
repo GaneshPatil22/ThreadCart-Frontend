@@ -36,6 +36,9 @@ import BuyingGuidesPage from "./pages/static/BuyingGuidesPage";
 import CareersPage from "./pages/static/CareersPage";
 import AboutPage from "./pages/static/AboutPage";
 import ContactPage from "./pages/static/ContactPage";
+import PrivacyPolicyPage from "./pages/static/PrivacyPolicyPage";
+import CookiePolicyPage from "./pages/static/CookiePolicyPage";
+import SitemapPage from "./pages/static/SitemapPage";
 import GalleryPage from "./pages/GalleryPage";
 
 export default function App() {
@@ -84,6 +87,11 @@ export default function App() {
               {/* Static pages - Company */}
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+
+              {/* Static pages - Legal */}
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/cookie" element={<CookiePolicyPage />} />
+              <Route path="/sitemap" element={<SitemapPage />} />
 
               {/* Gallery */}
               <Route path="/gallery" element={<GalleryPage />} />

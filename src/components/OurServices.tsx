@@ -35,6 +35,24 @@ const services: Service[] = [
       "Get fastener quotes in under a minute with real-time, accurate pricing. No delays, no negotiations — just clear, upfront costs you can trust.",
     image: "/OurServices/Transparent pricing.png",
   },
+  {
+    title: "No MOQ",
+    description:
+      "Purchase even one bolt with confidence.",
+    image: "/OurServices/No_MOQ.png",
+  },
+  {
+    title: "Detailed engineering drawings",
+    description:
+      "Detailed engineering drawings provided for accurate selection and application",
+    image: "/OurServices/DetailEnggDrawing.png",
+  },
+  {
+    title: "No Packaging Cost",
+    description:
+      "Detailed engineering drawings provided for accurate selection and application",
+    image: "/OurServices/FreePackaging.png",
+  },
 ];
 
 export default function OurServices() {
