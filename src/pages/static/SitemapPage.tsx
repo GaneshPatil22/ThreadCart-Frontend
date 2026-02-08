@@ -36,7 +36,7 @@ const sitemapSections: SitemapSection[] = [
     title: "Support",
     links: [
       { name: "Help Center", path: "/help" },
-      { name: "Shipping & Returns", path: "/shipping" },
+      { name: "Shipping", path: "/shipping" },
       { name: "FAQs", path: "/faqs" },
     ],
   },
