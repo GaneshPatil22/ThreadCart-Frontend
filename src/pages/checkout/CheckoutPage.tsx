@@ -108,7 +108,7 @@ export const CheckoutPage = () => {
       if (address?.pincode) {
         const estimate = await getDeliveryEstimate(address.pincode);
         setDeliveryEstimate(estimate);
-        // Calculate shipping charge using the greater of pincode-based or order-based
+        // Calculate shipping using order-based tiered pricing (pincode charge passed but ignored via feature flag)
         const pincodeCharge = estimate?.shipping_charge || 0;
         setShippingCharge(calculateShippingCharge(pincodeCharge, cart?.subtotal || 0));
         if (address) {

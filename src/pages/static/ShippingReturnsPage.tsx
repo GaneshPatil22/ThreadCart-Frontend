@@ -43,16 +43,16 @@ export default function ShippingPage() {
           </thead>
           <tbody>
             <tr className="border-b border-border">
-              <td className="py-2">Above ₹5,000</td>
-              <td className="py-2 text-green-600 font-medium">FREE</td>
+              <td className="py-2">₹1 - ₹1,000</td>
+              <td className="py-2">₹80</td>
             </tr>
             <tr className="border-b border-border">
-              <td className="py-2">₹2,000 - ₹5,000</td>
-              <td className="py-2">₹99</td>
+              <td className="py-2">₹1,001 - ₹4,000</td>
+              <td className="py-2">₹180</td>
             </tr>
             <tr>
-              <td className="py-2">Below ₹2,000</td>
-              <td className="py-2">₹199</td>
+              <td className="py-2">Above ₹4,000</td>
+              <td className="py-2">₹600</td>
             </tr>
           </tbody>
         </table>
