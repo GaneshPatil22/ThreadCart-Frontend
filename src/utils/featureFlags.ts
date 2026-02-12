@@ -16,6 +16,13 @@ export const FeatureFlags = {
    * When disabled: Uses only pincode-based shipping charge
    */
   ORDER_BASED_SHIPPING: true,
+
+  /**
+   * Pincode-based shipping charge feature
+   * When enabled: Considers pincode-specific shipping charges from DB
+   * When disabled: Uses only order-based tiered shipping (ignores pincode charges)
+   */
+  PINCODE_BASED_SHIPPING: false,
 } as const;
 
 // ============================================================================
@@ -24,15 +31,16 @@ export const FeatureFlags = {
 
 export const SHIPPING = {
   /**
-   * Minimum order amount to apply order-based shipping charge
-   * Orders above this amount will have shipping charge applied
+   * Tiered shipping charges based on order subtotal
+   * 1 - 1000: 80rs
+   * 1001 - 4000: 180rs
+   * 4001+: 600rs
    */
-  ORDER_THRESHOLD: 2000,
-
-  /**
-   * Shipping charge for orders above the threshold
-   */
-  ORDER_BASED_CHARGE: 600,
+  TIERS: [
+    { min: 0, max: 1000, charge: 80 },
+    { min: 1000, max: 4000, charge: 180 },
+    { min: 4000, max: Infinity, charge: 600 },
+  ],
 } as const;
 
 // ============================================================================
@@ -49,22 +57,25 @@ export const isFeatureEnabled = (flag: keyof typeof FeatureFlags): boolean => {
 };
 
 /**
- * Calculate order-based shipping charge
- * Returns shipping charge based on order subtotal
+ * Calculate order-based shipping charge using tiered pricing
  * @param subtotal - Order subtotal (before tax)
- * @returns Shipping charge (0 if below threshold, SHIPPING.ORDER_BASED_CHARGE if above)
+ * @returns Shipping charge based on tier
  */
 export const calculateOrderBasedShipping = (subtotal: number): number => {
-  if (subtotal > SHIPPING.ORDER_THRESHOLD) {
-    return SHIPPING.ORDER_BASED_CHARGE;
-  }
-  return 0;
+  const tier = SHIPPING.TIERS.find(
+    (t) => subtotal > t.min && subtotal <= t.max
+  );
+  return tier ? tier.charge : SHIPPING.TIERS[SHIPPING.TIERS.length - 1].charge;
 };
 
 /**
- * Calculate final shipping charge based on feature flag
- * When ORDER_BASED_SHIPPING is enabled: returns the greater of pincode-based or order-based charge
- * When disabled: returns only pincode-based charge
+ * Calculate final shipping charge based on feature flags
+ *
+ * Priority logic:
+ * - If PINCODE_BASED_SHIPPING is disabled: uses only order-based tiered shipping
+ * - If both enabled: returns the greater of pincode-based or order-based charge
+ * - If ORDER_BASED_SHIPPING is disabled: uses only pincode-based shipping
+ *
  * @param pincodeCharge - Shipping charge from pincode lookup
  * @param subtotal - Order subtotal (before tax)
  * @returns Final shipping charge to apply
@@ -73,12 +84,17 @@ export const calculateShippingCharge = (
   pincodeCharge: number,
   subtotal: number
 ): number => {
+  // Pincode-based shipping disabled - use only order-based tiered shipping
+  if (!FeatureFlags.PINCODE_BASED_SHIPPING) {
+    return calculateOrderBasedShipping(subtotal);
+  }
+
+  // Order-based shipping disabled - use only pincode-based shipping
   if (!FeatureFlags.ORDER_BASED_SHIPPING) {
-    // Feature disabled - use only pincode-based shipping
     return pincodeCharge;
   }
 
-  // Feature enabled - use the greater of the two charges
+  // Both enabled - use the greater of the two charges
   const orderBasedCharge = calculateOrderBasedShipping(subtotal);
   return Math.max(pincodeCharge, orderBasedCharge);
 };

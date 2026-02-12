@@ -32,7 +32,7 @@ export default function Hero() {
         </h1>
         <p className="text-white max-w-6xl mx-auto mb-8">
           <h1 className="text-2xl font-normal text-white mb-4">
-            For every industry - delivering reliability, certification, and speed in every order
+            For every industry - delivering reliability, and speed in every order
           </h1>
         </p>
 
