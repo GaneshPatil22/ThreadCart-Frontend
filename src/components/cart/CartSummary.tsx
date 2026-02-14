@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase';
-import { TAX } from '../../utils/constants';
+
 
 export const CartSummary = () => {
   const { cart } = useCart();
@@ -50,12 +50,6 @@ export const CartSummary = () => {
         <span>₹{cart.subtotal.toFixed(2)}</span>
       </div>
 
-      {/* GST */}
-      <div className="flex justify-between text-text-secondary mb-2">
-        <span>GST ({TAX.GST_PERCENTAGE}%)</span>
-        <span>₹{cart.tax.toFixed(2)}</span>
-      </div>
-
       {/* Shipping Note */}
       <div className="flex justify-between text-text-secondary mb-4">
         <span>Shipping</span>
@@ -68,9 +62,9 @@ export const CartSummary = () => {
       {/* Total */}
       <div className="flex justify-between text-lg font-semibold mb-2">
         <span className="text-text-primary">Subtotal</span>
-        <span className="text-accent">₹{(cart.subtotal + cart.tax).toFixed(2)}</span>
+        <span className="text-accent">₹{cart.subtotal.toFixed(2)}</span>
       </div>
-      <p className="text-xs text-text-secondary mb-4">Shipping calculated at checkout based on delivery location</p>
+      <p className="text-xs text-text-secondary mb-4">GST & shipping will be calculated at checkout</p>
 
       {/* Checkout Button */}
       <button

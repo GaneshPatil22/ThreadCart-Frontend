@@ -92,7 +92,7 @@ export const CartPage = () => {
 
       {/* Additional Info Section */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Free Shipping */}
+        {/* Free Packaging */}
         <div className="flex items-start gap-4 p-4 bg-white rounded-lg border">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -102,17 +102,16 @@ export const CartPage = () => {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
             />
           </svg>
           <div>
-            <h3 className="font-semibold text-text-primary mb-1">Free Shipping</h3>
+            <h3 className="font-semibold text-text-primary mb-1">Free Packaging</h3>
             <p className="text-sm text-text-secondary">
-              On orders over ₹100
+              On all orders
             </p>
           </div>
         </div>
