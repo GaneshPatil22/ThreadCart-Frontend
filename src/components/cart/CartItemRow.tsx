@@ -4,7 +4,7 @@
 // Individual cart item with image, details, quantity selector, and remove button
 // ============================================================================
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CartItemWithProduct } from '../../types/cart.types';
 import { useCart } from '../../hooks/useCart';
 import { getDisplayUrl, handleImageError, PLACEHOLDER_IMAGE } from '../../utils/imageUtils';
@@ -19,6 +19,15 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [inputQuantity, setInputQuantity] = useState<string>(String(item.quantity));
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Sync local input when item.quantity changes from outside (e.g., after API update)
+  useEffect(() => {
+    if (!isEditing) {
+      setInputQuantity(String(item.quantity));
+    }
+  }, [item.quantity]);
 
   const product = item.product;
 
@@ -29,7 +38,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   // Calculate subtotal
   const subtotal = product.price * item.quantity;
 
-  // Handle quantity change
+  // Handle quantity change via +/- buttons (immediate API call)
   const handleQuantityChange = async (newQuantity: number) => {
     if (newQuantity < 1) return;
     if (newQuantity > product.quantity) {
@@ -37,8 +46,38 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       return;
     }
 
+    setInputQuantity(String(newQuantity));
     setIsUpdating(true);
     await updateQuantity(product.id, newQuantity);
+    setIsUpdating(false);
+  };
+
+  // Commit the typed quantity (called on blur or Enter)
+  const commitQuantity = async () => {
+    setIsEditing(false);
+    const newQuantity = parseInt(inputQuantity);
+
+    // Invalid or unchanged - reset
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      setInputQuantity(String(item.quantity));
+      return;
+    }
+
+    // Same as current - no API call needed
+    if (newQuantity === item.quantity) return;
+
+    // Exceeds stock - show error and reset
+    if (newQuantity > product.quantity) {
+      alert(`Only ${product.quantity} units available in stock`);
+      setInputQuantity(String(item.quantity));
+      return;
+    }
+
+    setIsUpdating(true);
+    const result = await updateQuantity(product.id, newQuantity);
+    if (!result.success) {
+      setInputQuantity(String(item.quantity));
+    }
     setIsUpdating(false);
   };
 
@@ -164,10 +203,16 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
 
           <input
             type="number"
-            value={item.quantity}
+            value={inputQuantity}
             onChange={(e) => {
-              const val = parseInt(e.target.value);
-              if (!isNaN(val)) handleQuantityChange(val);
+              setIsEditing(true);
+              setInputQuantity(e.target.value);
+            }}
+            onBlur={commitQuantity}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
             }}
             disabled={isUpdating}
             className="w-16 text-center border border-gray-300 rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-primary"

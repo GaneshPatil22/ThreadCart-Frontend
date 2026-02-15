@@ -99,7 +99,8 @@ export const getCartWithItems = async (
         )
       `
       )
-      .eq('cart_id', cart.id);
+      .eq('cart_id', cart.id)
+      .order('added_at', { ascending: true });
 
     if (itemsError) {
       console.error('Error fetching cart items:', itemsError);
