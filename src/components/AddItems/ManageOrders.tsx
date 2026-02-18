@@ -32,6 +32,7 @@ const PAYMENT_STATUS_OPTIONS = [
   { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-700" },
   { value: "completed", label: "Completed", color: "bg-green-100 text-green-700" },
   { value: "failed", label: "Failed", color: "bg-red-100 text-red-700" },
+  { value: "refund_initiated", label: "Refund Initiated", color: "bg-purple-100 text-purple-700" },
   { value: "refunded", label: "Refunded", color: "bg-gray-100 text-gray-700" },
 ] as const;
 

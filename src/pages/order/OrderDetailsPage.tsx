@@ -272,11 +272,17 @@ export const OrderDetailsPage = () => {
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Status</span>
                   <span className={`font-medium ${
-                    order.payment_status === 'completed'
-                      ? 'text-green-600'
+                    order.payment_status === 'completed' ? 'text-green-600'
+                      : order.payment_status === 'refund_initiated' ? 'text-purple-600'
+                      : order.payment_status === 'refunded' ? 'text-gray-600'
+                      : order.payment_status === 'failed' ? 'text-red-600'
                       : 'text-amber-600'
                   }`}>
-                    {order.payment_status === 'completed' ? 'Paid' : 'Pending'}
+                    {order.payment_status === 'completed' ? 'Paid'
+                      : order.payment_status === 'refund_initiated' ? 'Refund Initiated'
+                      : order.payment_status === 'refunded' ? 'Refunded'
+                      : order.payment_status === 'failed' ? 'Failed'
+                      : 'Pending'}
                   </span>
                 </div>
                 {order.payment_id && (

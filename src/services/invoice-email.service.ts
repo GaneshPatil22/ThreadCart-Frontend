@@ -175,7 +175,7 @@ GRAND TOTAL: ${formatCurrency(order.grand_total)}
 PAYMENT:
 --------
 Method: ${order.payment_method === 'razorpay' ? 'Online Payment' : 'Cash on Delivery'}
-Status: ${order.payment_status === 'completed' ? 'Paid' : 'Pending'}
+Status: ${order.payment_status === 'completed' ? 'Paid' : order.payment_status === 'refund_initiated' ? 'Refund Initiated' : order.payment_status === 'refunded' ? 'Refunded' : order.payment_status === 'failed' ? 'Failed' : 'Pending'}
 ${order.payment_id ? `Transaction ID: ${order.payment_id}` : ''}
 
 ---
