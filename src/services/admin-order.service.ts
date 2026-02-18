@@ -265,6 +265,7 @@ export interface PaymentStatusCounts {
   pending: number;
   completed: number;
   failed: number;
+  refund_initiated: number;
   refunded: number;
 }
 
@@ -274,6 +275,7 @@ export const getPaymentStatusCounts = (orders: OrderWithItems[]): PaymentStatusC
     pending: 0,
     completed: 0,
     failed: 0,
+    refund_initiated: 0,
     refunded: 0,
   };
 

@@ -103,7 +103,7 @@ export type OrderStatus =
 
 export type PaymentMethod = 'razorpay' | 'cod' | 'bank_transfer';
 
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refund_initiated' | 'refunded';
 
 export interface ShippingAddress {
   full_name: string;

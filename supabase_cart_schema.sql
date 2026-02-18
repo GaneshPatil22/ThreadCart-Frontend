@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     -- Payment details
     payment_method TEXT CHECK (payment_method IN ('razorpay', 'cod', 'bank_transfer')),
     payment_id TEXT, -- Razorpay payment ID
-    payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed', 'refunded')),
+    payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed', 'refund_initiated', 'refunded')),
 
     -- Shipping address (stored as JSON)
     shipping_address JSONB NOT NULL,

@@ -139,10 +139,18 @@ export const OrderSuccessPage = () => {
                   <p className="text-text-secondary">Payment Status</p>
                   <p
                     className={`font-medium ${
-                      isPaid ? 'text-green-600' : 'text-yellow-600'
+                      order.payment_status === 'completed' ? 'text-green-600'
+                        : order.payment_status === 'refund_initiated' ? 'text-purple-600'
+                        : order.payment_status === 'refunded' ? 'text-gray-600'
+                        : order.payment_status === 'failed' ? 'text-red-600'
+                        : 'text-yellow-600'
                     }`}
                   >
-                    {isPaid ? 'Paid' : 'Pending'}
+                    {order.payment_status === 'completed' ? 'Paid'
+                      : order.payment_status === 'refund_initiated' ? 'Refund Initiated'
+                      : order.payment_status === 'refunded' ? 'Refunded'
+                      : order.payment_status === 'failed' ? 'Failed'
+                      : 'Pending'}
                   </p>
                 </div>
                 {order.payment_id && (

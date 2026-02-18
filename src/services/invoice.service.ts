@@ -202,12 +202,19 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   );
 
   addText('Status:', invoiceInfoX, yPos + 14, { fontSize: 9, fontStyle: 'bold' });
-  addText(
-    order.payment_status === 'completed' ? 'PAID' : 'PENDING (COD)',
-    invoiceInfoX + 25,
-    yPos + 14,
-    { fontSize: 9, color: order.payment_status === 'completed' ? [22, 163, 74] : [234, 179, 8] }
-  );
+  const paymentStatusLabel =
+    order.payment_status === 'completed' ? 'PAID'
+      : order.payment_status === 'refund_initiated' ? 'REFUND INITIATED'
+      : order.payment_status === 'refunded' ? 'REFUNDED'
+      : order.payment_status === 'failed' ? 'FAILED'
+      : 'PENDING (COD)';
+  const paymentStatusColor: [number, number, number] =
+    order.payment_status === 'completed' ? [22, 163, 74]
+      : order.payment_status === 'refund_initiated' ? [147, 51, 234]
+      : order.payment_status === 'refunded' ? [107, 114, 128]
+      : order.payment_status === 'failed' ? [220, 38, 38]
+      : [234, 179, 8];
+  addText(paymentStatusLabel, invoiceInfoX + 25, yPos + 14, { fontSize: 9, color: paymentStatusColor });
 
   yPos += 30;
 
