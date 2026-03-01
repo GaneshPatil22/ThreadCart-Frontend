@@ -106,6 +106,7 @@ export default function ShortProductDetail({
   const [showModal, setShowModal] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartQuantity, setCartQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
 
   const { addToCart, isInCart, getItemQuantity } = useCart();
 
@@ -143,7 +144,8 @@ export default function ShortProductDetail({
     if (result.success) {
       // Track add to cart event
       trackAddToCart({ id: productId, name, price }, cartQuantity);
-      setCartQuantity(1); // Reset quantity after adding
+      setCartQuantity(1);
+      setQuantityInput("1");
       alert(`Successfully added ${cartQuantity} item(s) to cart!`);
     } else {
       alert(result.message);
@@ -166,6 +168,7 @@ export default function ShortProductDetail({
     }
 
     setCartQuantity(newQty);
+    setQuantityInput(String(newQty));
   };
 
   return (
@@ -346,10 +349,33 @@ export default function ShortProductDetail({
                 </button>
                 <input
                   type="number"
-                  value={cartQuantity}
-                  onChange={(e) =>
-                    handleQuantityChange(parseInt(e.target.value) || 1)
-                  }
+                  value={quantityInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuantityInput(val);
+                    const parsed = parseInt(val);
+                    if (!isNaN(parsed) && parsed >= 1) {
+                      const currentInCart = getItemQuantity(productId);
+                      const availableStock = quantity - currentInCart;
+                      if (parsed <= availableStock) {
+                        setCartQuantity(parsed);
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    const parsed = parseInt(quantityInput);
+                    if (!quantityInput || isNaN(parsed) || parsed < 1) {
+                      setCartQuantity(1);
+                      setQuantityInput("1");
+                    } else {
+                      const currentInCart = getItemQuantity(productId);
+                      const availableStock = quantity - currentInCart;
+                      const clamped = Math.min(parsed, availableStock);
+                      setCartQuantity(clamped);
+                      setQuantityInput(String(clamped));
+                    }
+                  }}
+                  onFocus={(e) => e.target.select()}
                   className="w-16 sm:w-20 text-center border-2 border-gray-300 rounded-md py-2 text-base sm:text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   min="1"
                   max={quantity - getItemQuantity(productId)}
