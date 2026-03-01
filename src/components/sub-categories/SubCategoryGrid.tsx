@@ -21,10 +21,14 @@ interface SubCategory {
 }
 
 async function fetchSubCategories(categoryId?: string) {
+  // Use sort_number for category-specific view (subcategory page)
+  // Use catalog_sort_number for all-subcategories view (catalog page)
+  const sortColumn = categoryId ? "sort_number" : "catalog_sort_number";
+
   let query = supabase
     .from("sub-categories")
     .select("*")
-    .order("sort_number", { ascending: true });
+    .order(sortColumn, { ascending: true });
 
   if (categoryId) {
     query = query.eq("category_id", categoryId);

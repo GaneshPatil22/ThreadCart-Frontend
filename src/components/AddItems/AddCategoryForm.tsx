@@ -51,23 +51,33 @@ export default function AddCategoryForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-lg font-semibold">Add Category</h3>
 
-      <input
-        type="text"
-        placeholder="Category Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter category name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
       <ImageUpload
         value={imageUrl}
@@ -78,15 +88,20 @@ export default function AddCategoryForm() {
         placeholder="Click or drag image to upload"
       />
 
-      <input
-        type="number"
-        placeholder="Sort Number (for display order)"
-        value={sortNumber}
-        onChange={(e) => setSortNumber(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-        min={0}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Sort Order <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          placeholder="0"
+          value={sortNumber}
+          onChange={(e) => setSortNumber(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+          min={0}
+        />
+      </div>
 
       <button
         type="submit"

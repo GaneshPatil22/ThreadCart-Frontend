@@ -148,41 +148,56 @@ export default function ManagePincodes() {
                     <span className="font-mono font-semibold">{editForm.pincode}</span>
                     <span className="text-xs text-gray-500 ml-2">(cannot change)</span>
                   </div>
-                  <input
-                    type="text"
-                    value={editForm.city}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, city: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="City"
-                  />
-                  <input
-                    type="text"
-                    value={editForm.state}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, state: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="State"
-                  />
-                  <input
-                    type="number"
-                    value={editForm.delivery_days}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        delivery_days: Number(e.target.value),
-                      })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Delivery Days"
-                    min={1}
-                    max={30}
-                  />
                   <div>
-                    <label className="text-sm text-gray-500 mb-1 block">
-                      Shipping Charge (₹) - Set 0 for free shipping
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.city}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, city: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter city name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.state}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, state: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter state name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Delivery Days
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.delivery_days}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          delivery_days: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="e.g., 5"
+                      min={1}
+                      max={30}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Shipping Charge (₹)
                     </label>
                     <input
                       type="number"

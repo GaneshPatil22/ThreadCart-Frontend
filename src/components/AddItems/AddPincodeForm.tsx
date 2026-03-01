@@ -57,49 +57,69 @@ export default function AddPincodeForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-lg font-semibold">Add Supported Pincode</h3>
 
-      <input
-        type="text"
-        placeholder="Pincode (6 digits)"
-        value={pincode}
-        onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-        className="w-full border rounded-lg p-2"
-        required
-        maxLength={6}
-        pattern="\d{6}"
-      />
-
-      <input
-        type="text"
-        placeholder="City"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
-
-      <input
-        type="text"
-        placeholder="State"
-        value={state}
-        onChange={(e) => setState(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
-
-      <input
-        type="number"
-        placeholder="Delivery Days"
-        value={deliveryDays}
-        onChange={(e) => setDeliveryDays(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-        min={1}
-        max={30}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Pincode <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter 6-digit pincode"
+          value={pincode}
+          onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          className="w-full border rounded-lg p-2"
+          required
+          maxLength={6}
+          pattern="\d{6}"
+        />
+      </div>
 
       <div>
-        <label className="text-sm text-gray-500 mb-1 block">
-          Shipping Charge (₹) - Set 0 for free shipping
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          City <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter city name"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          State <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter state name"
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Delivery Days <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          placeholder="e.g., 5"
+          value={deliveryDays}
+          onChange={(e) => setDeliveryDays(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+          min={1}
+          max={30}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Shipping Charge (₹)
         </label>
         <input
           type="number"

@@ -10,6 +10,7 @@ export default function AddSubCategoryForm() {
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const [sortNumber, setSortNumber] = useState<number>(0);
+  const [catalogSortNumber, setCatalogSortNumber] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function AddSubCategoryForm() {
 
     const { error } = await supabase
       .from("sub-categories")
-      .insert([{ name: subName, category_id: selectedCategory, image_url: imageUrl, description, sort_number: sortNumber }]);
+      .insert([{ name: subName, category_id: selectedCategory, image_url: imageUrl, description, sort_number: sortNumber, catalog_sort_number: catalogSortNumber }]);
 
     if (error) alert(error.message);
     else {
@@ -39,6 +40,7 @@ export default function AddSubCategoryForm() {
       setDescription("");
       setImageUrl("");
       setSortNumber(0);
+      setCatalogSortNumber(0);
     }
 
     setLoading(false);
@@ -48,28 +50,38 @@ export default function AddSubCategoryForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-lg font-semibold">Add SubCategory</h3>
 
-      <select
-        value={selectedCategory ?? ""}
-        onChange={(e) => setSelectedCategory(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-      >
-        <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Parent Category <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={selectedCategory ?? ""}
+          onChange={(e) => setSelectedCategory(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <input
-        type="text"
-        placeholder="SubCategory Name"
-        value={subName}
-        onChange={(e) => setSubName(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          SubCategory Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter subcategory name"
+          value={subName}
+          onChange={(e) => setSubName(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
       <ImageUpload
         value={imageUrl}
@@ -80,24 +92,49 @@ export default function AddSubCategoryForm() {
         placeholder="Click or drag image to upload"
       />
 
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="number"
-        placeholder="Sort Number (for display order)"
-        value={sortNumber}
-        onChange={(e) => setSortNumber(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-        min={0}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Sort Order (Subcategory Page) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          placeholder="0"
+          value={sortNumber}
+          onChange={(e) => setSortNumber(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+          min={0}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Catalog Sort Order (Catalog Page) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          placeholder="0"
+          value={catalogSortNumber}
+          onChange={(e) => setCatalogSortNumber(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+          min={0}
+        />
+      </div>
 
       <button
         type="submit"
