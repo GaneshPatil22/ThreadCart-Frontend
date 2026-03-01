@@ -94,34 +94,52 @@ export default function AddProductForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-lg font-semibold">Add Product</h3>
-      <select
-        value={selectedSub ?? ""}
-        onChange={(e) => setSelectedSub(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-      >
-        <option value="">Select SubCategory</option>
-        {subcategories.map((sub) => (
-          <option key={sub.id} value={sub.id}>
-            {sub.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        placeholder="Product Name"
-        value={productName}
-        onChange={(e) => setProductName(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
-      <textarea
-        placeholder="Product Description (optional)"
-        value={description ?? ""}
-        onChange={(e) => setDescription(e.target.value || null)}
-        className="w-full border rounded-lg p-2 min-h-[80px] resize-y"
-        rows={3}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          SubCategory <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={selectedSub ?? ""}
+          onChange={(e) => setSelectedSub(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+        >
+          <option value="">Select SubCategory</option>
+          {subcategories.map((sub) => (
+            <option key={sub.id} value={sub.id}>
+              {sub.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Product Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter product name"
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
+        <textarea
+          placeholder="Enter product description (optional)"
+          value={description ?? ""}
+          onChange={(e) => setDescription(e.target.value || null)}
+          className="w-full border rounded-lg p-2 min-h-[80px] resize-y"
+          rows={3}
+        />
+      </div>
+
       <MultiImageUpload
         value={images}
         onChange={setImages}
@@ -132,6 +150,9 @@ export default function AddProductForm() {
       />
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Price (₹) <span className="text-red-500">*</span>
+        </label>
         <NumberInput
           value={price}
           onChange={setPrice}
@@ -143,105 +164,153 @@ export default function AddProductForm() {
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Quantity in Stock <span className="text-red-500">*</span>
+        </label>
         <NumberInput
           value={quantity}
           onChange={setQuantity}
-          placeholder="Total Quantity"
+          placeholder="Enter quantity"
           className="w-full"
           required
           min={0}
         />
       </div>
 
-      <input
-        type="text"
-        placeholder="Thread Style"
-        value={threadStyle ?? ""}
-        onChange={(e) => setThreadStyle(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
-      <input
-        type="text"
-        placeholder="Thread size x Pitch"
-        value={threadSize ?? ""}
-        onChange={(e) => setThreadSize(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Thread Style
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Full Thread, Half Thread"
+          value={threadStyle ?? ""}
+          onChange={(e) => setThreadStyle(e.target.value)}
+          className="w-full border rounded-lg p-2"
+        />
+      </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Thread Size x Pitch <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., M8 x 1.25"
+          value={threadSize ?? ""}
+          onChange={(e) => setThreadSize(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Fastener Length (mm)
+        </label>
         <NumberInput
           value={fastenerLength}
           onChange={setFastenerLength}
-          placeholder="Fastener Length"
+          placeholder="e.g., 25"
           className="w-full"
           min={0}
         />
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Head Height (mm)
+        </label>
         <NumberInput
           value={headHeight}
           onChange={setHeadHeight}
-          placeholder="Head height"
+          placeholder="e.g., 5"
           className="w-full"
           min={0}
         />
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Grade
+        </label>
         <NumberInput
           value={grade}
           onChange={setGrade}
-          placeholder="Grade"
+          placeholder="e.g., 8.8, 10.9"
           className="w-full"
           min={0}
         />
       </div>
 
-      <input
-        type="text"
-        placeholder="Finish"
-        value={coating ?? ""}
-        onChange={(e) => setCoating(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Finish / Coating <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Zinc Plated, Black Oxide"
+          value={coating ?? ""}
+          onChange={(e) => setCoating(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Part Number"
-        value={partNumber ?? ""}
-        onChange={(e) => setPartNumber(e.target.value)}
-        className="w-full border rounded-lg p-2"
-        required
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Part Number <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., 12345"
+          value={partNumber ?? ""}
+          onChange={(e) => setPartNumber(e.target.value)}
+          className="w-full border rounded-lg p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Material"
-        value={material ?? ""}
-        onChange={(e) => setMaterial(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Material
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Stainless Steel, Carbon Steel"
+          value={material ?? ""}
+          onChange={(e) => setMaterial(e.target.value)}
+          className="w-full border rounded-lg p-2"
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="HSN/SAC"
-        value={hsnSac ?? ""}
-        onChange={(e) => setHsnSac(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          HSN/SAC Code
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., 73181500"
+          value={hsnSac ?? ""}
+          onChange={(e) => setHsnSac(e.target.value)}
+          className="w-full border rounded-lg p-2"
+        />
+      </div>
 
-      <input
-        type="number"
-        placeholder="Sort Number (for display order)"
-        value={sortNumber}
-        onChange={(e) => setSortNumber(Number(e.target.value))}
-        className="w-full border rounded-lg p-2"
-        required
-        min={0}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Sort Order <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          placeholder="0"
+          value={sortNumber}
+          onChange={(e) => setSortNumber(Number(e.target.value))}
+          className="w-full border rounded-lg p-2"
+          required
+          min={0}
+        />
+      </div>
 
       <button
         type="submit"

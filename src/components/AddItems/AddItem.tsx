@@ -9,11 +9,12 @@ import ManageProducts from "./ManageProducts";
 import ManagePincodes from "./ManagePincodes";
 import ManageContactSubmissions from "./ManageContactSubmissions";
 import ManageOrders from "./ManageOrders";
+import CatalogSortOrder from "./CatalogSortOrder";
 import Unauthorized from "../Unauthorized";
 import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
-type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | null;
+type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | "catalog-sort" | null;
 
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
@@ -143,6 +144,20 @@ export const AddItem = () => {
         >
           Orders
         </button>
+
+        <button
+          onClick={() => {
+            setActiveForm("catalog-sort");
+            setViewMode("manage");
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "catalog-sort"
+              ? "bg-amber-500 text-white"
+              : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+          }`}
+        >
+          Catalog Order
+        </button>
       </div>
 
       {/* Content Area */}
@@ -155,6 +170,7 @@ export const AddItem = () => {
             {activeForm === "pincode" && <AddPincodeForm />}
             {activeForm === "contact" && <ManageContactSubmissions />}
             {activeForm === "orders" && <ManageOrders />}
+            {activeForm === "catalog-sort" && <CatalogSortOrder />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to add
@@ -169,6 +185,7 @@ export const AddItem = () => {
             {activeForm === "pincode" && <ManagePincodes />}
             {activeForm === "contact" && <ManageContactSubmissions />}
             {activeForm === "orders" && <ManageOrders />}
+            {activeForm === "catalog-sort" && <CatalogSortOrder />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to manage

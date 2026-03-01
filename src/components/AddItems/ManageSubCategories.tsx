@@ -11,6 +11,7 @@ interface SubCategory {
   image_url: string;
   category_id: number;
   sort_number: number;
+  catalog_sort_number: number;
 }
 
 interface Category {
@@ -82,6 +83,7 @@ export default function ManageSubCategories() {
         image_url: editForm.image_url,
         category_id: editForm.category_id,
         sort_number: editForm.sort_number,
+        catalog_sort_number: editForm.catalog_sort_number,
       })
       .eq("id", editForm.id);
 
@@ -167,41 +169,56 @@ export default function ManageSubCategories() {
             >
               {editingId === subCategory.id && editForm ? (
                 <div className="space-y-3">
-                  <select
-                    value={editForm.category_id}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        category_id: Number(e.target.value),
-                      })
-                    }
-                    className="w-full border rounded-lg p-2"
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    value={editForm.name}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, name: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="SubCategory Name"
-                  />
-                  <input
-                    type="text"
-                    value={editForm.description}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, description: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Description"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Parent Category
+                    </label>
+                    <select
+                      value={editForm.category_id}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          category_id: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      SubCategory Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter subcategory name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.description}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, description: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter description"
+                    />
+                  </div>
                   <ImageUpload
                     value={editForm.image_url}
                     onChange={(url) =>
@@ -211,19 +228,42 @@ export default function ManageSubCategories() {
                     label="SubCategory Image"
                     required
                   />
-                  <input
-                    type="number"
-                    value={editForm.sort_number}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        sort_number: Number(e.target.value),
-                      })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Sort Number"
-                    min={0}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sort Order (Subcategory Page)
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.sort_number}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          sort_number: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="0"
+                      min={0}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Catalog Sort Order (Catalog Page)
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.catalog_sort_number}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          catalog_sort_number: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="0"
+                      min={0}
+                    />
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveEdit}
@@ -258,7 +298,8 @@ export default function ManageSubCategories() {
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
                         Category: {getCategoryName(subCategory.category_id)} |
-                        Sort Order: {subCategory.sort_number}
+                        Sort Order: {subCategory.sort_number} |
+                        Catalog Sort: {subCategory.catalog_sort_number}
                       </p>
                     </div>
                   </div>

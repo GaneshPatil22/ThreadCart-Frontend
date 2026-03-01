@@ -137,24 +137,34 @@ export default function ManageCategories() {
             >
               {editingId === category.id && editForm ? (
                 <div className="space-y-3">
-                  <input
-                    type="text"
-                    value={editForm.name}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, name: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Category Name"
-                  />
-                  <input
-                    type="text"
-                    value={editForm.description}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, description: e.target.value })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Description"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Category Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter category name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.description}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, description: e.target.value })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="Enter description"
+                    />
+                  </div>
                   <ImageUpload
                     value={editForm.image_url}
                     onChange={(url) =>
@@ -164,19 +174,24 @@ export default function ManageCategories() {
                     label="Category Image"
                     required
                   />
-                  <input
-                    type="number"
-                    value={editForm.sort_number}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        sort_number: Number(e.target.value),
-                      })
-                    }
-                    className="w-full border rounded-lg p-2"
-                    placeholder="Sort Number"
-                    min={0}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sort Order
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.sort_number}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          sort_number: Number(e.target.value),
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                      placeholder="0"
+                      min={0}
+                    />
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveEdit}
