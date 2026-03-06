@@ -11,6 +11,7 @@ export default function AddSubCategoryForm() {
   const [description, setDescription] = useState("");
   const [sortNumber, setSortNumber] = useState<number>(0);
   const [catalogSortNumber, setCatalogSortNumber] = useState<number>(0);
+  const [type, setType] = useState<"single" | "multiple">("multiple");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function AddSubCategoryForm() {
 
     const { error } = await supabase
       .from("sub-categories")
-      .insert([{ name: subName, category_id: selectedCategory, image_url: imageUrl, description, sort_number: sortNumber, catalog_sort_number: catalogSortNumber }]);
+      .insert([{ name: subName, category_id: selectedCategory, image_url: imageUrl, description, sort_number: sortNumber, catalog_sort_number: catalogSortNumber, type }]);
 
     if (error) alert(error.message);
     else {
@@ -41,6 +42,7 @@ export default function AddSubCategoryForm() {
       setImageUrl("");
       setSortNumber(0);
       setCatalogSortNumber(0);
+      setType("multiple");
     }
 
     setLoading(false);
@@ -104,6 +106,24 @@ export default function AddSubCategoryForm() {
           className="w-full border rounded-lg p-2"
           required
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Product Display Type <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as "single" | "multiple")}
+          className="w-full border rounded-lg p-2"
+          required
+        >
+          <option value="multiple">Multiple - Product list view</option>
+          <option value="single">Single - Direct product detail view</option>
+        </select>
+        <p className="text-xs text-gray-500 mt-1">
+          "Single" shows the first product directly in detail view. "Multiple" shows the standard product list.
+        </p>
       </div>
 
       <div>
