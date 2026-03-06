@@ -2,72 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useCart } from "../../hooks/useCart";
 import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
-
-/**
- * Checks if a value represents "STANDARD" (0 or -1).
- */
-const isStandardValue = (value: string | number | null | undefined): boolean => {
-  if (typeof value === "number") {
-    return value === 0 || value === -1;
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed === "0" || trimmed === "-1";
-  }
-  return false;
-};
-
-/**
- * Checks if a specification value should be displayed.
- * - Show if value is 0 or -1 (will display as "STANDARD")
- * - Show if value is a valid non-empty string
- * - Hide if null, undefined, NaN, or empty
- */
-const shouldShowSpec = (value: string | number | null | undefined): boolean => {
-  // Show if it's a "STANDARD" value (0 or -1)
-  if (isStandardValue(value)) {
-    return true;
-  }
-
-  // Hide null/undefined
-  if (value === null || value === undefined) {
-    return false;
-  }
-
-  // Hide NaN
-  if (typeof value === "number" && isNaN(value)) {
-    return false;
-  }
-
-  // Hide empty strings and invalid string values
-  if (typeof value === "string") {
-    const trimmed = value.trim().toLowerCase();
-    if (trimmed === "" || trimmed === "null" || trimmed === "nan" || trimmed === "undefined") {
-      return false;
-    }
-  }
-
-  // Show valid values
-  return true;
-};
-
-/**
- * Formats a product specification value.
- * Returns "STANDARD" for 0 or -1, otherwise returns the original value.
- */
-const formatSpecValue = (value: string | number | null | undefined): string => {
-  // Return "STANDARD" for 0 or -1
-  if (isStandardValue(value)) {
-    return "STANDARD";
-  }
-
-  // Return the value as-is (shouldShowSpec already filters invalid values)
-  if (typeof value === "number") {
-    return String(value);
-  }
-
-  return value ?? "";
-};
+import { shouldShowSpec, formatSpecValue } from "../../utils/productSpecUtils";
+import ProductDetailView from "./ProductDetailView";
 
 interface ProductDetailProps {
   name: string;
@@ -104,6 +40,7 @@ export default function ShortProductDetail({
 }: ProductDetailProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showDetailView, setShowDetailView] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartQuantity, setCartQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
@@ -390,6 +327,20 @@ export default function ShortProductDetail({
               </div>
             </div>
 
+            {/* Detail Button */}
+            <button
+              onClick={() => setShowDetailView(true)}
+              className="w-full sm:w-auto bg-gray-700 text-white px-6 sm:px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors text-sm sm:text-base font-bold shadow-md hover:shadow-lg active:shadow-sm"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Detail
+              </span>
+            </button>
+
             {/* Add to Cart Button - LARGE & PROMINENT */}
             <button
               onClick={handleAddToCart}
@@ -438,6 +389,27 @@ export default function ShortProductDetail({
           </div>
         </div>
       </div>
+
+      {/* Product Detail View Modal */}
+      {showDetailView && (
+        <ProductDetailView
+          name={name}
+          image={image}
+          desc={desc}
+          quantity={quantity}
+          productId={productId}
+          price={price}
+          thread_style={thread_style}
+          thread_size_pitch={thread_size_pitch}
+          fastener_length={fastener_length}
+          head_height={head_height}
+          Coating={Coating}
+          part_number={part_number}
+          Material={Material}
+          hsnSac={hsnSac}
+          onClose={() => setShowDetailView(false)}
+        />
+      )}
 
       {/* Fullscreen Image Modal - Amazon Style */}
       {showModal && (

@@ -12,6 +12,7 @@ interface SubCategory {
   category_id: number;
   sort_number: number;
   catalog_sort_number: number;
+  type: "single" | "multiple";
 }
 
 interface Category {
@@ -84,6 +85,7 @@ export default function ManageSubCategories() {
         category_id: editForm.category_id,
         sort_number: editForm.sort_number,
         catalog_sort_number: editForm.catalog_sort_number,
+        type: editForm.type,
       })
       .eq("id", editForm.id);
 
@@ -264,6 +266,24 @@ export default function ManageSubCategories() {
                       min={0}
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Product Display Type
+                    </label>
+                    <select
+                      value={editForm.type}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          type: e.target.value as "single" | "multiple",
+                        })
+                      }
+                      className="w-full border rounded-lg p-2"
+                    >
+                      <option value="multiple">Multiple - Product list view</option>
+                      <option value="single">Single - Direct product detail view</option>
+                    </select>
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveEdit}
@@ -299,7 +319,10 @@ export default function ManageSubCategories() {
                       <p className="text-xs text-gray-500 mt-1">
                         Category: {getCategoryName(subCategory.category_id)} |
                         Sort Order: {subCategory.sort_number} |
-                        Catalog Sort: {subCategory.catalog_sort_number}
+                        Catalog Sort: {subCategory.catalog_sort_number} |
+                        Type: <span className={subCategory.type === "single" ? "text-blue-600 font-medium" : ""}>
+                          {subCategory.type === "single" ? "Single" : "Multiple"}
+                        </span>
                       </p>
                     </div>
                   </div>

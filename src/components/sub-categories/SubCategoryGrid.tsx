@@ -18,6 +18,7 @@ interface SubCategory {
   name: string;
   image_url: string;
   description: string;
+  type: "single" | "multiple";
 }
 
 async function fetchSubCategories(categoryId?: string) {
@@ -48,6 +49,7 @@ async function fetchSubCategories(categoryId?: string) {
     name: subCat.name,
     image: subCat.image_url,
     desc: subCat.description,
+    type: subCat.type || "multiple",
   }));
 }
 
@@ -56,7 +58,7 @@ export default function SubCategoryGrid({
 }: SubCategoryGridProps) {
   const navigate = useNavigate();
   const [subCategories, setSubCategories] = useState<
-    { id: string; name: string; image: string; desc: string }[]
+    { id: string; name: string; image: string; desc: string; type: "single" | "multiple" }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +103,7 @@ export default function SubCategoryGrid({
     id: string;
     name: string;
     desc: string;
+    type: "single" | "multiple";
   }) => {
     console.log("Navigating to products with sub-category:", cat);
 
@@ -109,6 +112,7 @@ export default function SubCategoryGrid({
         subCategoryId: cat.id,
         subCategoryName: cat.name,
         description: cat.desc,
+        type: cat.type,
         // Pass parent category info for back navigation
         categoryId: categoryData?.categoryId,
         categoryName: categoryData?.categoryName,

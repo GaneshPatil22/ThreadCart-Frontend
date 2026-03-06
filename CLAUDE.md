@@ -48,6 +48,20 @@ npm run lint
 npm run preview
 ```
 
+## MCP Servers
+
+**IMPORTANT**: Claude Code should use the following MCP servers whenever needed to assist with this project, even if not explicitly mentioned in your request:
+
+1. **Supabase MCP** - For querying and managing database schema, viewing tables, and executing SQL
+2. **Context7 MCP** - For retrieving up-to-date documentation and code examples for libraries and frameworks used in the project
+3. **Notion MCP** - For accessing and managing project documentation in Notion (if applicable)
+
+These servers provide real-time access to project data and documentation. Always attempt to use them when:
+- Querying or exploring database structure
+- Looking up library documentation
+- Managing project documentation
+- Verifying configuration or environment settings
+
 ## Environment Setup
 
 The project requires Supabase environment variables. Three environment files exist:
