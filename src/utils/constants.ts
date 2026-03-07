@@ -124,6 +124,30 @@ export const getImageKitUrl = (
 };
 
 // ============================================================================
+// SINGLE-TYPE PRODUCT DEFAULTS
+// ============================================================================
+// Sentinel values for spec fields when sub-category type is "single".
+// These fields are hidden in the UI and auto-filled so DB constraints are met.
+// Display logic in productSpecUtils filters these out automatically.
+// ============================================================================
+
+export const SINGLE_PRODUCT_DEFAULTS = {
+  STRING: 'DEFAULT', // For varchar/text spec fields
+  NUMBER: null, // For numeric spec fields (all nullable in DB)
+} as const;
+
+// Fields hidden for single-type sub-category products
+export const SINGLE_TYPE_HIDDEN_FIELDS = [
+  'thread_style',
+  'thread_size_pitch',
+  'fastener_length',
+  'head_height',
+  'Grade',
+  'Coating',
+  'Material',
+] as const;
+
+// ============================================================================
 // WHATSAPP CONFIGURATION
 // ============================================================================
 

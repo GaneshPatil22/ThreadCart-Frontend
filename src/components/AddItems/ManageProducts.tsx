@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { MultiImageUpload } from "../common/MultiImageUpload";
-import { IMAGEKIT } from "../../utils/constants";
+import { IMAGEKIT, SINGLE_PRODUCT_DEFAULTS } from "../../utils/constants";
+import { isDefaultSentinel } from "../../utils/productSpecUtils";
 
 interface Product {
   id: number;
@@ -24,9 +25,12 @@ interface Product {
   "HSN/SAC": string | null;
 }
 
+type SubCategoryType = "single" | "multiple";
+
 interface SubCategory {
   id: number;
   name: string;
+  type: SubCategoryType;
 }
 
 export default function ManageProducts() {
@@ -73,7 +77,7 @@ export default function ManageProducts() {
         .from("product")
         .select("*")
         .order("sort_number", { ascending: true }),
-      supabase.from("sub-categories").select("id, name"),
+      supabase.from("sub-categories").select("id, name, type"),
     ]);
 
     if (productsResult.error) {
@@ -96,6 +100,45 @@ export default function ManageProducts() {
     return subCategories.find((sc) => sc.id === subCatId)?.name || "Unknown";
   };
 
+  const getSubCategoryType = (subCatId: number): SubCategoryType => {
+    return (subCategories.find((sc) => sc.id === subCatId)?.type as SubCategoryType) || "multiple";
+  };
+
+  const isSingleType = (subCatId: number): boolean => {
+    return getSubCategoryType(subCatId) === "single";
+  };
+
+  const handleEditSubCategoryChange = (subCatId: number) => {
+    if (!editForm) return;
+    const type = getSubCategoryType(subCatId);
+    if (type === "single") {
+      setEditForm({
+        ...editForm,
+        sub_cat_id: subCatId,
+        thread_style: SINGLE_PRODUCT_DEFAULTS.STRING,
+        thread_size_pitch: SINGLE_PRODUCT_DEFAULTS.STRING,
+        fastener_length: SINGLE_PRODUCT_DEFAULTS.NUMBER,
+        head_height: SINGLE_PRODUCT_DEFAULTS.NUMBER,
+        Grade: SINGLE_PRODUCT_DEFAULTS.NUMBER,
+        Coating: SINGLE_PRODUCT_DEFAULTS.STRING,
+        Material: SINGLE_PRODUCT_DEFAULTS.STRING,
+      });
+    } else {
+      setEditForm({
+        ...editForm,
+        sub_cat_id: subCatId,
+        // Reset to null so user fills in real values
+        thread_style: null,
+        thread_size_pitch: null,
+        fastener_length: null,
+        head_height: null,
+        Grade: null,
+        Coating: null,
+        Material: null,
+      });
+    }
+  };
+
   const handleEdit = (product: Product) => {
     setEditForm({ ...product });
     setIsModalOpen(true);
@@ -109,27 +152,31 @@ export default function ManageProducts() {
   const handleSaveEdit = async () => {
     if (!editForm) return;
 
+    // For single-type sub-categories, ensure default sentinel values
+    const isSingle = isSingleType(editForm.sub_cat_id);
+    const dataToSave = {
+      name: editForm.name,
+      description: editForm.description,
+      image_url: editForm.image_url,
+      price: editForm.price,
+      quantity: editForm.quantity,
+      thread_style: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.thread_style,
+      thread_size_pitch: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.thread_size_pitch,
+      fastener_length: isSingle ? SINGLE_PRODUCT_DEFAULTS.NUMBER : editForm.fastener_length,
+      head_height: isSingle ? SINGLE_PRODUCT_DEFAULTS.NUMBER : editForm.head_height,
+      Grade: isSingle ? SINGLE_PRODUCT_DEFAULTS.NUMBER : editForm.Grade,
+      Coating: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.Coating,
+      part_number: editForm.part_number,
+      sub_cat_id: editForm.sub_cat_id,
+      sort_number: editForm.sort_number,
+      Material: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.Material,
+      "HSN/SAC": editForm["HSN/SAC"],
+    };
+
     setSaving(true);
     const { error } = await supabase
       .from("product")
-      .update({
-        name: editForm.name,
-        description: editForm.description,
-        image_url: editForm.image_url,
-        price: editForm.price,
-        quantity: editForm.quantity,
-        thread_style: editForm.thread_style,
-        thread_size_pitch: editForm.thread_size_pitch,
-        fastener_length: editForm.fastener_length,
-        head_height: editForm.head_height,
-        Grade: editForm.Grade,
-        Coating: editForm.Coating,
-        part_number: editForm.part_number,
-        sub_cat_id: editForm.sub_cat_id,
-        sort_number: editForm.sort_number,
-        Material: editForm.Material,
-        "HSN/SAC": editForm["HSN/SAC"],
-      })
+      .update(dataToSave)
       .eq("id", editForm.id);
 
     setSaving(false);
@@ -172,11 +219,11 @@ export default function ManageProducts() {
     return (
       p.name.toLowerCase().includes(term) ||
       subCategoryName.includes(term) ||
-      (p.thread_style && p.thread_style.toLowerCase().includes(term)) ||
-      (p.thread_size_pitch && p.thread_size_pitch.toLowerCase().includes(term)) ||
-      (p.Coating && p.Coating.toLowerCase().includes(term)) ||
+      (p.thread_style && !isDefaultSentinel(p.thread_style) && p.thread_style.toLowerCase().includes(term)) ||
+      (p.thread_size_pitch && !isDefaultSentinel(p.thread_size_pitch) && p.thread_size_pitch.toLowerCase().includes(term)) ||
+      (p.Coating && !isDefaultSentinel(p.Coating) && p.Coating.toLowerCase().includes(term)) ||
       (p.part_number && p.part_number.toString().includes(term)) ||
-      (p.Material && p.Material.toLowerCase().includes(term)) ||
+      (p.Material && !isDefaultSentinel(p.Material) && p.Material.toLowerCase().includes(term)) ||
       (p["HSN/SAC"] && p["HSN/SAC"].toLowerCase().includes(term))
     );
   });
@@ -233,13 +280,13 @@ export default function ManageProducts() {
                       <p>
                         Price: ₹{product.price} | Quantity: {product.quantity}
                       </p>
-                      {product.thread_style && (
+                      {product.thread_style && !isDefaultSentinel(product.thread_style) && (
                         <p>Thread Style: {product.thread_style}</p>
                       )}
-                      {product.thread_size_pitch && (
+                      {product.thread_size_pitch && !isDefaultSentinel(product.thread_size_pitch) && (
                         <p>Thread Size: {product.thread_size_pitch}</p>
                       )}
-                      {product.Material && (
+                      {product.Material && !isDefaultSentinel(product.Material) && (
                         <p>Material: {product.Material}</p>
                       )}
                       {product.part_number && (
@@ -344,7 +391,7 @@ export default function ManageProducts() {
                       </label>
                       <select
                         value={editForm.sub_cat_id}
-                        onChange={(e) => setEditForm({ ...editForm, sub_cat_id: Number(e.target.value) })}
+                        onChange={(e) => handleEditSubCategoryChange(Number(e.target.value))}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="">Select SubCategory</option>
@@ -427,7 +474,8 @@ export default function ManageProducts() {
                   />
                 </div>
 
-                {/* Product Specifications Section */}
+                {/* Product Specifications Section — hidden for single-type sub-categories */}
+                {!isSingleType(editForm.sub_cat_id) && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -524,6 +572,19 @@ export default function ManageProducts() {
                         placeholder="e.g., Stainless Steel, Carbon Steel"
                       />
                     </div>
+                  </div>
+                </div>
+                )}
+
+                {/* Part Number — always shown */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Identification
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Part Number
