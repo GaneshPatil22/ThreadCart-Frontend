@@ -1,4 +1,15 @@
 /**
+ * Checks if a value is a sentinel default for single-type products.
+ * These values are auto-filled and should be hidden from display.
+ */
+export const isDefaultSentinel = (value: string | number | null | undefined): boolean => {
+  if (typeof value === "string") {
+    return value.trim().toUpperCase() === "DEFAULT";
+  }
+  return false;
+};
+
+/**
  * Checks if a value represents "STANDARD" (0 or -1).
  */
 export const isStandardValue = (value: string | number | null | undefined): boolean => {
@@ -14,11 +25,16 @@ export const isStandardValue = (value: string | number | null | undefined): bool
 
 /**
  * Checks if a specification value should be displayed.
+ * - Hide if value is the "DEFAULT" sentinel (single-type product placeholder)
  * - Show if value is 0 or -1 (will display as "STANDARD")
  * - Show if value is a valid non-empty string
  * - Hide if null, undefined, NaN, or empty
  */
 export const shouldShowSpec = (value: string | number | null | undefined): boolean => {
+  if (isDefaultSentinel(value)) {
+    return false;
+  }
+
   if (isStandardValue(value)) {
     return true;
   }
