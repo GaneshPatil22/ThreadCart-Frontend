@@ -19,6 +19,7 @@ import ConfirmEmail from "./pages/ConfirmEmail";
 import { CartProvider } from "./context/CartContext";
 import { CartPage } from "./pages/cart/CartPage";
 import { FloatingWhatsApp } from "./components/common/FloatingWhatsApp";
+import { LeadCapturePopup } from "./components/marketing/LeadCapturePopup";
 import { CheckoutPage } from "./pages/checkout/CheckoutPage";
 import { OrderSuccessPage } from "./pages/order/OrderSuccessPage";
 import { OrderHistoryPage } from "./pages/order/OrderHistoryPage";
@@ -100,6 +101,7 @@ export default function App() {
 
           <Footer />
           <FloatingWhatsApp />
+          <LeadCapturePopup />
         </div>
       </CartProvider>
     </ErrorBoundary>

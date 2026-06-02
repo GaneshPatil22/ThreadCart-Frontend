@@ -121,7 +121,7 @@ Order Status: {{order_status}}
 | `{{order_date}}` | Formatted order date | December 16, 2024, 10:30 AM |
 | `{{company_name}}` | Company name | ThreadCart |
 | `{{company_gstin}}` | Company GSTIN | Your company GSTIN |
-| `{{company_email}}` | Company email | info.threadcart@gmail.com |
+| `{{company_email}}` | Company email | info@threadcart.in |
 | `{{company_phone}}` | Company phone | Your phone number |
 
 **Sample Template:**
