@@ -11,7 +11,7 @@
 
 export const CONTACT = {
   // Primary support email for all customer inquiries
-  EMAIL: 'info.threadcart@gmail.com',
+  EMAIL: 'info@threadcart.in',
 
   // Primary phone number
   PHONE: '+91 91871 42260',
@@ -181,3 +181,59 @@ export const getWhatsAppUrl = (
   const text = encodeURIComponent(message ?? WHATSAPP.DEFAULT_MESSAGE);
   return `https://wa.me/${phone}?text=${text}`;
 };
+
+// ============================================================================
+// LEAD CAPTURE POPUP CONFIGURATION
+// ============================================================================
+// Newsletter / lead-capture popup shown on exit-intent (desktop) or after a
+// timer fallback (all devices). Designed to be non-intrusive: shown at most
+// once per session, cooled down for 7 days after a dismiss, never again after
+// a successful submit, and suppressed entirely on transactional routes and
+// for logged-in users.
+// ============================================================================
+
+export const LEAD_CAPTURE = {
+  HEADLINE: 'Get the ThreadCart Fastener Guide — Free',
+  SUBHEADLINE:
+    'Drop your email and instantly download our free technical guide. We’ll also keep you posted on new-product alerts and exclusive updates. No spam, ever.',
+  CTA_LABEL: 'Download Guide',
+  PRIVACY_NOTE: 'No spam. Unsubscribe anytime.',
+
+  // Free guide PDF (served from /public). Downloaded automatically on submit.
+  GUIDE_FILE_URL: '/free_guide.pdf',
+  GUIDE_FILE_NAME: 'ThreadCart-Fastener-Guide.pdf',
+
+  // Trigger timing
+  TIMER_DELAY_MS: 30_000, // show after 30s of browsing as a fallback
+  EXIT_INTENT_THRESHOLD_PX: 10, // mouse must leave within this many px of viewport top
+
+  // Suppression
+  DISMISS_COOLDOWN_DAYS: 1, // after a dismiss, don't show for 1 day
+  SUPPRESSED_ROUTE_PREFIXES: [
+    '/cart',
+    '/checkout',
+    '/order',
+    '/orders',
+    '/confirm-email',
+    '/add_item',
+  ] as readonly string[],
+
+  // Interest options offered as checkboxes
+  INTERESTS: [
+    { id: 'tech_guides', label: 'Technical guides & spec sheets' },
+    { id: 'new_arrivals', label: 'New product arrivals' },
+    { id: 'offers', label: 'Special offers & bulk pricing' },
+  ] as const,
+
+  // Default interests pre-checked
+  DEFAULT_INTERESTS: ['tech_guides', 'new_arrivals'] as readonly string[],
+
+  // Storage keys
+  STORAGE_KEYS: {
+    SESSION_SHOWN: 'tc_lead_capture_shown_session',
+    DISMISSED_AT: 'tc_lead_capture_dismissed_at',
+    SUBMITTED: 'tc_lead_capture_submitted',
+  },
+} as const;
+
+export type LeadCaptureSource = 'exit_intent' | 'time_trigger' | 'manual';

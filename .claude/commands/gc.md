@@ -13,6 +13,7 @@ Create a git commit with an auto-generated commit message. Argument: $ARGUMENTS
    - `git log --oneline -5` to see recent commit style
 
 3. **Generate the commit message** following this exact format:
+
    ```
    <type>: <short title under 60 chars>
 
@@ -27,14 +28,13 @@ Create a git commit with an auto-generated commit message. Argument: $ARGUMENTS
    - **Type** must be one of: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`, `test`, `perf`, `ci`, `build`
    - **Title**: concise, imperative mood, under 60 characters
    - **Bullet points**: minimum 2, maximum 5. Each describes a meaningful change — not file names, but what was done and why
-   - End the message with a blank line and: `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
 
 4. **Create the commit** using a HEREDOC for proper formatting:
+
    ```bash
    git commit -m "$(cat <<'EOF'
    <the generated message>
 
-   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
    EOF
    )"
    ```
@@ -42,6 +42,7 @@ Create a git commit with an auto-generated commit message. Argument: $ARGUMENTS
 5. **After committing**, run `git status` to verify success and show the result.
 
 ## Important
+
 - Do NOT push to remote — only commit locally
 - Do NOT use `--no-verify` or skip any hooks
 - If there are no changes to commit, say so and stop

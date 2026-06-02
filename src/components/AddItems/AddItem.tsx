@@ -9,12 +9,13 @@ import ManageProducts from "./ManageProducts";
 import ManagePincodes from "./ManagePincodes";
 import ManageContactSubmissions from "./ManageContactSubmissions";
 import ManageOrders from "./ManageOrders";
+import ManageSubscribers from "./ManageSubscribers";
 import CatalogSortOrder from "./CatalogSortOrder";
 import Unauthorized from "../Unauthorized";
 import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
-type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | "catalog-sort" | null;
+type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | "subscribers" | "catalog-sort" | null;
 
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
@@ -158,6 +159,20 @@ export const AddItem = () => {
         >
           Catalog Order
         </button>
+
+        <button
+          onClick={() => {
+            setActiveForm("subscribers");
+            setViewMode("manage");
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "subscribers"
+              ? "bg-pink-500 text-white"
+              : "bg-pink-100 text-pink-700 hover:bg-pink-200"
+          }`}
+        >
+          Subscribers
+        </button>
       </div>
 
       {/* Content Area */}
@@ -170,6 +185,7 @@ export const AddItem = () => {
             {activeForm === "pincode" && <AddPincodeForm />}
             {activeForm === "contact" && <ManageContactSubmissions />}
             {activeForm === "orders" && <ManageOrders />}
+            {activeForm === "subscribers" && <ManageSubscribers />}
             {activeForm === "catalog-sort" && <CatalogSortOrder />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
@@ -185,6 +201,7 @@ export const AddItem = () => {
             {activeForm === "pincode" && <ManagePincodes />}
             {activeForm === "contact" && <ManageContactSubmissions />}
             {activeForm === "orders" && <ManageOrders />}
+            {activeForm === "subscribers" && <ManageSubscribers />}
             {activeForm === "catalog-sort" && <CatalogSortOrder />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
