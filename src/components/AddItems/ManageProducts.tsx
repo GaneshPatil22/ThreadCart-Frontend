@@ -4,6 +4,7 @@ import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { MultiImageUpload } from "../common/MultiImageUpload";
 import { IMAGEKIT, SINGLE_PRODUCT_DEFAULTS } from "../../utils/constants";
 import { isDefaultSentinel } from "../../utils/productSpecUtils";
+import CadFilesManager from "./CadFilesManager";
 
 interface Product {
   id: number;
@@ -600,6 +601,9 @@ export default function ManageProducts() {
                     </div>
                   </div>
                 </div>
+
+                {/* CAD Files Section */}
+                <CadFilesManager productId={editForm.id} />
 
                 {/* Tax & Compliance Section */}
                 <div>
