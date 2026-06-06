@@ -18,6 +18,7 @@ export default function AddProductForm() {
   const [selectedSub, setSelectedSub] = useState<number | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubCategoryType>("multiple");
   const [price, setPrice] = useState<number | null>(null);
+  const [originalPrice, setOriginalPrice] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number | null>(null);
   const [fastenerLength, setFastenerLength] = useState<number | null>(null);
   const [headHeight, setHeadHeight] = useState<number | null>(null);
@@ -80,6 +81,9 @@ export default function AddProductForm() {
     e.preventDefault();
     if (!selectedSub) return alert("Select a subcategory first");
     if (images.length === 0) return alert("Please upload at least one image");
+    if (originalPrice === null || isNaN(originalPrice) || originalPrice < 0) {
+      return alert("Please enter a valid Original Price (cost price).");
+    }
     setLoading(true);
 
     const { error } = await supabase.from("product").insert([
@@ -88,6 +92,7 @@ export default function AddProductForm() {
         description: description,
         image_url: images,
         price,
+        original_price: originalPrice,
         quantity,
         thread_style: threadStyle,
         sub_cat_id: selectedSub,
@@ -112,6 +117,7 @@ export default function AddProductForm() {
       setSelectedSubType("multiple");
       setImages([]);
       setPrice(null);
+      setOriginalPrice(null);
       setQuantity(null);
       setThreadStyle(null);
       setThreadSize(null);
@@ -188,6 +194,23 @@ export default function AddProductForm() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
+          Original Price (₹) <span className="text-red-500">*</span>
+        </label>
+        <NumberInput
+          value={originalPrice}
+          onChange={setOriginalPrice}
+          placeholder="Enter original price"
+          className="w-full"
+          required
+          min={0}
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Cost price — what you paid the vendor. Admin-only, never shown to customers.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Price (₹) <span className="text-red-500">*</span>
         </label>
         <NumberInput
@@ -198,6 +221,9 @@ export default function AddProductForm() {
           required
           min={0}
         />
+        <p className="mt-1 text-xs text-gray-500">
+          Selling price — visible to customers on the site.
+        </p>
       </div>
 
       <div>

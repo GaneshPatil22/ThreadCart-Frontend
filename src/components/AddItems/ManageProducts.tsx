@@ -12,6 +12,7 @@ interface Product {
   description: string | null;
   image_url: string[];
   price: number;
+  original_price: number;
   quantity: number;
   thread_style: string | null;
   thread_size_pitch: string | null;
@@ -155,11 +156,22 @@ export default function ManageProducts() {
 
     // For single-type sub-categories, ensure default sentinel values
     const isSingle = isSingleType(editForm.sub_cat_id);
+    if (
+      editForm.original_price === null ||
+      editForm.original_price === undefined ||
+      isNaN(editForm.original_price) ||
+      editForm.original_price < 0
+    ) {
+      alert("Please enter a valid Original Price (cost price).");
+      return;
+    }
+
     const dataToSave = {
       name: editForm.name,
       description: editForm.description,
       image_url: editForm.image_url,
       price: editForm.price,
+      original_price: editForm.original_price,
       quantity: editForm.quantity,
       thread_style: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.thread_style,
       thread_size_pitch: isSingle ? SINGLE_PRODUCT_DEFAULTS.STRING : editForm.thread_size_pitch,
@@ -279,7 +291,7 @@ export default function ManageProducts() {
                         SubCategory: {getSubCategoryName(product.sub_cat_id)}
                       </p>
                       <p>
-                        Price: ₹{product.price} | Quantity: {product.quantity}
+                        Original Price: ₹{product.original_price ?? "—"} | Price: ₹{product.price} | Quantity: {product.quantity}
                       </p>
                       {product.thread_style && !isDefaultSentinel(product.thread_style) && (
                         <p>Thread Style: {product.thread_style}</p>
@@ -430,6 +442,23 @@ export default function ManageProducts() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Original Price (₹) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={editForm.original_price ?? ""}
+                        onChange={(e) => setEditForm({ ...editForm, original_price: Number(e.target.value) })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="0.00"
+                        min={0}
+                        step="0.01"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Cost price — what you paid the vendor. Admin-only, never shown to customers.
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Price (₹) <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -441,6 +470,9 @@ export default function ManageProducts() {
                         min={0}
                         step="0.01"
                       />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Selling price — visible to customers on the site.
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -11,11 +11,12 @@ import ManageContactSubmissions from "./ManageContactSubmissions";
 import ManageOrders from "./ManageOrders";
 import ManageSubscribers from "./ManageSubscribers";
 import CatalogSortOrder from "./CatalogSortOrder";
+import UpdatePrices from "./UpdatePrices";
 import Unauthorized from "../Unauthorized";
 import { isAdmin } from "../../utils/adminCheck";
 
 type ViewMode = "add" | "manage";
-type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | "subscribers" | "catalog-sort" | null;
+type ItemType = "category" | "subcategory" | "product" | "pincode" | "contact" | "orders" | "subscribers" | "catalog-sort" | "update-prices" | null;
 
 export const AddItem = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("add");
@@ -173,6 +174,20 @@ export const AddItem = () => {
         >
           Subscribers
         </button>
+
+        <button
+          onClick={() => {
+            setActiveForm("update-prices");
+            setViewMode("manage");
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeForm === "update-prices"
+              ? "bg-indigo-500 text-white"
+              : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
+          }`}
+        >
+          Update Prices
+        </button>
       </div>
 
       {/* Content Area */}
@@ -187,6 +202,7 @@ export const AddItem = () => {
             {activeForm === "orders" && <ManageOrders />}
             {activeForm === "subscribers" && <ManageSubscribers />}
             {activeForm === "catalog-sort" && <CatalogSortOrder />}
+            {activeForm === "update-prices" && <UpdatePrices />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to add
@@ -203,6 +219,7 @@ export const AddItem = () => {
             {activeForm === "orders" && <ManageOrders />}
             {activeForm === "subscribers" && <ManageSubscribers />}
             {activeForm === "catalog-sort" && <CatalogSortOrder />}
+            {activeForm === "update-prices" && <UpdatePrices />}
             {!activeForm && (
               <p className="text-gray-500 text-center py-12">
                 Select an item type to manage
