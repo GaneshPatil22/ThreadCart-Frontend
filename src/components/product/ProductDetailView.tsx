@@ -388,6 +388,11 @@ export default function ProductDetailView({
               </div>
             )}
 
+            {/* CAD Downloads (only renders when files exist) */}
+            <div className="mb-6">
+              <CadFileDownloads productId={productId} />
+            </div>
+
             {/* Stock Status (out of stock only) */}
             {quantity === 0 && (
               <div className="inline-flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-lg text-sm font-medium">
@@ -397,9 +402,6 @@ export default function ProductDetailView({
                 Currently out of stock
               </div>
             )}
-
-            {/* CAD Downloads (only renders when files exist) */}
-            <CadFileDownloads productId={productId} />
           </div>
         </div>
       </div>
