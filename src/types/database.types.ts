@@ -208,6 +208,7 @@ export interface Product {
   name: string;
   image_url: string[];
   price: number;
+  original_price: number;
   quantity: number;
   thread_style: string | null;
   thread_size_pitch: string | null;
@@ -227,6 +228,7 @@ export interface ProductInsert {
   name: string;
   image_url: string[];
   price: number;
+  original_price: number;
   quantity: number;
   thread_style?: string | null;
   thread_size_pitch?: string | null;
@@ -245,6 +247,7 @@ export interface ProductUpdate {
   name?: string;
   image_url?: string[];
   price?: number;
+  original_price?: number;
   quantity?: number;
   thread_style?: string | null;
   thread_size_pitch?: string | null;

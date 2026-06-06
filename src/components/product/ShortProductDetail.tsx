@@ -4,6 +4,7 @@ import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 import { shouldShowSpec, formatSpecValue } from "../../utils/productSpecUtils";
 import ProductDetailView from "./ProductDetailView";
+import CadFileDownloads from "./CadFileDownloads";
 
 interface ProductDetailProps {
   name: string;
@@ -251,6 +252,9 @@ export default function ShortProductDetail({
             </div>
           )}
         </div>
+
+        {/* CAD Downloads (only renders when files exist) */}
+        <CadFileDownloads productId={productId} compact />
 
         {/* Add to Cart Section */}
         <div className="flex flex-col gap-3 mt-4">

@@ -237,3 +237,87 @@ export const LEAD_CAPTURE = {
 } as const;
 
 export type LeadCaptureSource = 'exit_intent' | 'time_trigger' | 'manual';
+
+// ============================================================================
+// CAD FILES CONFIGURATION
+// ============================================================================
+// Engineering downloads attached to a product (STEP, PDF drawing, SolidWorks
+// part, STL). Files live in Cloudflare R2; only metadata is in the DB.
+// The Supabase Edge Function `cad-file-url` brokers all access — frontend
+// never holds R2 credentials and download requires an authenticated session.
+// ============================================================================
+
+export const CAD_FILES = {
+  // Storage bucket name in Cloudflare R2
+  BUCKET: 'threadcart-cad-files',
+
+  // How long a presigned URL stays valid (seconds)
+  SIGNED_URL_TTL_SECONDS: 300,
+
+  // Name of the deployed Supabase Edge Function that brokers R2 access
+  EDGE_FUNCTION_NAME: 'cad-file-url',
+
+  // Supported file types — extend by:
+  //   1. adding here
+  //   2. adding to the CHECK constraint in supabase_cad_files.sql
+  TYPES: {
+    step: {
+      label: 'STEP',
+      description: '3D model (universal CAD)',
+      ext: '.step',
+      acceptExtensions: ['.step', '.stp'],
+      mimeType: 'application/octet-stream',
+      maxSizeMB: 20,
+    },
+    pdf: {
+      label: 'PDF Drawing',
+      description: '2D technical drawing',
+      ext: '.pdf',
+      acceptExtensions: ['.pdf'],
+      mimeType: 'application/pdf',
+      maxSizeMB: 10,
+    },
+    sldprt: {
+      label: 'SolidWorks Part',
+      description: 'Native SolidWorks file',
+      ext: '.sldprt',
+      acceptExtensions: ['.sldprt'],
+      mimeType: 'application/octet-stream',
+      maxSizeMB: 20,
+    },
+    stl: {
+      label: 'STL',
+      description: '3D printing mesh',
+      ext: '.stl',
+      acceptExtensions: ['.stl'],
+      mimeType: 'application/octet-stream',
+      maxSizeMB: 50,
+    },
+  },
+} as const;
+
+export type CadFileType = keyof typeof CAD_FILES.TYPES;
+
+// Ordered list — used for stable display order in UI
+export const CAD_FILE_TYPE_ORDER: readonly CadFileType[] = [
+  'step',
+  'pdf',
+  'sldprt',
+  'stl',
+] as const;
+
+/**
+ * Builds the R2 storage key for a product+file combination.
+ * Format: products/{product_id}/{file_type}{ext}
+ * Example: products/42/step.step
+ */
+export const buildCadStorageKey = (
+  productId: number,
+  fileType: CadFileType,
+  originalFilename: string
+): string => {
+  // Preserve the original extension (e.g. .step vs .stp both valid for STEP)
+  const dotIdx = originalFilename.lastIndexOf('.');
+  const ext = dotIdx >= 0 ? originalFilename.slice(dotIdx).toLowerCase() : CAD_FILES.TYPES[fileType].ext;
+  return `products/${productId}/${fileType}${ext}`;
+};

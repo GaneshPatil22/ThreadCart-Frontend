@@ -3,6 +3,7 @@ import { useCart } from "../../hooks/useCart";
 import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 import { shouldShowSpec, formatSpecValue } from "../../utils/productSpecUtils";
+import CadFileDownloads from "./CadFileDownloads";
 
 export interface ProductDetailViewProps {
   name: string;
@@ -386,6 +387,11 @@ export default function ProductDetailView({
                 </div>
               </div>
             )}
+
+            {/* CAD Downloads (only renders when files exist) */}
+            <div className="mb-6">
+              <CadFileDownloads productId={productId} />
+            </div>
 
             {/* Stock Status (out of stock only) */}
             {quantity === 0 && (
