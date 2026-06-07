@@ -5,6 +5,7 @@ import { ErrorState } from "../CategoryGrid";
 interface ProductRow {
   id: number;
   productName: string;
+  partNumber: string;
   subCategoryName: string;
   categoryName: string;
   original_price: number | null;
@@ -50,7 +51,7 @@ export default function UpdatePrices() {
     const [productsResult, subCatsResult, catsResult] = await Promise.all([
       supabase
         .from("product")
-        .select("id, name, price, original_price, sub_cat_id, sort_number")
+        .select("id, name, part_number, price, original_price, sub_cat_id, sort_number")
         .order("sort_number", { ascending: true }),
       supabase.from("sub-categories").select("id, name, category_id, sort_number"),
       supabase.from("categories").select("id, name, sort_number"),
@@ -90,6 +91,7 @@ export default function UpdatePrices() {
       return {
         id: p.id,
         productName: p.name,
+        partNumber: p.part_number || "",
         subCategoryName: sub?.name || "—",
         categoryName: cat?.name || "—",
         original_price: orig,
@@ -238,6 +240,7 @@ export default function UpdatePrices() {
     return rows.filter(
       (r) =>
         r.productName.toLowerCase().includes(term) ||
+        r.partNumber.toLowerCase().includes(term) ||
         r.subCategoryName.toLowerCase().includes(term) ||
         r.categoryName.toLowerCase().includes(term)
     );
@@ -287,7 +290,7 @@ export default function UpdatePrices() {
 
       <input
         type="text"
-        placeholder="Search by category, sub-category, or product name…"
+        placeholder="Search by category, sub-category, product name, or part number…"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full border rounded-lg p-2"
@@ -301,6 +304,7 @@ export default function UpdatePrices() {
                 <th className="px-3 py-2 font-semibold">Category</th>
                 <th className="px-3 py-2 font-semibold">Sub-Category</th>
                 <th className="px-3 py-2 font-semibold">Product</th>
+                <th className="px-3 py-2 font-semibold">Part Number</th>
                 <th className="px-3 py-2 font-semibold w-32">Original (₹)</th>
                 <th className="px-3 py-2 font-semibold w-32">Price (₹)</th>
                 <th className="px-3 py-2 font-semibold w-28">Action</th>
@@ -317,6 +321,7 @@ export default function UpdatePrices() {
                     <td className="px-3 py-2 text-gray-700">{row.categoryName}</td>
                     <td className="px-3 py-2 text-gray-700">{row.subCategoryName}</td>
                     <td className="px-3 py-2 text-gray-900 font-medium">{row.productName}</td>
+                    <td className="px-3 py-2 text-gray-700">{row.partNumber || "—"}</td>
                     <td className="px-3 py-2">
                       <input
                         type="number"
@@ -357,7 +362,7 @@ export default function UpdatePrices() {
               })}
               {filteredRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500">
                     No products match your search.
                   </td>
                 </tr>
