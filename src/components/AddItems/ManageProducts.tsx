@@ -29,6 +29,10 @@ interface Product {
 
 type SubCategoryType = "single" | "multiple";
 
+// Edit mode updates the existing row; duplicate mode inserts a new row using
+// the source product as a template. Same modal UI either way.
+type ProductFormMode = "edit" | "duplicate";
+
 interface SubCategory {
   id: number;
   name: string;
@@ -41,6 +45,7 @@ export default function ManageProducts() {
   const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<ProductFormMode>("edit");
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -143,12 +148,29 @@ export default function ManageProducts() {
 
   const handleEdit = (product: Product) => {
     setEditForm({ ...product });
+    setModalMode("edit");
+    setIsModalOpen(true);
+  };
+
+  // Opens the same modal pre-filled with the source product's data, with
+  // part_number cleared. Admin fills in a new part number, optionally tweaks
+  // other fields, and saving INSERTs a brand-new row (see handleSaveEdit).
+  const handleCopy = (product: Product) => {
+    setEditForm({
+      ...product,
+      // id=0 is a placeholder — it's never sent to the DB on insert.
+      // CadFilesManager keys off this id and skips rendering for id=0 (handled in JSX).
+      id: 0,
+      part_number: null,
+    });
+    setModalMode("duplicate");
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditForm(null);
+    setModalMode("edit");
   };
 
   const handleSaveEdit = async () => {
@@ -163,6 +185,13 @@ export default function ManageProducts() {
       editForm.original_price < 0
     ) {
       alert("Please enter a valid Original Price (cost price).");
+      return;
+    }
+
+    // In duplicate mode, part_number is the one field admin must supply for
+    // the new product. Block submit until it's filled.
+    if (modalMode === "duplicate" && (editForm.part_number === null || editForm.part_number === undefined)) {
+      alert("Part Number is required for the new product.");
       return;
     }
 
@@ -187,17 +216,23 @@ export default function ManageProducts() {
     };
 
     setSaving(true);
-    const { error } = await supabase
-      .from("product")
-      .update(dataToSave)
-      .eq("id", editForm.id);
+    const { error } =
+      modalMode === "duplicate"
+        ? await supabase.from("product").insert([dataToSave])
+        : await supabase.from("product").update(dataToSave).eq("id", editForm.id);
 
     setSaving(false);
 
     if (error) {
-      alert("Error updating product: " + error.message);
+      alert(
+        `Error ${modalMode === "duplicate" ? "creating" : "updating"} product: ${error.message}`
+      );
     } else {
-      alert("Product updated successfully!");
+      alert(
+        modalMode === "duplicate"
+          ? "Product duplicated successfully!"
+          : "Product updated successfully!"
+      );
       handleCloseModal();
       fetchData();
     }
@@ -322,6 +357,13 @@ export default function ManageProducts() {
                     Edit
                   </button>
                   <button
+                    onClick={() => handleCopy(product)}
+                    className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 text-sm"
+                    title="Create a new product using this one as a template"
+                  >
+                    Copy
+                  </button>
+                  <button
                     onClick={() => handleDelete(product.id)}
                     className="bg-primary text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                   >
@@ -346,9 +388,13 @@ export default function ManageProducts() {
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Edit Product</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {modalMode === "duplicate" ? "Duplicate Product" : "Edit Product"}
+                </h2>
                 <p className="text-sm text-gray-500 mt-0.5 truncate max-w-md">
-                  {editForm.name}
+                  {modalMode === "duplicate"
+                    ? `New product based on: ${editForm.name}`
+                    : editForm.name}
                 </p>
               </div>
               <button
@@ -365,6 +411,20 @@ export default function ManageProducts() {
             {/* Modal Body - Scrollable */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-6">
+                {/* Duplicate-mode info banner */}
+                {modalMode === "duplicate" && (
+                  <div className="bg-purple-50 border border-purple-200 text-purple-900 rounded-lg px-4 py-3 text-sm flex items-start gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>
+                      All fields are pre-filled from the source product. Update anything that should be different,
+                      enter a unique <strong>Part Number</strong>, then save.
+                      CAD files are <strong>not copied</strong> — attach them from the Edit modal after saving.
+                    </span>
+                  </div>
+                )}
+
                 {/* Basic Information Section */}
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -609,7 +669,7 @@ export default function ManageProducts() {
                 </div>
                 )}
 
-                {/* Part Number — always shown */}
+                {/* Part Number — always shown; highlighted in duplicate mode */}
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -621,21 +681,32 @@ export default function ManageProducts() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Part Number
+                        {modalMode === "duplicate" && <span className="text-red-500"> *</span>}
                       </label>
                       <input
                         type="number"
                         value={editForm.part_number || ""}
                         onChange={(e) => setEditForm({ ...editForm, part_number: e.target.value ? Number(e.target.value) : null })}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          modalMode === "duplicate"
+                            ? "border-yellow-400 bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500"
+                            : "border-gray-300"
+                        }`}
                         placeholder="e.g., 12345"
                         min={0}
+                        autoFocus={modalMode === "duplicate"}
                       />
+                      {modalMode === "duplicate" && (
+                        <p className="text-xs text-yellow-700 mt-1 font-medium">
+                          Required — enter a unique part number for the new product.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* CAD Files Section */}
-                <CadFilesManager productId={editForm.id} />
+                {/* CAD Files Section — only meaningful for existing products, hidden during duplicate */}
+                {modalMode === "edit" && <CadFilesManager productId={editForm.id} />}
 
                 {/* Tax & Compliance Section */}
                 <div>
@@ -683,14 +754,14 @@ export default function ManageProducts() {
                 {saving ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Saving...
+                    {modalMode === "duplicate" ? "Creating..." : "Saving..."}
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Save Changes
+                    {modalMode === "duplicate" ? "Create as New Product" : "Save Changes"}
                   </>
                 )}
               </button>

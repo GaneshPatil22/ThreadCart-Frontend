@@ -4,6 +4,7 @@ import { getDisplayUrl, handleImageError } from "../../utils/imageUtils";
 import { trackAddToCart } from "../../utils/analytics";
 import { shouldShowSpec, formatSpecValue } from "../../utils/productSpecUtils";
 import CadFileDownloads from "./CadFileDownloads";
+import QuoteRequestModal from "../common/QuoteRequestModal";
 
 export interface ProductDetailViewProps {
   name: string;
@@ -45,6 +46,7 @@ export default function ProductDetailView({
   const [cartQuantity, setCartQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
   const [showFullscreenImage, setShowFullscreenImage] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
 
   const { addToCart, isInCart, getItemQuantity } = useCart();
 
@@ -332,6 +334,35 @@ export default function ProductDetailView({
                   </span>
                 )}
               </button>
+
+              {/* Bulk Quote CTA - primary-style CTA so bulk buyers immediately see the option */}
+              <div className="pt-3 border-t border-gray-200">
+                <button
+                  onClick={() => setShowQuoteModal(true)}
+                  className="group w-full bg-gray-900 text-white px-8 py-3 rounded-lg hover:bg-black transition-colors text-base font-bold shadow-md hover:shadow-lg active:shadow-sm flex items-center justify-center gap-2 relative overflow-hidden"
+                >
+                  <span className="absolute top-1 right-2 bg-amber-400 text-gray-900 text-xs font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wide shadow-sm">
+                    Best Deal
+                  </span>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                    />
+                  </svg>
+                  <span>Buying in Bulk? Get a Quote</span>
+                </button>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Better pricing for larger quantities — reply within 24 hours.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -416,6 +447,18 @@ export default function ProductDetailView({
           productName={name}
         />
       )}
+
+      {/* Bulk Quote Modal */}
+      <QuoteRequestModal
+        isOpen={showQuoteModal}
+        onClose={() => setShowQuoteModal(false)}
+        productContext={{
+          productId,
+          productName: name,
+          partNumber: part_number,
+          price,
+        }}
+      />
     </div>
   );
 

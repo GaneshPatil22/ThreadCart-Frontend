@@ -298,6 +298,31 @@ export const CAD_FILES = {
 
 export type CadFileType = keyof typeof CAD_FILES.TYPES;
 
+// ============================================================================
+// QUOTE REQUEST CONFIGURATION
+// ============================================================================
+// Allowed attachment types for the customer-facing Get Quote / Bulk Quote
+// modal. The same allow-list MUST be reflected in supabase_quotes_storage.sql
+// (`allowed_mime_types` on the `quotes` bucket) or uploads will be rejected
+// at the storage layer.
+// ============================================================================
+
+export const QUOTE_REQUEST = {
+  ALLOWED_MIME_TYPES: [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ] as readonly string[],
+  ALLOWED_LABEL: 'PDF, JPG, PNG, WebP',
+  ACCEPT_ATTRIBUTE: '.pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp',
+  MAX_FILE_SIZE_MB: 10,
+  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
+} as const;
+
+export const isImageMimeType = (mimeType: string): boolean =>
+  mimeType.startsWith('image/');
+
 // Ordered list — used for stable display order in UI
 export const CAD_FILE_TYPE_ORDER: readonly CadFileType[] = [
   'step',
