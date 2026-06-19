@@ -1,8 +1,9 @@
 // ============================================================================
 // QUOTE REQUEST SERVICE
 // ============================================================================
-// Handles quote requests: uploads PDF to storage and sends email notification
-// Uses Web3Forms (free, unlimited) for email delivery
+// Handles quote requests: uploads an attachment (PDF or image) to storage and
+// sends email notification via Web3Forms. When invoked with productContext,
+// the email is tagged as a Bulk Quote Request and carries the product details.
 // ============================================================================
 
 import { supabase } from '../utils/supabase';
@@ -11,12 +12,20 @@ import { supabase } from '../utils/supabase';
 // TYPES
 // ============================================================================
 
+export interface QuoteProductContext {
+  productId: number;
+  productName: string;
+  partNumber?: string | null;
+  price?: number;
+}
+
 export interface QuoteRequestData {
   name: string;
   email: string;
   phone?: string;
   message: string;
-  pdfFile?: File;
+  attachmentFile?: File;
+  productContext?: QuoteProductContext;
 }
 
 export interface QuoteRequestResult {
@@ -35,10 +44,10 @@ const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 const SIGNED_URL_EXPIRY = 30 * 24 * 60 * 60;
 
 // ============================================================================
-// UPLOAD PDF TO STORAGE
+// UPLOAD ATTACHMENT TO STORAGE
 // ============================================================================
 
-const uploadQuotePDF = async (
+const uploadQuoteAttachment = async (
   file: File,
   requestId: string
 ): Promise<string | null> => {
@@ -46,16 +55,17 @@ const uploadQuotePDF = async (
     // Create file path: quotes/{requestId}/{original_filename}
     const filePath = `${requestId}/${file.name}`;
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage. contentType is taken from the File itself so
+    // PDFs and images are stored with the right MIME for inline browser preview.
     const { error: uploadError } = await supabase.storage
       .from('quotes')
       .upload(filePath, file, {
-        contentType: 'application/pdf',
+        contentType: file.type || 'application/octet-stream',
         upsert: true,
       });
 
     if (uploadError) {
-      console.error('Error uploading quote PDF:', uploadError);
+      console.error('Error uploading quote attachment:', uploadError);
       return null;
     }
 
@@ -69,10 +79,10 @@ const uploadQuotePDF = async (
       return null;
     }
 
-    console.log(`Quote PDF uploaded successfully: ${filePath}`);
+    console.log(`Quote attachment uploaded successfully: ${filePath}`);
     return signedUrlData.signedUrl;
   } catch (error) {
-    console.error('Error in uploadQuotePDF:', error);
+    console.error('Error in uploadQuoteAttachment:', error);
     return null;
   }
 };
@@ -88,10 +98,12 @@ export const submitQuoteRequest = async (
     // Generate a unique request ID
     const requestId = `QR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Upload PDF if provided
-    let pdfUrl: string | null = null;
-    if (data.pdfFile) {
-      pdfUrl = await uploadQuotePDF(data.pdfFile, requestId);
+    // Upload attachment if provided
+    let attachmentUrl: string | null = null;
+    let attachmentMime: string | null = null;
+    if (data.attachmentFile) {
+      attachmentUrl = await uploadQuoteAttachment(data.attachmentFile, requestId);
+      attachmentMime = data.attachmentFile.type || null;
     }
 
     // Check if Web3Forms is configured
@@ -100,19 +112,37 @@ export const submitQuoteRequest = async (
       return { success: false, error: 'Email service not configured. Please try again later.' };
     }
 
+    const isBulkQuote = Boolean(data.productContext);
+
     // Prepare form data for Web3Forms
     const formData = new FormData();
     formData.append('access_key', WEB3FORMS_ACCESS_KEY);
-    formData.append('subject', `New Quote Request from ${data.name} - ThreadCart`);
-    formData.append('from_name', 'ThreadCart Quote Request');
+    formData.append(
+      'subject',
+      isBulkQuote
+        ? `New Bulk Quote Request: ${data.productContext!.productName} - from ${data.name}`
+        : `New Quote Request from ${data.name} - ThreadCart`
+    );
+    formData.append('from_name', isBulkQuote ? 'ThreadCart Bulk Quote Request' : 'ThreadCart Quote Request');
+
+    // Build product context block (for bulk quotes)
+    const productBlock = data.productContext
+      ? `
+PRODUCT DETAILS:
+- Product Name: ${data.productContext.productName}
+- Product ID: ${data.productContext.productId}
+- Part Number: ${data.productContext.partNumber || 'N/A'}
+- Listed Price: ${data.productContext.price !== undefined ? `₹${data.productContext.price}` : 'N/A'}
+`
+      : '';
 
     // Build email body
     const emailBody = `
-NEW QUOTE REQUEST
+${isBulkQuote ? 'NEW BULK QUOTE REQUEST' : 'NEW QUOTE REQUEST'}
 ==================
 
 Request ID: ${requestId}
-
+${productBlock}
 CUSTOMER DETAILS:
 - Name: ${data.name}
 - Email: ${data.email}
@@ -122,10 +152,10 @@ MESSAGE/REQUIREMENTS:
 ${data.message}
 
 ATTACHMENT:
-${pdfUrl ? `PDF Document: ${pdfUrl}` : 'No file attached'}
+${attachmentUrl ? `${attachmentMime || 'File'}: ${attachmentUrl}` : 'No file attached'}
 
 ---
-This quote request was submitted via ThreadCart website.
+This ${isBulkQuote ? 'bulk quote' : 'quote'} request was submitted via ThreadCart website.
     `.trim();
 
     formData.append('message', emailBody);
@@ -134,8 +164,21 @@ This quote request was submitted via ThreadCart website.
     formData.append('Customer Phone', data.phone || 'Not provided');
     formData.append('Request ID', requestId);
 
-    if (pdfUrl) {
-      formData.append('PDF Attachment URL', pdfUrl);
+    if (data.productContext) {
+      formData.append('Product Name', data.productContext.productName);
+      formData.append('Product ID', String(data.productContext.productId));
+      formData.append('Part Number', data.productContext.partNumber || 'N/A');
+      if (data.productContext.price !== undefined) {
+        formData.append('Listed Price', `₹${data.productContext.price}`);
+      }
+      formData.append('Request Type', 'Bulk Quote');
+    } else {
+      formData.append('Request Type', 'General Quote');
+    }
+
+    if (attachmentUrl) {
+      formData.append('Attachment URL', attachmentUrl);
+      if (attachmentMime) formData.append('Attachment Type', attachmentMime);
     }
 
     // Reply-to customer email

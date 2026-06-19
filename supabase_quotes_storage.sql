@@ -18,9 +18,17 @@ VALUES (
   'quotes',
   false,  -- Private bucket, use signed URLs for access
   10485760,  -- 10MB limit
-  ARRAY['application/pdf']
+  ARRAY['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- Idempotent update: if the bucket already existed with a narrower allow-list
+-- (e.g. PDF-only from a previous run of this script), widen it to also accept
+-- common image MIME types. Required to support reference photos in the Bulk
+-- Quote flow without forcing customers to convert images to PDF first.
+UPDATE storage.buckets
+SET allowed_mime_types = ARRAY['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+WHERE id = 'quotes';
 
 -- ============================================================================
 -- 2. STORAGE POLICIES
