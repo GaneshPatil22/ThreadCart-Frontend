@@ -178,7 +178,8 @@ export const initiateRazorpayPayment = async (
   try {
     // Check if Razorpay key is configured
     if (!RAZORPAY_KEY_ID) {
-      onFailure('Payment gateway not configured. Please use Cash on Delivery.');
+      // COD is not wired into CheckoutPage, so there is no fallback to offer.
+      onFailure('Online payment is temporarily unavailable. Please contact us to place your order.');
       return;
     }
 
@@ -198,18 +199,33 @@ export const initiateRazorpayPayment = async (
     // Generate a temporary order reference
     const tempOrderRef = `TC${Date.now()}`;
 
-    // Amount in paise (1 INR = 100 paise) - include shipping
-    const totalWithShipping = cart.total + (shippingCharge || 0);
-    const amountInPaise = Math.round(totalWithShipping * 100);
+    // Create the Razorpay order server-side. The Edge Function recomputes the
+    // amount from this user's cart rows in the database — the browser never
+    // supplies an amount, so a tampered client cannot underpay.
+    const { data: rzpOrder, error: createError } = await supabase.functions.invoke(
+      'razorpay-create-order',
+      { body: { receipt: tempOrderRef } }
+    );
+
+    if (createError || !rzpOrder?.order_id) {
+      console.error('Failed to create Razorpay order:', createError);
+      onFailure('Could not start payment. Please try again.');
+      return;
+    }
+
+    // Server-computed figures are authoritative for both the payment modal and
+    // the order row written afterwards, so the two can never disagree.
+    const amountInPaise: number = rzpOrder.amount;
+    const serverShipping: number = rzpOrder.breakdown?.shipping ?? shippingCharge ?? 0;
 
     // Razorpay options
     const options = {
       key: RAZORPAY_KEY_ID,
       amount: amountInPaise,
-      currency: 'INR',
+      currency: rzpOrder.currency ?? 'INR',
       name: 'ThreadCart',
       description: `Order Payment`,
-      order_id: '', // Leave empty for test mode without backend
+      order_id: rzpOrder.order_id,
       prefill: {
         name: address.full_name,
         email: userEmail,
@@ -223,9 +239,31 @@ export const initiateRazorpayPayment = async (
         color: '#e11d48',
       },
       handler: async (response: RazorpayPaymentResponse) => {
-        // Payment successful - create order
+        // Verify the signature server-side BEFORE recording anything. Only
+        // Razorpay can produce a valid signature, so this is what stops a
+        // forged callback from creating an order that was never paid for.
+        const { data: verification, error: verifyError } =
+          await supabase.functions.invoke('razorpay-verify-payment', {
+            body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            },
+          });
+
+        if (verifyError || !verification?.verified) {
+          console.error('Payment verification failed:', verifyError);
+          onFailure(
+            'We could not verify your payment. If money was deducted it will be ' +
+              'refunded automatically. Please contact support quoting reference ' +
+              `${response.razorpay_payment_id}.`
+          );
+          return;
+        }
+
+        // Verified — safe to record the order
         const result = await createOrder(
-          { cart, address, billingAddress, paymentMethod: 'razorpay', shippingCharge: shippingCharge || 0, gstNumber },
+          { cart, address, billingAddress, paymentMethod: 'razorpay', shippingCharge: serverShipping, gstNumber },
           response.razorpay_payment_id
         );
 
