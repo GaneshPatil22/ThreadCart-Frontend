@@ -36,4 +36,13 @@ enabled = true
 # - IMAGEKIT_PRIVATE_KEY
 # - IMAGEKIT_PUBLIC_KEY
 # - IMAGEKIT_URL_ENDPOINT
+#
+# Required secrets for cad-file-url function:
+# - R2_ACCOUNT_ID
+# - R2_ACCESS_KEY_ID
+# - R2_SECRET_ACCESS_KEY
+#
+# Required secrets for razorpay-create-order and razorpay-verify-payment:
+# - RAZORPAY_KEY_ID
+# - RAZORPAY_KEY_SECRET      <- never put this in any VITE_ variable
 # ============================================================================

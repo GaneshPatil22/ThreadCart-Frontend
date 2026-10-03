@@ -55,7 +55,7 @@ export const COMPANY = {
 
   // Business Registration Details
   UDYAM: 'UDYAM-KR-03-0604566',
-  GSTIN: '29CTGPM1143M1ZD',
+  GSTIN: '29GBXPK0011F1ZL',
 } as const;
 
 // ============================================================================
