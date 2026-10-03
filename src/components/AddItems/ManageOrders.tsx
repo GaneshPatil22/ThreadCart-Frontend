@@ -333,6 +333,14 @@ export default function ManageOrders() {
                       <span className={`px-2 py-0.5 rounded text-xs ${getPaymentStatusStyle(order.payment_status)}`}>
                         {order.payment_method?.toUpperCase()} - {PAYMENT_STATUS_OPTIONS.find((s) => s.value === order.payment_status)?.label || order.payment_status}
                       </span>
+                      {order.is_test_payment && (
+                        <span
+                          className="px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300"
+                          title="Paid against the Razorpay test account — no real money. Exclude from revenue."
+                        >
+                          TEST PAYMENT
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm font-medium">{order.shipping_address.full_name}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">

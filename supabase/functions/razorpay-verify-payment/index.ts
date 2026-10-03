@@ -11,8 +11,15 @@
 // The caller must be logged in, and an order is only written to the database
 // after this endpoint returns verified: true.
 //
+// The admin transacts against the Razorpay TEST account, everyone else against
+// the LIVE one, so the signature must be checked with the secret belonging to
+// whichever account created the order. The admin check here MUST stay identical
+// to the one in razorpay-create-order, or admin payments will never verify.
+//
 // Required environment variables (set with `supabase secrets set ...`):
-//   RAZORPAY_KEY_SECRET
+//   RAZORPAY_KEY_SECRET         live key secret
+//   RAZORPAY_KEY_TEST_SECRET    test key secret  (admin checkout)
+//   ADMIN_EMAIL                 (default: superadmin@threadcart.com)
 // ============================================================================
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -23,6 +30,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 // ---------------------------------------------------------------------------
 
 const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') ?? '';
+const RAZORPAY_KEY_TEST_SECRET = Deno.env.get('RAZORPAY_KEY_TEST_SECRET') ?? '';
+
+const ADMIN_EMAIL = Deno.env.get('ADMIN_EMAIL') ?? 'superadmin@threadcart.com';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
@@ -84,6 +94,13 @@ const timingSafeEqual = (a: string, b: string): boolean => {
   return mismatch === 0;
 };
 
+/**
+ * Only the admin checks out in test mode. The email comes from a verified JWT.
+ * Must stay identical to the same check in razorpay-create-order.
+ */
+const isTestUser = (email: string | undefined | null): boolean =>
+  !!email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -91,12 +108,6 @@ const timingSafeEqual = (a: string, b: string): boolean => {
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return error('Method not allowed', 405);
-
-  // ---- Config sanity ----
-  if (!RAZORPAY_KEY_SECRET) {
-    console.error('RAZORPAY_KEY_SECRET missing');
-    return error('Payment gateway not configured', 500);
-  }
 
   // ---- AuthN: verify caller is logged in ----
   const authHeader = req.headers.get('Authorization') ?? '';
@@ -111,6 +122,17 @@ serve(async (req: Request) => {
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr || !userData?.user) {
     return error('Invalid session', 401);
+  }
+
+  // ---- Pick the secret belonging to the account that created this order ----
+  const useTestAccount = isTestUser(userData.user.email);
+  const keySecret = useTestAccount ? RAZORPAY_KEY_TEST_SECRET : RAZORPAY_KEY_SECRET;
+
+  if (!keySecret) {
+    console.error(
+      `Razorpay ${useTestAccount ? 'TEST' : 'LIVE'} secret missing from environment`
+    );
+    return error('Payment gateway not configured', 500);
   }
 
   // ---- Parse body ----
@@ -130,16 +152,19 @@ serve(async (req: Request) => {
   try {
     const expected = await hmacSha256Hex(
       `${razorpay_order_id}|${razorpay_payment_id}`,
-      RAZORPAY_KEY_SECRET
+      keySecret
     );
 
     if (!timingSafeEqual(expected, razorpay_signature)) {
       // Do NOT treat this as paid. Logged so genuine failures are debuggable.
-      console.warn('Signature mismatch for order', razorpay_order_id);
+      console.warn(
+        `Signature mismatch for order ${razorpay_order_id} (${useTestAccount ? 'test' : 'live'} account)`
+      );
       return json({ verified: false, error: 'Payment signature verification failed' }, 400);
     }
 
-    return json({ verified: true });
+    // is_test is echoed so the caller records which account actually took the money.
+    return json({ verified: true, is_test: useTestAccount });
   } catch (err) {
     console.error('Error in razorpay-verify-payment:', err);
     return error('Could not verify payment', 500);

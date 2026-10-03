@@ -25,6 +25,8 @@ export interface CheckoutData {
   paymentMethod: PaymentMethod;
   shippingCharge: number;
   gstNumber?: string | null;
+  /** Paid against the Razorpay test account (admin-only). Excluded from revenue. */
+  isTestPayment?: boolean;
 }
 
 export interface CheckoutResult {
@@ -98,6 +100,7 @@ export const createOrder = async (
       payment_method: data.paymentMethod,
       shipping_charge: data.shippingCharge || 0,
       gst_number: data.gstNumber || null,
+      is_test_payment: data.isTestPayment ?? false,
       cart_items: cartItems,
     });
 
@@ -218,9 +221,15 @@ export const initiateRazorpayPayment = async (
     const amountInPaise: number = rzpOrder.amount;
     const serverShipping: number = rzpOrder.breakdown?.shipping ?? shippingCharge ?? 0;
 
+    // The modal MUST open against the same Razorpay account that created the
+    // order, so the key comes from the server rather than the build-time env
+    // var — admin checks out in test mode, everyone else live.
+    const isTestPayment: boolean = rzpOrder.is_test === true;
+    const keyId: string = rzpOrder.key_id || RAZORPAY_KEY_ID;
+
     // Razorpay options
     const options = {
-      key: RAZORPAY_KEY_ID,
+      key: keyId,
       amount: amountInPaise,
       currency: rzpOrder.currency ?? 'INR',
       name: 'ThreadCart',
@@ -263,7 +272,15 @@ export const initiateRazorpayPayment = async (
 
         // Verified — safe to record the order
         const result = await createOrder(
-          { cart, address, billingAddress, paymentMethod: 'razorpay', shippingCharge: serverShipping, gstNumber },
+          {
+            cart,
+            address,
+            billingAddress,
+            paymentMethod: 'razorpay',
+            shippingCharge: serverShipping,
+            gstNumber,
+            isTestPayment,
+          },
           response.razorpay_payment_id
         );
 
@@ -301,11 +318,9 @@ export const initiateRazorpayPayment = async (
 // CHECK RAZORPAY AVAILABILITY
 // ============================================================================
 
+// Deploy-time sanity check only. Which Razorpay account a payment actually
+// uses is decided server-side per user in razorpay-create-order; this just
+// tells the UI whether the gateway has been wired up at all.
 export const isRazorpayConfigured = (): boolean => {
   return Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_ID !== 'rzp_test_XXXXXXXX');
-};
-
-// Check if Razorpay is in test mode (key starts with rzp_test_)
-export const isRazorpayTestMode = (): boolean => {
-  return RAZORPAY_KEY_ID.startsWith('rzp_test_');
 };

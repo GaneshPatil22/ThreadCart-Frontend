@@ -54,7 +54,9 @@ export const COMPANY = {
   COPYRIGHT: `© ${new Date().getFullYear()} ThreadCart. All rights reserved.`,
 
   // Business Registration Details
-  UDYAM: 'UDYAM-KR-03-0604566',
+  // UDYAM is intentionally absent: the previous registration belonged to the
+  // old entity's PAN and does not carry over. Re-add it here (and restore the
+  // line in invoice.service.ts) once the new registration is issued.
   GSTIN: '29GBXPK0011F1ZL',
 } as const;
 

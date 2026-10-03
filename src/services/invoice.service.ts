@@ -162,8 +162,6 @@ export const generateInvoicePDF = async (order: OrderWithItems): Promise<jsPDF> 
   yPos += 6;
   addText(`GSTIN: ${COMPANY.GSTIN}`, leftMargin, yPos, { fontSize: 9, color: [80, 80, 80] });
   yPos += 5;
-  addText(`UDYAM: ${COMPANY.UDYAM}`, leftMargin, yPos, { fontSize: 9, color: [80, 80, 80] });
-  yPos += 5;
   addText(`Phone: ${CONTACT.PHONE}`, leftMargin, yPos, { fontSize: 9, color: [80, 80, 80] });
   yPos += 5;
   addText(`Email: ${CONTACT.EMAIL}`, leftMargin, yPos, { fontSize: 9, color: [80, 80, 80] });

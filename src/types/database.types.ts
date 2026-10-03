@@ -131,6 +131,7 @@ export interface Order {
   shipping_address: ShippingAddress;
   billing_address: ShippingAddress | null; // Billing address (null if same as shipping)
   notes: string | null; // Admin notes for order
+  is_test_payment: boolean; // Paid via the Razorpay TEST account (admin-only checkout)
   created_at: string;
   confirmed_at: string | null;
   packed_at: string | null;
@@ -155,6 +156,7 @@ export interface OrderInsert {
   shipping_address: ShippingAddress;
   billing_address?: ShippingAddress | null; // Billing address (null if same as shipping)
   notes?: string | null;
+  is_test_payment?: boolean; // Paid via the Razorpay TEST account (admin-only checkout)
   created_at?: string;
 }
 
