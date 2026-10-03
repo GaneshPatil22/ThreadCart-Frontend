@@ -29,6 +29,7 @@ export interface CreateOrderParams {
   payment_method: PaymentMethod;
   shipping_charge: number; // Shipping charge based on pincode
   gst_number?: string | null; // Customer GST number (optional)
+  is_test_payment?: boolean; // Paid via the Razorpay TEST account (admin-only)
   cart_items: Array<{
     product_id: number; // BIGINT - matches product.id
     quantity: number;

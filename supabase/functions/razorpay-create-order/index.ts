@@ -15,9 +15,17 @@
 // Keep those three files in sync — if the tiers or GST rate change in the
 // frontend, change them here too or checkout totals will disagree.
 //
+// The admin user checks out against the Razorpay TEST account so the live
+// deployment can be exercised without real money; every other user hits the
+// LIVE account. The chosen key_id is returned to the browser, because the
+// checkout modal must open with the same account that created the order.
+//
 // Required environment variables (set with `supabase secrets set ...`):
-//   RAZORPAY_KEY_ID
-//   RAZORPAY_KEY_SECRET
+//   RAZORPAY_KEY_ID             live key id
+//   RAZORPAY_KEY_SECRET         live key secret
+//   RAZORPAY_KEY_TEST_ID        test key id      (admin checkout)
+//   RAZORPAY_KEY_TEST_SECRET    test key secret  (admin checkout)
+//   ADMIN_EMAIL                 (default: superadmin@threadcart.com)
 // ============================================================================
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -29,6 +37,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID') ?? '';
 const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') ?? '';
+const RAZORPAY_KEY_TEST_ID = Deno.env.get('RAZORPAY_KEY_TEST_ID') ?? '';
+const RAZORPAY_KEY_TEST_SECRET = Deno.env.get('RAZORPAY_KEY_TEST_SECRET') ?? '';
+
+const ADMIN_EMAIL = Deno.env.get('ADMIN_EMAIL') ?? 'superadmin@threadcart.com';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
@@ -90,6 +102,14 @@ const shippingForSubtotal = (subtotal: number): number => {
 const sanitizeReceipt = (receipt: string | undefined): string =>
   (receipt && typeof receipt === 'string' ? receipt : `TC${Date.now()}`).slice(0, 40);
 
+/**
+ * Only the admin checks out in test mode. The email comes from a verified JWT,
+ * so a customer cannot opt themselves into paying with test money.
+ * Must stay identical to the same check in razorpay-verify-payment.
+ */
+const isTestUser = (email: string | undefined | null): boolean =>
+  !!email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -97,12 +117,6 @@ const sanitizeReceipt = (receipt: string | undefined): string =>
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return error('Method not allowed', 405);
-
-  // ---- Config sanity ----
-  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-    console.error('Razorpay env vars missing');
-    return error('Payment gateway not configured', 500);
-  }
 
   // ---- AuthN: verify caller is logged in ----
   const authHeader = req.headers.get('Authorization') ?? '';
@@ -119,6 +133,18 @@ serve(async (req: Request) => {
     return error('Invalid session', 401);
   }
   const userId = userData.user.id;
+
+  // ---- Pick the Razorpay account this user transacts against ----
+  const useTestAccount = isTestUser(userData.user.email);
+  const keyId = useTestAccount ? RAZORPAY_KEY_TEST_ID : RAZORPAY_KEY_ID;
+  const keySecret = useTestAccount ? RAZORPAY_KEY_TEST_SECRET : RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    console.error(
+      `Razorpay ${useTestAccount ? 'TEST' : 'LIVE'} credentials missing from environment`
+    );
+    return error('Payment gateway not configured', 500);
+  }
 
   // ---- Parse body (receipt is the only accepted input — never an amount) ----
   let body: RequestBody = {};
@@ -178,7 +204,7 @@ serve(async (req: Request) => {
     const razorpayResponse = await fetch(RAZORPAY_ORDERS_API, {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`)}`,
+        Authorization: `Basic ${btoa(`${keyId}:${keySecret}`)}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -203,11 +229,15 @@ serve(async (req: Request) => {
 
     const order = await razorpayResponse.json();
 
+    // key_id is returned because the checkout modal must open against the same
+    // account that created this order. It is a publishable value.
     // Breakdown is returned so the client records the same figures it charged.
     return json({
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
+      key_id: keyId,
+      is_test: useTestAccount,
       breakdown: { subtotal, tax, shipping, total },
     });
   } catch (err) {

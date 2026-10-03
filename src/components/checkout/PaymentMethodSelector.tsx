@@ -4,11 +4,32 @@
 // Component to display payment method (Online Payment via Razorpay)
 // ============================================================================
 
-import { isRazorpayConfigured, isRazorpayTestMode } from '../../services/checkout.service';
+import { useEffect, useState } from 'react';
+import { isRazorpayConfigured } from '../../services/checkout.service';
+import { isAdmin } from '../../utils/adminCheck';
 
 export const PaymentMethodSelector = () => {
   const razorpayAvailable = isRazorpayConfigured();
-  const isTestMode = isRazorpayTestMode();
+
+  // Which Razorpay account is used is decided server-side from the signed-in
+  // user, not from the build-time key, so the badge tracks admin status.
+  // Checking the key prefix here would read "live" while the admin is in fact
+  // paying with test money.
+  const [isTestMode, setIsTestMode] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    isAdmin()
+      .then((admin) => {
+        if (active) setIsTestMode(admin);
+      })
+      .catch(() => {
+        // Badge is informational only — leave it off if the check fails.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-3">
